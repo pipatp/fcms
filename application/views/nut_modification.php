@@ -206,9 +206,7 @@
 <script>
     var foodItemTemplateHtml = '<tr class="food-table-row">';
     foodItemTemplateHtml += '<td><div id="delete-food-item"><img src="images/delete.png" /></div></td>';
-    foodItemTemplateHtml += '<td class="food-table-cell">';
-    foodItemTemplateHtml += '<div id="player-work-seq" class="hidden-field" /><div id="player-meal-seq" class="hidden-field" />';
-    foodItemTemplateHtml += '<div id="food-code" class="hidden-field"></div><div id="food-name"></div></td>';
+    foodItemTemplateHtml += '<td class="food-table-cell"><div id="food-name"></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-weight"></span></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-calorie"></span> แคลอรี่</td>';
     foodItemTemplateHtml += '</tr>';
@@ -230,6 +228,7 @@
     
     var playerCode;
     var worklistSeq;
+    var availableOrderCode = {};
 
     function getSelectionDate() {
         var selectedDate = $("#modify-date-selection").datepicker("getDate");
@@ -242,22 +241,7 @@
             day: day
         };
     }
-    
-    var mealTypes = jQuery.parseJSON('<?php echo json_encode($mealTypes); ?>');
-    
-    function initMealTypes(mealType) {
-        var $selection = $("<select id='add-food-type'></select>");
-        for (var index=0; index<mealTypes.length; index++) {
-            var type = mealTypes[index];
-            
-            if (type.OdrSubTyp === mealType) {
-                $selection.append('<option value="' + type.OdrCod + '">' + type.OdrLocNam + '</option>');
-            }
-        }
-        
-        return $selection;
-    }
- 
+  
     function getDisplayNameWithEng(item) {
         var displayText;
         if (item.PlyFstNam) {
@@ -334,35 +318,32 @@
     function addMealItemRow($table, foodItem, foodType) {
         var $row = $foodItemTemplate.clone(true, true);
 
-        var $playerWorklistSeq = $($row.find("#player-work-seq"));
-        var $playerMealSeq = $($row.find("#player-meal-seq"));
-        var $foodCode = $($row.find("#food-code"));
         var $foodName = $($row.find("#food-name"));
         var $foodWeight = $($row.find("#food-weight"));
         var $foodCalorie = $($row.find("#food-calorie"));
 
-        $playerWorklistSeq.text(foodItem.WkmPwlSeq);
-        $playerMealSeq.text(foodItem.WkmMelSeq);
-        $foodCode.text(foodItem.WkmOdrCod);
+        $row.attr("data-worklist-seq", foodItem.WkmPwlSeq);
+        $row.attr("data-meal-seq", foodItem.WkmMelSeq);
+        
         $foodName.text(foodItem.OdrLocNam);
+        $foodName.attr("data-food-code", foodItem.WkmMelCod);
+        
         $foodWeight.text(foodItem.WkmMelWeg);
         $foodCalorie.text(foodItem.WkmMelCal);
 
-        var $deleteItemButton = $($row.find("#delete-food-item"));
-        $deleteItemButton.click({foodCode: $foodCode.text(), foodType: foodType}, function(event) {
-            var selectionDate = getSelectionDate();
+        var orderCode = availableOrderCode[foodType];
 
+        var $deleteItemButton = $($row.find("#delete-food-item"));
+        $deleteItemButton.click({mealSeq: foodItem.WkmMelSeq, orderCode: orderCode, worklistSeq: foodItem.WkmPwlSeq}, function(event) {
             var $button = $(this);
 
             var foodItem = new Object();
-            foodItem.code = event.data.foodCode;
-            foodItem.yearMonth = selectionDate.yearMonth;
-            foodItem.day = selectionDate.day;
-            foodItem.weekDay = selectionDate.weekDay;
-            foodItem.type = event.data.foodType;                  
+            foodItem.mealSeq = event.data.mealSeq;
+            foodItem.worklistSeq = event.data.worklistSeq;
+            foodItem.orderCode = event.data.orderCode;               
 
             // Send save request to server
-            $.post("index.php/nutrition/deleteFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
+            $.post("index.php/nutrition/deletePlayerMealItem", JSON.stringify(foodItem)).done(function(result) {
                 $button.closest('tr').detach();
             }).fail(function() {
                alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
@@ -388,6 +369,9 @@
 
             var foodItems = jQuery.parseJSON(result);
 
+            // Clear worklist sequence
+            worklistSeq = -1;
+            
             // Add items to tables
             for (var index=0; index<foodItems.length; index++) {
                 var foodItem = foodItems[index];
@@ -397,10 +381,15 @@
                 var $table = (foodType === "BRK") ? $breakfastTable :
                              (foodType === "LNH") ? $lunchTable :
                              (foodType === "DES") ? $dessertTable : $dinnerTable;
+                
+                availableOrderCode[foodType] = foodItem.WkmOdrCod;
                
                 addMealItemRow($table, foodItem, foodType);
                 
-                worklistSeq = foodItem.WkmPwlSeq;
+                // Set worklist sequence once because it's the same for all items
+                if (index === 0) {
+                    worklistSeq = foodItem.WkmPwlSeq;
+                }
             }
         });
     }
@@ -412,9 +401,17 @@
             var yearMonth = $.datepicker.formatDate("yymm", selectedDate);
             var day = $.datepicker.formatDate("dd", selectedDate);
 
-            getPlayerMealSet(yearMonth, day);
+            $.ajax("index.php/nutrition/getPlayerWorklistMeal/" + playerCode + "/" + yearMonth + "/" + day).done(function(result) {
+                var availableMeals = jQuery.parseJSON(result);
+                
+                for (var index=0; index<availableMeals.length; index++) {
+                    availableOrderCode[availableMeals[index].OdrSubTyp] = availableMeals[index].WklOdrCod;
+                }
+                
+                getPlayerMealSet(yearMonth, day);
+            });
         }
-    });
+     });
     
     $("#modify-date-selection").datepicker("setDate", new Date());
     
@@ -435,6 +432,12 @@
                    (selectedTabIndex === 1) ? "LNH" :
                    (selectedTabIndex === 2) ? "DES" : "DIN";
         
+        var orderCode = availableOrderCode[type];
+        if (!orderCode) {
+            alert("ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากไม่มีรายการงานสำหรับมื้อนี้");
+            return;
+        }
+       
         var $addRow = $addFoodItemTemplate.clone(true, true);
 
         $table.append($addRow);
@@ -443,10 +446,7 @@
         
         var $addFoodName = $($addRow.find("#add-food-name"));
         $addFoodName.focus();
-        
-        var $selection = initMealTypes(type);
-        $addFoodName.before($selection);
-        
+ 
         var $addFoodWeight = $($addRow.find("#add-food-weight"));
         var $addFoodCalorie = $($addRow.find("#add-food-calorie"));
         
@@ -480,7 +480,7 @@
            var selectionDate = getSelectionDate();
 
            var foodItem = new Object();
-           foodItem.orderCode = $selection.val();
+           foodItem.orderCode = orderCode;
            foodItem.worklistSeq = worklistSeq;
            foodItem.code = $addFoodCode.val();
            foodItem.weight = $addFoodWeight.val();
@@ -489,44 +489,14 @@
            foodItem.day = selectionDate.day;
 
            // Send save request to server
-           $.post("index.php/nutrition/addFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
+           $.post("index.php/nutrition/addPlayerMealItem", JSON.stringify(foodItem)).done(function(result) {
                 $addRow.detach();
-               
-                var $row = $foodItemTemplate.clone(true, true);
-
-                var $foodCode = $($row.find("#food-code"));
-                var $foodName = $($row.find("#food-name"));
-                var $foodWeight = $($row.find("#food-weight"));
-                var $foodCalorie = $($row.find("#food-calorie"));
-
+                
                 var item = jQuery.parseJSON(result);
                 
-                $foodCode.text($addFoodCode.val());
-                $foodName.text(item.OdrLocNam);
-                $foodWeight.text($addFoodWeight.val());
-                $foodCalorie.text($addFoodCalorie.val());
-
-                var $deleteItemButton = $($row.find("#delete-food-item"));
-                $deleteItemButton.click(function() {
-                    var foodItem = new Object();
-                    foodItem.code = $foodCode.text();
-                    foodItem.yearMonth = selectionDate.yearMonth;
-                    foodItem.day = selectionDate.day;
-                    foodItem.weekDay = selectionDate.weekDay;
-                    foodItem.type = type;
-                    
-                    // Send save request to server
-                    $.post("index.php/nutrition/deleteFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
-                        $deleteItemButton.closest('tr').detach();
-                    }).fail(function() {
-                       alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-                    });
-                   
-                });
-
-                $table.append($row);
+                addMealItemRow($table, item, type);
            }).fail(function() {
-               alert("ไม่สามารถเซฟข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+               alert("ไม่สามารถเซฟข้อมูลได้ โปรดลองใหม่อีกครั้งหนึ่ง");
            });
         });
         

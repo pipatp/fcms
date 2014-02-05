@@ -84,17 +84,37 @@ class nutrition_model extends CI_Model {
         return $query->result();
     }
     
-    function getMealTypes() {
-        $query = $this->db->query("CALL fn_getMealType()");
-        
-        return $query->result();
-    }
-    
     function getPlayerMealSet($playerCode, $date) {
         $data = array($playerCode, $date);
         
         $query = $this->db->query("CALL fn_getPlayerMealSet(?, ?)", $data);
         
         return $query->result();
+    }
+    
+    function getPlayerWorklistMeal($playerCode, $date) {
+        $data = array($playerCode, $date);
+        
+        $query = $this->db->query("CALL fn_getPlayerWorklistMeal(?, ?)", $data);
+        
+        return $query->result();
+    }
+    
+    function addPlayerMealItem($worklistSeq, $orderCode, $foodCode, $foodWeight,
+                               $foodCalorie, $yearMonth, $day) {
+        $data = array($worklistSeq, $orderCode, $foodCode, $foodWeight, 
+                      $foodCalorie, $yearMonth, $day);
+        
+        $query = $this->db->query("CALL fn_addPlayerMealItem(?, ?, ?, ?, ?, ?, ?)", $data);
+        
+        return $query->row();
+    }
+    
+    function deletePlayerMealItem($worklistSeq, $orderCode, $mealSeq) {
+        $data = array($worklistSeq, $orderCode, $mealSeq);
+        
+        $query = $this->db->query("CALL fn_deletePlayerMealItem(?, ?, ?)", $data);
+        
+        $query->row();
     }
 }

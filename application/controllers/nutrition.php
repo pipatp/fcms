@@ -99,10 +99,8 @@ class nutrition extends CI_Controller {
     //----------------------------------------------
     function viewMealModification() {
         $this->load->model('nutrition_model');
-        
-        $data['mealTypes'] = $this->nutrition_model->getMealTypes();
              
-        $this->load->view('nut_modification', $data);
+        $this->load->view('nut_modification');
     }
     
     function findPlayer() {
@@ -125,5 +123,36 @@ class nutrition extends CI_Controller {
         $data["content"] = $this->nutrition_model->getPlayerMealSet($playerCode, $date);
 
         $this->load->view('json_result', $data);        
+    }
+    
+    function getPlayerWorklistMeal($playerCode, $yearMonth, $day) {
+        $this->load->model('nutrition_model');
+        
+        $date = $yearMonth . $day;
+        
+        $data["content"] = $this->nutrition_model->getPlayerWorklistMeal($playerCode, $date);
+
+        $this->load->view('json_result', $data);        
+   }
+    
+    function addPlayerMealItem() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+
+        $this->load->model('nutrition_model');
+
+        $data["content"] = $this->nutrition_model->addPlayerMealItem($postData["worklistSeq"],
+             $postData["orderCode"], $postData["code"], $postData["weight"],
+             $postData["calorie"], $postData["yearMonth"], $postData["day"]);
+
+        $this->load->view('json_result', $data);
+    }
+    
+    function deletePlayerMealItem() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('nutrition_model');
+        
+        $this->nutrition_model->deletePlayerMealItem($postData["worklistSeq"],
+             $postData["orderCode"], $postData["mealSeq"]);
     }
 }
