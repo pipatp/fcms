@@ -1,0 +1,98 @@
+@charset "utf-8";
+/* CSS Document */
+
+.button, .buttonbar a {
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+    color: black;
+    background-repeat: repeat-x;
+    background-color: #ededed;
+    background-image: -moz-linear-gradient(top, #ededed 0%, #cccccc 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ededed), color-stop(100%,#cccccc));
+    background-image: -webkit-linear-gradient(top, #ededed 0%,#cccccc 100%);
+    background-image: -o-linear-gradient(top, #ededed 0%,#cccccc 100%);
+    background-image: -ms-linear-gradient(top, #ededed 0%,#cccccc 100%);
+    background-image: linear-gradient(top, #ededed 0%,#cccccc 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ededed', endColorstr='#cccccc',GradientType=0 );    
+    
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .6);
+    padding: 0 16px;
+    height: 25px;
+    line-height: 25px;
+    border: 1px solid #ddd; border-left: 1px solid #bbbbbb; border-right: 1px solid #bbbbbb; border-bottom: 1px solid #aaa;
+    
+    -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;
+    -webkit-box-shadow: inset 0 1px rgba(255,255,255, .8), inset 1px 0 rgba(255,255,255, .4), inset -1px 0 rgba(255,255,255, .4); 
+    -moz-box-shadow: inset 0 1px rgba(255,255,255, .8), inset 1px 0 rgba(255,255,255, .4), inset -1px 0 rgba(255,255,255, .4); 
+    box-shadow: inset 0 1px rgba(255,255,255, .8), inset 1px 0 rgba(255,255,255, .4), inset -1px 0 rgba(255,255,255, .4); 
+    
+    -webkit-transition: .08s ease box-shadow, .2s linear background-position;
+    -moz-transition: .08s ease box-shadow, .2s linear background-position;
+    transition: .08s ease box-shadow, .2s linear background-position;
+    
+    -webkit-user-select: none; -moz-user-select: none; user-select: none;
+    -webkit-background-clip: border; background-clip: border;
+    
+    -moz-outline: none; outline: none;
+}
+
+.button:hover, .buttonbar a:hover {
+    background-position: 0 15px;
+}
+
+.button:active, .buttonbar a:active, .buttonbar a.active {
+    background-color: #e1e1e1;
+    background-image: -moz-linear-gradient(top, #e1e1e1 0%, #c1c1c1 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e1e1e1), color-stop(100%,#c1c1c1));
+    background-image: -webkit-linear-gradient(top, #e1e1e1 0%,#c1c1c1 100%);
+    background-image: -o-linear-gradient(top, #e1e1e1 0%,#c1c1c1 100%);
+    background-image: -ms-linear-gradient(top, #e1e1e1 0%,#c1c1c1 100%);
+    background-image: linear-gradient(top, #e1e1e1 0%,#c1c1c1 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e1e1e1', endColorstr='#c1c1c1',GradientType=0 );    
+    
+    -webkit-box-shadow: inset 0 0px 10px rgba(0,0,0, .2), inset 0 0px 1px rgba(0, 0, 0, .4);
+    -moz-box-shadow: inset 0 0px 10px rgba(0,0,0, .2), inset 0 0px 1px rgba(0, 0, 0, .4);
+    box-shadow: inset 0 0px 10px rgba(0,0,0, .2), inset 0 0px 1px rgba(0, 0, 0, .4);
+}
+
+/* -------------- Icons -------------- */
+a.button.icon:before {
+    content:    "";
+    position:   absolute; 
+    width:      30px;
+    height:     100%;
+    top:        0;
+    left:       0%;    
+    
+    -webkit-border-radius:  2em / 5px 3em 3em 5px; -moz-border-radius:  2em / 5px 3em 3em 5px; border-radius:  2em / 5px 3em 3em 5px;
+    
+    background-image:       
+        -webkit-gradient(linear, 50% 0, 50% 100%, from( rgba(0,0,0,.05) ), to( rgba(0,0,0,.15) )),
+url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAArNJREFUeNp8Ul1IFFEUPvOzM8zoqruwrutPuWqrtmZrmpnYj0JFJYUgmD2JBKI9ZQ9BYGkUFSE9RIFEveRDFhQViD2kRmGBbfaQD667gQhOiq6rro47O7O3e4cVdl3pwMe99zvfOfeecw8F2IwUBUaIM5ECuIDXmuj5KwJ4ideNLcEaAULAZOJgHhKstcjp7Djb0HC8uLS0JBgM5gX8/jDm3VsCPnoxHcGbHVCfnpnp9C8vC4uLi4LJYnESbicte2xP/NU4KQxPIXtnSzVX4rDp3G+PxNWPjdnrCinAr44zttZBbU/Q810yZrlK7RCWZZ0jezElJavWEezBCW7G6mmSMBYRBPRFV2iSBKuhkA6yJxzxbdezGkpoYFdGcvj58rx0gOMFQe94wC9jzoO1XeQ85BJBryWMf+HjwbcwJDSDlyuDNHUBUtW/xCdvbqxXpmfnpWuqCj8/D3r883O90xkGX3ejCTxWAwYLnlQG2K1rvYZ94DU9AGAIRY3fmqhdRYJF901O/Fi9sXtkHBW8xqdX8U1MHAGowO87yRWdyXWVuXRi2k/lgozaUYq3BBfuiM5Dm97EmMB8HHgZtHDzk47Dd1BVp81oNgNBpOqK7XE75viZuksnWsohxFbDJhX7AnTUamRb9xdYik5V5B4i/QmI+fBpYUn3vlD7Yc17G3JEq3VFWwF2Pc2mMqtTQMujFNM0QDSPrjZWtgo8J/I8D2ZzMvh8s3C30a4nyH52BIrP2RJqHXkz7Ga1gSaROd+3y8BQIooZM0VRAI8xmVZIDubQf95LoGoRMNXTsPQuDFJgIQBzygQpoRBmvrjvPQ0mAW1QEMNvYsjAcKHR3vvfSAJfwbVqiCg82tt9GmlJaZK0vsYM1jzUfvV/IJ0wYORE1/9bG3cdj2o50JQb+pQezMz+E2AAolYY6sfO3PcAAAAASUVORK5CYII=);
+    
+    background-repeat: repeat, no-repeat;
+    background-position: top center, center center;
+        
+    -webkit-box-shadow:inset -1px 0 3px rgba(0, 0, 0, .1), 1px 0 0 rgba(255, 255, 255, .3);
+    -moz-box-shadow:inset -1px 0 3px rgba(0, 0, 0, .1), 1px 0 0 rgba(255, 255, 255, .3);
+    box-shadow:inset -1px 0 3px rgba(0, 0, 0, .1), 1px 0 0 rgba(255, 255, 255, .3);
+       
+}
+
+a.button.icon  {
+    padding-left: 40px;   
+}
+
+a.button.icon.save:before {
+    background-image:-webkit-gradient(linear, 50% 0, 50% 100%, from( rgba(0,0,0,.05) ), to( rgba(0,0,0,.15) )), url(../images/save-icon.png);
+    
+	background-image: -moz-linear-gradient(top, rgba(0,0,0,.05) 0%, rgba(0,0,0,.15) 100%), url(../images/save-icon.png);        
+}
+
+a.button.icon.clear:before {
+    background-image:-webkit-gradient(linear, 50% 0, 50% 100%, from( rgba(0,0,0,.05) ), to( rgba(0,0,0,.15) )), url(../images/Close-icon.png);
+    
+	background-image: -moz-linear-gradient(top, rgba(0,0,0,.05) 0%, rgba(0,0,0,.15) 100%), url(../images/Close-icon.png);        
+}

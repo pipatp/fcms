@@ -1,0 +1,16 @@
+@charset "utf-8";
+/* CSS Document */
+
+label {
+    display:block;
+    padding-bottom:5px;
+    margin-top:5px;
+}
+ 
+#contactform {
+    overflow:hidden;
+}
+ 
+#contactform li {
+    list-style:none;
+}
