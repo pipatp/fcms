@@ -106,6 +106,17 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_editPlayerMealItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_editPlayerMealItem`(IN `p_worklistSeq` INT, IN `p_orderCode` VARCHAR(20), IN `p_mealSeq` INT, IN `p_mealCode` VARCHAR(20), IN `p_mealWeight` INT, IN `p_mealCalorie` INT)
+BEGIN
+	UPDATE wkminf 
+	SET WkmMelCod = p_mealCode, WkmMelWeg = p_mealWeight, WkmMelCal = p_mealCalorie
+	WHERE WkmPwlSeq = p_worklistSeq AND WkmOdrCod = p_orderCode AND WkmMelSeq = p_mealSeq;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_findFoodMeal
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_findFoodMeal`(IN `p_name` VARCHAR(50))
@@ -676,20 +687,18 @@ CREATE TABLE IF NOT EXISTS `wkminf` (
   PRIMARY KEY  (`WkmPwlSeq`,`WkmOdrCod`,`WkmMelSeq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wkminf: ~11 rows (approximately)
+-- Dumping data for table fcms.wkminf: ~9 rows (approximately)
 /*!40000 ALTER TABLE `wkminf` DISABLE KEYS */;
 INSERT INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMelWeg`, `WkmMelCal`, `WkmEdtYon`, `WkmMelYrm`, `WkmMelDay`, `WkmOdrStt`, `WkmUpdUid`, `WkmUpdDts`) VALUES
-	(1, 'NUTBRK001', 1, 'NUT000001', 300, 350, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTBRK001', 2, 'NUT000006', 100, 200, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTBRK001', 3, 'NUT000007', 150, 100, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTBRK001', 4, 'NUT000008', 50, 100, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTBRK001', 5, 'NUT000001', 100, 100, 'N', '201401', '24', 'N', NULL, NULL),
-	(1, 'NUTDIN001', 1, 'NUT000008', 550, 50, 'N', '201401', '24', 'N', NULL, NULL),
+	(1, 'NUTDIN001', 2, 'NUT000003', 1, 2, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTLNH001', 1, 'NUT000005', 300, 350, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTLNH001', 2, 'NUT000006', 100, 200, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTLNH001', 3, 'NUT000007', 150, 100, 'N', '201401', '24', 'N', NULL, NULL),
-	(1, 'NUTLNH001', 4, 'NUT000008', 50, 100, 'N', '201401', '24', 'N', NULL, NULL),
-	(1, 'NUTLNH001', 5, 'NUT000002', 100, 100, 'N', '201401', '24', 'N', NULL, NULL);
+	(1, 'NUTLNH001', 4, 'NUT000008', 50, 100, 'N', '201401', '24', 'N', NULL, NULL);
 /*!40000 ALTER TABLE `wkminf` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

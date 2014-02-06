@@ -155,4 +155,14 @@ class nutrition extends CI_Controller {
         $this->nutrition_model->deletePlayerMealItem($postData["worklistSeq"],
              $postData["orderCode"], $postData["mealSeq"]);
     }
+    
+    function editPlayerMealItem() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+
+        $this->load->model('nutrition_model');
+
+        $this->nutrition_model->editPlayerMealItem($postData["worklistSeq"],
+             $postData["orderCode"], $postData["mealSeq"], $postData["code"], 
+             $postData["weight"], $postData["calorie"]);
+    }
 }

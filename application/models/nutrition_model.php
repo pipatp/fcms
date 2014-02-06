@@ -117,4 +117,13 @@ class nutrition_model extends CI_Model {
         
         $query->row();
     }
+    
+    function editPlayerMealItem($worklistSeq, $orderCode, $mealSeq, 
+                                $foodCode, $foodWeight, $foodCalorie) {
+        $data = array($worklistSeq, $orderCode, $mealSeq, $foodCode, $foodWeight, $foodCalorie);
+        
+        $query = $this->db->query("CALL fn_editPlayerMealItem(?, ?, ?, ?, ?, ?)", $data);
+        
+        $query->row();
+    }
 }

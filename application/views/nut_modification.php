@@ -75,7 +75,7 @@
 }
 
 .food-item-button {
-    margin: 0 5px 0 0;
+    margin: 0 0 0 5px;
 }
 
 .player-info-col {
@@ -119,8 +119,7 @@
 </style>
 <div id="modification-tab">
     <ul>
-        <li><a href="#tabs-1">เพิ่มรายการอาหารใหม่</a></li>
-        <li><a href="#tabs-2">แก้ไขรายการอาหารเดิม</a></li>
+        <li><a href="#tabs-1">เพิ่มหรือแก้ไขรายการอาหาร</a></li>
     </ul>
     <div id="tabs-1">
         <input id="player-search-box" type="text" placeholder="ค้นหานักกีฬา" />
@@ -165,6 +164,7 @@
                                    <th class="food-table-cell-header">อาหาร</th>
                                    <th class="food-table-cell-header">น้ำหนัก</th>
                                    <th class="food-table-cell-header">แคลอรี่</th>
+                                   <th class="food-table-cell-header food-table-button-cell"></th>
                                </tr>
                            </table>
                            <br/>
@@ -177,6 +177,7 @@
                                    <th class="food-table-cell-header">อาหาร</th>
                                    <th class="food-table-cell-header">น้ำหนัก</th>
                                    <th class="food-table-cell-header">แคลอรี่</th>
+                                   <th class="food-table-cell-header food-table-button-cell"></th>
                                </tr>
                            </table>
                            <br/>
@@ -189,6 +190,7 @@
                                    <th class="food-table-cell-header">อาหาร</th>
                                    <th class="food-table-cell-header">น้ำหนัก</th>
                                    <th class="food-table-cell-header">แคลอรี่</th>
+                                   <th class="food-table-cell-header food-table-button-cell"></th>
                                </tr>
                            </table>
                            <br/>
@@ -199,9 +201,6 @@
             </tr>
         </table>
     </div>
-    <div id="tabs-2">        
-        
-    </div>
 </div>
 <script>
     var foodItemTemplateHtml = '<tr class="food-table-row">';
@@ -209,6 +208,7 @@
     foodItemTemplateHtml += '<td class="food-table-cell"><div id="food-name"></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-weight"></span></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-calorie"></span> แคลอรี่</td>';
+    foodItemTemplateHtml += '<td class="food-table-button-cell"><div id="edit-dinner-item" class="add-food-item food-item-button"><img src="images/pencil-icon.png" /></div></td>';
     foodItemTemplateHtml += '</tr>';
     
     var $foodItemTemplate = $(foodItemTemplateHtml);
@@ -218,7 +218,7 @@
     foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-code" type="text" class="hidden-field" /><input id="add-food-name" type="text" /></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-weight" type="text" /></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-calorie" type="text" /></td>';
-    foodItemTemplateHtml += '<td class="food-table-cell food-table-button-cell"><a id="save-food-item" href="javascript:" class="food-item-button"><img src="images/save-icon.png" /></a><a id="cancel-food-item" href="javascript:" class="food-item-button"><img src="images/Close-icon.png" /></a></div></td>';
+    foodItemTemplateHtml += '<td class="food-table-button-cell"><a id="save-food-item" href="javascript:" class="food-item-button"><img src="images/save-icon.png" /></a><a id="cancel-food-item" href="javascript:" class="food-item-button"><img src="images/Close-icon.png" /></a></div></td>';
     foodItemTemplateHtml += '</tr>';
     
     var $addFoodItemTemplate = $(foodItemTemplateHtml);
@@ -335,6 +335,10 @@
 
         var $deleteItemButton = $($row.find("#delete-food-item"));
         $deleteItemButton.click({mealSeq: foodItem.WkmMelSeq, orderCode: orderCode, worklistSeq: foodItem.WkmPwlSeq}, function(event) {
+            if (!confirm("คุณแน่ใจที่จะลบข้อมูลนี้หรือไม่")) {
+                return;
+            }
+            
             var $button = $(this);
 
             var foodItem = new Object();
@@ -349,6 +353,68 @@
                alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
             });
 
+        });
+        
+        var $editMealItemButton = $($row.find("#edit-dinner-item"));
+        $editMealItemButton.click({mealSeq: foodItem.WkmMelSeq, orderCode: orderCode, 
+                                   worklistSeq: foodItem.WkmPwlSeq, foodCode: foodItem.WkmMelCod,
+                                   foodName: foodItem.OdrLocNam, foodWeight: foodItem.WkmMelWeg,
+                                   foodCalorie: foodItem.WkmMelCal}, function(event) {
+            if ($table.find("tr.add-item-row").length) {
+                alert("ไม่สามารถเพิ่มข้อมูลได้เนื่องจากกำลังเพิ่มหรือแก้ไขข้อมูลอื่นอยู่ โปรดบันทึกหรือยกเลิกการเพิ่มหรือแก้ไขข้อมูลอื่นก่อน");
+                return;
+            }
+            
+            var $editRow = $addFoodItemTemplate.clone(true, true);
+            
+            var $editFoodCode = $($editRow.find("#add-food-code"));
+            var $editFoodName = $($editRow.find("#add-food-name"));
+            var $editFoodWgt = $($editRow.find("#add-food-weight"));
+            var $editFoodCal = $($editRow.find("#add-food-calorie"));
+            
+            $editFoodCode.val(event.data.foodCode);
+            $editFoodName.val(event.data.foodName);
+            $editFoodWgt.val(event.data.foodWeight);
+            $editFoodCal.val(event.data.foodCalorie);
+            
+            var $saveFoodItem = $($editRow.find("#save-food-item"));
+            $saveFoodItem.click(function() {
+                if (!$editFoodCode.val() || !$editFoodName.val() ||
+                    !$editFoodWgt.val() || !$editFoodCal.val()) {
+                    alert("ไม่สามารถบันทึกได้ โปรดกรอกข้อมูลให้ครบถ้วน");
+                    return;
+                }
+                
+                var foodItem = new Object();
+                foodItem.worklistSeq = event.data.worklistSeq;
+                foodItem.orderCode = event.data.orderCode;
+                foodItem.mealSeq = event.data.mealSeq;
+                foodItem.code = $editFoodCode.val();
+                foodItem.weight = $editFoodWgt.val();
+                foodItem.calorie = $editFoodCal.val();
+               
+                $.post("index.php/nutrition/editPlayerMealItem", JSON.stringify(foodItem)).done(function() {
+                    $foodName.text($editFoodName.val());
+                    $foodName.attr("data-food-code", foodItem.code);
+
+                    $foodWeight.text(foodItem.weight);
+                    $foodCalorie.text(foodItem.calorie);
+                    
+                    $editRow.before($row);
+                    $editRow.detach();
+               }).fail(function() {
+                   alert("ไม่สามารถเซฟข้อมูลได้ โปรดลองใหม่อีกครั้งหนึ่ง");
+               });
+           });
+            
+            var $cancelFoodItem = $($editRow.find("#cancel-food-item"));  
+            $cancelFoodItem.click(function() {               
+                $editRow.before($row);
+                $editRow.detach();
+            });
+           
+            $row.before($editRow);
+            $row.detach();            
         });
 
         $table.append($row);
@@ -371,6 +437,7 @@
 
             // Clear worklist sequence
             worklistSeq = -1;
+            availableOrderCode = {};
             
             // Add items to tables
             for (var index=0; index<foodItems.length; index++) {
@@ -424,14 +491,15 @@
                                                 $("#player-meal-modification-tab #table-dinner");
 
         // Prevent adding multiple input row at the same time
-        if ($table.find("tr.add-item-row ").length) {
+        if ($table.find("tr.add-item-row").length) {
+            alert("ไม่สามารถเพิ่มข้อมูลได้เนื่องจากกำลังเพิ่มหรือแก้ไขข้อมูลอื่นอยู่ โปรดบันทึกหรือยกเลิกการเพิ่มหรือแก้ไขข้อมูลอื่นก่อน");
             return;
         }
-        
+         
         var type = (selectedTabIndex === 0) ? "BRK" :
                    (selectedTabIndex === 1) ? "LNH" :
                    (selectedTabIndex === 2) ? "DES" : "DIN";
-        
+
         var orderCode = availableOrderCode[type];
         if (!orderCode) {
             alert("ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากไม่มีรายการงานสำหรับมื้อนี้");
@@ -496,7 +564,7 @@
                 
                 addMealItemRow($table, item, type);
            }).fail(function() {
-               alert("ไม่สามารถเซฟข้อมูลได้ โปรดลองใหม่อีกครั้งหนึ่ง");
+               alert("ไม่สามารถบันทึกข้อมูลได้ โปรดลองใหม่อีกครั้งหนึ่ง");
            });
         });
         
@@ -516,5 +584,5 @@
     
     $(".add-food-item").click(addFoodItem);
 
-    //$("#player-add-meal-table").hide();
+    $("#player-add-meal-table").hide();
 </script>
