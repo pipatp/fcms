@@ -1,0 +1,16 @@
+.button-group {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.menu-button:hover {
+    box-shadow: 0 0 10px #C0C0C0;
+    -moz-box-shadow: 0 0 10px #C0C0C0;
+    -webkit-box-shadow: 0 0 10px #C0C0C0;
+}
+
+.menu-button:active {
+/*    box-shadow: inset 2px 2px 5px #D0D0D0;
+    -moz-box-shadow: inset 2px 2px 5px #D0D0D0;
+    -webkit-box-shadow: inset 2px 2px 5px #D0D0D0;*/
+}

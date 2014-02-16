@@ -3,6 +3,13 @@
     padding: 0px; 
     background: none; 
     border-width: 0px;
+    
+    font-family: Helvetica,tahoma, sans-serif;
+    font-size: 14px;
+}
+
+#player-meal-modification-tab {
+    font-size: 13px;
 }
 
 #modification-tab .ui-tabs-nav, #player-meal-modification-tab .ui-tabs-nav { 
@@ -16,6 +23,9 @@
 
 #modification-tab .ui-tabs-nav li {
     width: 49%;
+    
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
 #player-meal-modification-tab .ui-tabs-nav li {
@@ -23,17 +33,21 @@
 }
 
 #modification-tab .ui-tabs-nav li a {
-    width: 100%
+    width: 100%;
+        
+    outline: none;
 }
 
 #modification-tab .ui-tabs-panel {
     padding-top: 20px;
     border-width: 0px 1px 1px 1px;
+    
+    font-size: 13px;
 }
 
 #player-search-box {
     padding-left: 22px;
-    background: url("images/search-magnify.png") no-repeat;
+    background: url("../../images/search-magnify.png") no-repeat;
     background-position: 3px center;
 }
 
@@ -104,8 +118,9 @@
     height: 60%;
     
     border-width: 1px;
-    border-color: black;
+    border-color: #AAA;
     border-style: solid;
+    border-radius: 5px;
 }
 
 .hidden-field {
@@ -115,6 +130,10 @@
 .add-food-item {
     display: inline-block;
     cursor: pointer;
+}
+
+.list-auto-item {
+    font-size: 13px;
 }
 </style>
 <div id="modification-tab">
@@ -127,12 +146,12 @@
             <tr height="100%">
                 <td width="50%" valign="top">
                     <div class="player-info-col">
-                        <img class="player-picture" src="images/Facebook_head.png" />
+                        <img class="player-picture" src="../player/image/P00001" />
                         <div class="player-detail">
                         </div>
                     </div>
                     <div class="nutritionist-comment">
-                        <div>ข้อมูลเพิ่มเติมของนักโภชนาการ</div>                        
+                        <div style="font-weight: bold">ข้อมูลเพิ่มเติมของนักโภชนาการ</div>                        
                     </div>
                 </td>
                 <td width="50%" valign="top">
@@ -155,7 +174,7 @@
                                </tr>
                            </table>
                            <br/>
-                           <div id="add-breakfast-item" class="add-food-item"><img src="images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
+                           <div id="add-breakfast-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                        </div>
                        <div id="tabs-lunch">
                            <table id="table-lunch">
@@ -168,7 +187,7 @@
                                </tr>
                            </table>
                            <br/>
-                           <div id="add-lunch-item" class="add-food-item"><img src="images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
+                           <div id="add-lunch-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                        </div>
                        <div id="tabs-dessert">
                            <table id="table-dessert">
@@ -181,7 +200,7 @@
                                </tr>
                            </table>
                            <br/>
-                           <div id="add-dessert-item" class="add-food-item"><img src="images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
+                           <div id="add-dessert-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                        </div>
                        <div id="tabs-dinner">
                            <table id="table-dinner">
@@ -194,7 +213,7 @@
                                </tr>
                            </table>
                            <br/>
-                           <div id="add-dinner-item" class="add-food-item"><img src="images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
+                           <div id="add-dinner-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                        </div>
                    </div>
                </td>
@@ -204,11 +223,11 @@
 </div>
 <script>
     var foodItemTemplateHtml = '<tr class="food-table-row">';
-    foodItemTemplateHtml += '<td><div id="delete-food-item"><img src="images/delete.png" /></div></td>';
+    foodItemTemplateHtml += '<td><div id="delete-food-item"><img src="../../images/delete.png" /></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><div id="food-name"></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-weight"></span></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-calorie"></span> แคลอรี่</td>';
-    foodItemTemplateHtml += '<td class="food-table-button-cell"><div id="edit-dinner-item" class="add-food-item food-item-button"><img src="images/pencil-icon.png" /></div></td>';
+    foodItemTemplateHtml += '<td class="food-table-button-cell"><div id="edit-dinner-item" class="add-food-item food-item-button"><img src="../../images/pencil-icon.png" /></div></td>';
     foodItemTemplateHtml += '</tr>';
     
     var $foodItemTemplate = $(foodItemTemplateHtml);
@@ -218,7 +237,7 @@
     foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-code" type="text" class="hidden-field" /><input id="add-food-name" type="text" /></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-weight" type="text" /></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-calorie" type="text" /></td>';
-    foodItemTemplateHtml += '<td class="food-table-button-cell"><a id="save-food-item" href="javascript:" class="food-item-button"><img src="images/save-icon.png" /></a><a id="cancel-food-item" href="javascript:" class="food-item-button"><img src="images/Close-icon.png" /></a></div></td>';
+    foodItemTemplateHtml += '<td class="food-table-button-cell"><a id="save-food-item" href="javascript:" class="food-item-button"><img src="../../images/save-icon.png" /></a><a id="cancel-food-item" href="javascript:" class="food-item-button"><img src="../../images/Close-icon.png" /></a></div></td>';
     foodItemTemplateHtml += '</tr>';
     
     var $addFoodItemTemplate = $(foodItemTemplateHtml);
@@ -274,7 +293,8 @@
     }
     
     function addDetail($detailDiv, key, val) {
-        $detailDiv.append("<div>" + key + ": " + val + "</div>");
+//        $detailDiv.append("<div>" + key + ": " + val + "</div>");
+        $detailDiv.append("<tr><td style='padding-left: 5px;font-weight: bold; text-align:right'>" + key + "</td><td style='padding-left: 10px;'>" + val + "</td></tr>");
     }
     
     function displayPlayerInfo(item) {
@@ -283,23 +303,27 @@
         var $playerDetail = $(".player-detail");
         $playerDetail.empty();
         
-        addDetail($playerDetail, "ชื่อ", getDisplayNameWithEng(item));
+        $table = $("<table style='margin-top: 5px;'></table>");
+        
+        addDetail($table, "ชื่อ", getDisplayNameWithEng(item));
         
         if (item.PlyBirDte) {
             var birthDay = $.datepicker.parseDate("yymmdd", item.PlyBirDte);
-            addDetail($playerDetail, "อายุ", getAge(birthDay));
+            addDetail($table, "อายุ", getAge(birthDay));
         }
         
-        addDetail($playerDetail, "ตำแหน่ง", "");
-        addDetail($playerDetail, "สัญชาติ", "");
-        addDetail($playerDetail, "ศาสนา", "");
-        addDetail($playerDetail, "ภาษาพูด", "");
+        addDetail($table, "ตำแหน่ง", "");
+        addDetail($table, "สัญชาติ", "");
+        addDetail($table, "ศาสนา", "");
+        addDetail($table, "ภาษาพูด", "");
+        
+        $playerDetail.append($table);
         
         $("#player-add-meal-table").show();
     }
     
     $("#player-search-box").autocomplete({
-        source: "index.php/nutrition/findPlayer",
+        source: "findPlayer",
         minLength: 2,
         focus: function(event, ui) {            
             return false;
@@ -312,7 +336,7 @@
             return false;
         }
     }).data("ui-autocomplete")._renderItem = function(ul, item) {
-        return $("<li>").append("<a>" + getDisplayNameWithEng(item) + "</a>" ).appendTo(ul);
+        return $("<li class='list-auto-item'>").append("<a>" + getDisplayNameWithEng(item) + "</a>" ).appendTo(ul);
     };
     
     function addMealItemRow($table, foodItem, foodType) {
@@ -347,7 +371,7 @@
             foodItem.orderCode = event.data.orderCode;               
 
             // Send save request to server
-            $.post("index.php/nutrition/deletePlayerMealItem", JSON.stringify(foodItem)).done(function(result) {
+            $.post("deletePlayerMealItem", JSON.stringify(foodItem)).done(function(result) {
                 $button.closest('tr').detach();
             }).fail(function() {
                alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
@@ -393,7 +417,7 @@
                 foodItem.weight = $editFoodWgt.val();
                 foodItem.calorie = $editFoodCal.val();
                
-                $.post("index.php/nutrition/editPlayerMealItem", JSON.stringify(foodItem)).done(function() {
+                $.post("editPlayerMealItem", JSON.stringify(foodItem)).done(function() {
                     $foodName.text($editFoodName.val());
                     $foodName.attr("data-food-code", foodItem.code);
 
@@ -421,7 +445,7 @@
     }
     
     function getPlayerMealSet(yearMonth, day) {
-        $.ajax("index.php/nutrition/getPlayerMealSet/" + playerCode + "/" + yearMonth + "/" + day).done(function(result) {
+        $.ajax("getPlayerMealSet/" + playerCode + "/" + yearMonth + "/" + day).done(function(result) {
             var $breakfastTable = $("#table-breakfast");
             var $lunchTable = $("#table-lunch");
             var $dessertTable = $("#table-dessert");
@@ -468,7 +492,7 @@
             var yearMonth = $.datepicker.formatDate("yymm", selectedDate);
             var day = $.datepicker.formatDate("dd", selectedDate);
 
-            $.ajax("index.php/nutrition/getPlayerWorklistMeal/" + playerCode + "/" + yearMonth + "/" + day).done(function(result) {
+            $.ajax("getPlayerWorklistMeal/" + playerCode + "/" + yearMonth + "/" + day).done(function(result) {
                 var availableMeals = jQuery.parseJSON(result);
                 
                 for (var index=0; index<availableMeals.length; index++) {
@@ -519,7 +543,7 @@
         var $addFoodCalorie = $($addRow.find("#add-food-calorie"));
         
         $addFoodName.autocomplete({
-            source: "index.php/nutrition/findFoodMealItem",
+            source: "findFoodMealItem",
             minLength: 2,
             focus: function(event, ui) {
                 $addFoodName.val(ui.item.OdrLocNam);
@@ -533,7 +557,7 @@
                 return false;
             }
         }).data("ui-autocomplete")._renderItem = function(ul, item) {
-            return $("<li>").append("<a>" + item.OdrLocNam + "</a>" ).appendTo(ul);
+            return $("<li class='list-auto-item'>").append("<a>" + item.OdrLocNam + "</a>" ).appendTo(ul);
         };;
         
         // Register click event for save food item
@@ -557,7 +581,7 @@
            foodItem.day = selectionDate.day;
 
            // Send save request to server
-           $.post("index.php/nutrition/addPlayerMealItem", JSON.stringify(foodItem)).done(function(result) {
+           $.post("addPlayerMealItem", JSON.stringify(foodItem)).done(function(result) {
                 $addRow.detach();
                 
                 var item = jQuery.parseJSON(result);

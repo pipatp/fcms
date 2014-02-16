@@ -10,18 +10,18 @@ class nutrition_model extends CI_Model {
     //----------------------------------------------
     // Food Registration
     //----------------------------------------------    
-    function getRegistrationWaitingList($meal) {
-        $data = array($meal);
+    function getRegistrationWaitingList($meal, $currentDate) {
+        $data = array($meal, $currentDate);
          
-        $query = $this->db->query("CALL fn_getRegistrationWaitingList(?)", $data);
+        $query = $this->db->query("CALL fn_getRegistrationWaitingList(?, ?)", $data);
         
         return $query->result();
     }
     
-    function getRegistrationReceiveList($meal) {
-        $data = array($meal);
+    function getRegistrationReceiveList($meal, $currentDate) {
+        $data = array($meal, $currentDate);
          
-        $query = $this->db->query("CALL fn_getRegistrationReceiveList(?)", $data);
+        $query = $this->db->query("CALL fn_getRegistrationReceiveList(?, ?)", $data);
         
         return $query->result();
     }

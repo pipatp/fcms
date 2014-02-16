@@ -3,9 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/L:/AppServ/www/fcms/application/models/nutrition_model.php</file>
+            <file>file:/L:/AppServ/www/fcms/application/views/nut_registration.php</file>
+            <file>file:/L:/AppServ/www/fcms/application/controllers/main.php</file>
             <file>file:/L:/AppServ/www/fcms/js/nutrition.js</file>
+            <file>file:/L:/AppServ/www/fcms/application/models/player_model.php</file>
+            <file>file:/L:/AppServ/www/fcms/application/controllers/player.php</file>
+            <file>file:/L:/AppServ/www/fcms/application/views/nut_navigation.php</file>
             <file>file:/L:/AppServ/www/fcms/application/controllers/nutrition.php</file>
+            <file>file:/L:/AppServ/www/fcms/application/views/nut_main.php</file>
             <file>file:/L:/AppServ/www/fcms/application/views/nut_modification.php</file>
         </group>
     </open-files>

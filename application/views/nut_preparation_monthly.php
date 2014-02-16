@@ -95,7 +95,7 @@
                         </tr>
                     </table>
                     <br/>
-                    <div id="add-breakfast-item" class="add-food-item"><img src="images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
+                    <div id="add-breakfast-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                 </div>
                 <div id="tabs-lunch">
                     <table id="table-lunch">
@@ -107,7 +107,7 @@
                         </tr>
                     </table>
                     <br/>
-                    <div id="add-lunch-item" class="add-food-item"><img src="images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
+                    <div id="add-lunch-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                 </div>
                 <div id="tabs-dessert">
                     <table id="table-dessert">
@@ -119,7 +119,7 @@
                         </tr>
                     </table>
                     <br/>
-                    <div id="add-dessert-item" class="add-food-item"><img src="images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
+                    <div id="add-dessert-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                 </div>
                 <div id="tabs-dinner">
                     <table id="table-dinner">
@@ -131,7 +131,7 @@
                         </tr>
                     </table>
                     <br/>
-                    <div id="add-dinner-item" class="add-food-item"><img src="images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
+                    <div id="add-dinner-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                 </div>
             </div>
         </td>
@@ -139,7 +139,7 @@
 </table>
 <script>
     var foodItemTemplateHtml = '<tr class="food-table-row">';
-    foodItemTemplateHtml += '<td><div id="delete-food-item"><img src="images/delete.png" /></div></td>';
+    foodItemTemplateHtml += '<td><div id="delete-food-item"><img src="../../images/delete.png" /></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><div id="food-code" class="food-item-code"></div><div id="food-name"></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-weight"></span></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-calorie"></span> แคลอรี่</td>';
@@ -152,7 +152,7 @@
     foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-code" type="text" class="food-item-code" /><input id="add-food-name" type="text" /></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-weight" type="text" /></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-calorie" type="text" /></td>';
-    foodItemTemplateHtml += '<td class="food-table-cell"><a id="save-food-item" href="javascript:" class="food-item-button"><img src="images/save-icon.png" /></a><a id="cancel-food-item" href="javascript:" class="food-item-button"><img src="images/Close-icon.png" /></a></div></td>';
+    foodItemTemplateHtml += '<td class="food-table-cell"><a id="save-food-item" href="javascript:" class="food-item-button"><img src="../../images/save-icon.png" /></a><a id="cancel-food-item" href="javascript:" class="food-item-button"><img src="../../images/Close-icon.png" /></a></div></td>';
     foodItemTemplateHtml += '</tr>';
     
     var $addFoodItemTemplate = $(foodItemTemplateHtml);
@@ -176,7 +176,7 @@
     }
     
     function getFoodMealSet(yearMonth, day) {
-        $.ajax("index.php/nutrition/getFoodMealSet/" + yearMonth + "/" + day).done(function(result) {
+        $.ajax("getFoodMealSet/" + yearMonth + "/" + day).done(function(result) {
             var $breakfastTable = $("#table-breakfast");
             var $lunchTable = $("#table-lunch");
             var $dessertTable = $("#table-dessert");
@@ -226,7 +226,7 @@
                     foodItem.type = event.data.foodType;                  
                     
                     // Send save request to server
-                    $.post("index.php/nutrition/deleteFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
+                    $.post("deleteFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
                         $button.closest('tr').detach();
                     }).fail(function() {
                        alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
@@ -271,7 +271,7 @@
         var $addFoodCalorie = $($addRow.find("#add-food-calorie"));
         
         $addFoodName.autocomplete({
-            source: "index.php/nutrition/findFoodMealItem",
+            source: "findFoodMealItem",
             minLength: 2,
             focus: function(event, ui) {
                 $addFoodName.val(ui.item.OdrLocNam);
@@ -309,7 +309,7 @@
            foodItem.type = type;
            
            // Send save request to server
-           $.post("index.php/nutrition/addFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
+           $.post("addFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
                 $addRow.detach();
                
                 var $row = $foodItemTemplate.clone(true, true);
@@ -336,7 +336,7 @@
                     foodItem.type = type;
                     
                     // Send save request to server
-                    $.post("index.php/nutrition/deleteFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
+                    $.post("deleteFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
                         $deleteItemButton.closest('tr').detach();
                     }).fail(function() {
                        alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");

@@ -43,66 +43,7 @@
     <option value="DIN">มื้อเย็น</option>
 </select>
 <div class="today-meal-table">
-    <div class="player-meal-row">
-        <div class="player-info-col">
-            <img class="player-image-field" src="http://www.clker.com/cliparts/d/L/P/X/z/i/no-image-icon-md.png" />
-            <div class="player-name-field">ete sgsdg</div>             
-        </div>
-        <div class="player-meal-col">
-            <table width="100%">
-                <tr>
-                    <td>ข้าวต้มหมู</td>
-                    <td>100</td>
-                    <td>200 </td>
-                </tr>
-                <tr>
-                    <td>สลัด</td>
-                    <td>100</td>
-                    <td>200 </td>
-                </tr>
-                <tr>
-                    <td>ข้าวต้มหมู</td>
-                    <td>100</td>
-                    <td>200 </td>
-                </tr>
-                <tr>
-                    <td>ข้าวต้มหมู</td>
-                    <td>100</td>
-                    <td>200 </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-    <div class="player-meal-row">
-        <div class="player-info-col">
-            <img class="player-image-field" src="http://www.clker.com/cliparts/d/L/P/X/z/i/no-image-icon-md.png" />
-            <div class="player-name-field">ete sgsdg</div>             
-        </div>
-        <div class="player-meal-col">
-            <table width="100%">
-                <tr>
-                    <td>ข้าวต้มหมู</td>
-                    <td>100</td>
-                    <td>200 </td>
-                </tr>
-                <tr>
-                    <td>สลัด</td>
-                    <td>100</td>
-                    <td>200 </td>
-                </tr>
-                <tr>
-                    <td>ข้าวต้มหมู</td>
-                    <td>100</td>
-                    <td>200 </td>
-                </tr>
-                <tr>
-                    <td>ข้าวต้มหมู</td>
-                    <td>100</td>
-                    <td>200 </td>
-                </tr>
-            </table>
-        </div>
-    </div>
+    
 </div>
 <script>
 
@@ -150,7 +91,7 @@
         var mealVal = $(this).val();
         
         if (mealVal !== "") {
-            $.ajax("index.php/nutrition/getTodayMealPreparation/" + getSelectedDate() + "/" + mealVal).done(function(result) {
+            $.ajax("getTodayMealPreparation/" + getSelectedDate() + "/" + mealVal).done(function(result) {
                 var playerMealItems = jQuery.parseJSON(result);
                 
                 var currentWorkListId = -1;

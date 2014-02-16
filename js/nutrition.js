@@ -1,6 +1,5 @@
 function viewStoreInTransactions() {
-    $(".sub-menu ul li ").removeClass("selected");
-    $(this).parent().addClass("selected");
+    selectTab(this);
 
     $.ajax("viewStoreInTransactions").done(function(result) {
         var $content = $(".content-body");
@@ -10,8 +9,7 @@ function viewStoreInTransactions() {
 }
 
 function getAddItemForm() {
-    $(".sub-menu ul li ").removeClass("selected");
-    $(this).parent().addClass("selected");
+    selectTab(this);
 
     $.ajax("getStoreInForm").done(function(result) {
         var $content = $(".content-body");
@@ -21,8 +19,7 @@ function getAddItemForm() {
 }
     
 function getDeliveryForm() {
-    $(".sub-menu ul li ").removeClass("selected");
-    $(this).parent().addClass("selected");
+    selectTab(this);
 
     $.ajax("getDeliveryForm").done(function(result) {
         var $content = $(".content-body");
@@ -32,8 +29,7 @@ function getDeliveryForm() {
 }
 
 function viewDeliveryTransactions() {
-    $(".sub-menu ul li ").removeClass("selected");
-    $(this).parent().addClass("selected");
+    selectTab(this);
 
     $.ajax("viewDeliveryTransactions").done(function(result) {
         var $content = $(".content-body");
@@ -43,8 +39,7 @@ function viewDeliveryTransactions() {
 }
 
 function viewCategory() {
-    $(".sub-menu ul li ").removeClass("selected");
-    $(this).parent().addClass("selected");
+    selectTab(this);
     
     $.ajax("viewCategories").done(function(result) {
         var $content = $(".content-body");
@@ -56,7 +51,7 @@ function viewCategory() {
 function viewRegistration() {
     selectTab(this);
     
-    $.ajax("index.php/nutrition/viewRegistration").done(function(result) {
+    $.ajax("viewRegistration").done(function(result) {
         var $content = $(".content-body");
 
         $content.html(result);
@@ -66,7 +61,7 @@ function viewRegistration() {
 function viewMealPreparation() {
     selectTab(this);
     
-    $.ajax("index.php/nutrition/viewPreparation").done(function(result) {
+    $.ajax("viewPreparation").done(function(result) {
         var $content = $(".content-body");
 
         $content.html(result);
@@ -76,7 +71,7 @@ function viewMealPreparation() {
 function viewMealModification() {
     selectTab(this);
     
-    $.ajax("index.php/nutrition/viewMealModification").done(function(result) {
+    $.ajax("viewMealModification").done(function(result) {
         var $content = $(".content-body");
 
         $content.html(result);
@@ -89,14 +84,23 @@ function selectTab(selectedTab) {
 }
 
 $(function() {
+    $(".logout-link").click(function() {
+        $.get("../main/logout", function(data) {
+            window.location.href = "../main/login";
+        });
+    });
+                
+    // Set nutrition tab selected
+    $(".top-menu ul li:eq(5)").addClass("selected");
+//    $(".sub-menu ul li:eq(0)").addClass("selected");
+    
     $("#register-tab").click(viewRegistration);
     $("#food-modification-tab").click(viewMealModification);
     $("#food-preparation-tab").click(viewMealPreparation);
     $("#food-stock-tab").click(selectTab);
     
-    var newHeight = $("body").height() - $(".top-menu").height() - $(".sub-menu").height() - 50 + "px";
-
-    $(".content-body").css("height", newHeight);
+//    var newHeight = $("body").height() - $(".top-menu").height() - $(".sub-menu").height() - 50 + "px";
+//    $(".content-body").css("height", newHeight);
 });
 
 

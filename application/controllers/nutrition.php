@@ -10,6 +10,17 @@ class nutrition extends CI_Controller {
         return $params;
     }
     
+    function main() {
+        $loginSession = $this->session->userdata('user_login');
+        
+        $data["loginSession"] = $loginSession;
+        $data["showMenu"] = true;
+        $data["showSubMenu"] = true;
+        $data["subMenuView"] = "nut_navigation";
+        
+        $this->load->view('nut_main', $data);
+    }
+    
     //----------------------------------------------
     // Food Registration
     //----------------------------------------------
@@ -20,7 +31,9 @@ class nutrition extends CI_Controller {
     function getRegistrationWaitingList($mealVal) {
         $this->load->model('nutrition_model');
         
-        $data["content"] = $this->nutrition_model->getRegistrationWaitingList($mealVal);
+        $currentDate = date("Ymd");
+        
+        $data["content"] = $this->nutrition_model->getRegistrationWaitingList($mealVal, $currentDate);
         
         $this->load->view('json_result', $data);
     }
@@ -28,7 +41,9 @@ class nutrition extends CI_Controller {
     function getRegistrationReceiveList($mealVal) {
         $this->load->model('nutrition_model');
         
-        $data["content"] = $this->nutrition_model->getRegistrationReceiveList($mealVal);
+        $currentDate = date("Ymd");
+        
+        $data["content"] = $this->nutrition_model->getRegistrationReceiveList($mealVal, $currentDate);
         
         $this->load->view('json_result', $data);
     }
