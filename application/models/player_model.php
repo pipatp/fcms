@@ -10,6 +10,8 @@ class player_model extends CI_Model {
         $this->db->where('PimPlyCod', $playerCode);
         $this->db->from('piminf');
         
-        return $this->db->row();
+        $query = $this->db->get();
+        
+        return $query->row();
     }
 }

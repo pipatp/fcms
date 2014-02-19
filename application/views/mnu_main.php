@@ -63,10 +63,10 @@
                         </div>                    
                     </div>
                     <div class="col-md-2">
-                        <div class="thumbnail btn menu-button">
+                        <div id="fitness-button" class="thumbnail btn menu-button">
                             <div class="button-group">
                                 <img src="../../images/fitness_enable.jpg" />
-                                <h4>สมรรถภาพร่างกาย</h4>
+                                <h4>ฟิตเนส</h4>
                             </div>
                         </div>
                     </div>
@@ -92,6 +92,10 @@
                 
                 $("#nutrition-button").click(function() {
                     window.location.href = "../nutrition/main";
+                });
+                
+                $("#fitness-button").click(function() {
+                    window.location.href = "../fitness/main";
                 });
             });
         </script>

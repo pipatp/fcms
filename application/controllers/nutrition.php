@@ -3,7 +3,11 @@
 class nutrition extends CI_Controller {
     function nutrition() {
         parent::__construct();
-    }
+        
+        if (!$this->session->userdata('user_login')) {
+                redirect('main/login');
+        }
+   }
     
     protected function getQueryStringParams() {
         parse_str($_SERVER['QUERY_STRING'], $params);

@@ -3,6 +3,9 @@
     padding: 0px; 
     background: none; 
     border-width: 0px;
+    
+    font-family: Helvetica,tahoma, sans-serif;
+    font-size: 14px;    
 }
 
 #preparation-tab .ui-tabs-nav { 
@@ -15,16 +18,20 @@
 }
 
 #preparation-tab .ui-tabs-nav li {
-    width: 49%
+    width: 49%;
 }
 
 #preparation-tab .ui-tabs-nav li a {
-    width: 100%
+    width: 100%;
+        
+    outline: none;
 }
 
 #preparation-tab .ui-tabs-panel {
     padding-top: 20px;
     border-width: 0px 1px 1px 1px;
+    
+    font-size: 13px;
 }
 </style>
 <div id="preparation-tab">

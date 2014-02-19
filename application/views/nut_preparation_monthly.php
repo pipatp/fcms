@@ -1,8 +1,17 @@
 <style type="text/css">
-#date-selection .ui-datepicker {
-    font-size: 20px;
-    margin-left:auto;
-    margin-right:auto;
+#date-selection  {
+    font-size: 13px;
+    margin-left: 10px;
+    margin-right: 10px;
+    
+    
+}
+
+.ui-datepicker {
+    margin-left: auto;
+    margin-right: auto;
+    
+    width: 100%;
 }
 
 #monthly-preparation-tab { 

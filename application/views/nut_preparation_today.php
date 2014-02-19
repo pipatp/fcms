@@ -48,9 +48,8 @@
 <script>
 
     function getSelectedDate() {
-        var selectedDate = $("#date-selection").datepicker("getDate");
-        return "20140124";
-//        return $.datepicker.formatDate("yymmdd", selectedDate);
+        var currentDate = $.datepicker.formatDate("yymmdd", new Date());
+        return currentDate;
     }
 
     var playerMealRowHtml = '<div class="player-meal-row">';
@@ -71,8 +70,8 @@
         var $playerImage = $($row.find(".player-image-field"));
         var $playerName = $($row.find(".player-name-field"));
         
-        $playerImage.attr("src", "data:image/jpg;base64," + playerMealItem.img);
-//        $playerImage.attr("src", "http://www.clker.com/cliparts/d/L/P/X/z/i/no-image-icon-md.png");
+        $playerImage.attr("src", "../player/image/" + playerMealItem.PwlPlyCod);
+
         $playerName.text(playerMealItem.PlyFstNam + " " + playerMealItem.PlyFamNam);
         
         return $row;

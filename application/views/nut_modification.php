@@ -146,7 +146,7 @@
             <tr height="100%">
                 <td width="50%" valign="top">
                     <div class="player-info-col">
-                        <img class="player-picture" src="../player/image/P00001" />
+                        <img class="player-picture" src="" />
                         <div class="player-detail">
                         </div>
                     </div>
@@ -299,6 +299,8 @@
     
     function displayPlayerInfo(item) {
         playerCode = item.PlyCod;
+        
+        $(".player-picture").attr("src", "../player/image/" + playerCode);
         
         var $playerDetail = $(".player-detail");
         $playerDetail.empty();

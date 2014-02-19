@@ -12,10 +12,19 @@ class player extends CI_Controller {
     function image($playerCode) {
         $this->load->model('player_model');
         
-//        $image = $this->player_model->getImage($playerCode);
-        $image = file_get_contents("L:\\AppServ\\www\\fcms\\images\\ChainatFC-logo2013.png");
+        $image = $this->player_model->getImage($playerCode);
+        
+        $faceImagePath = getcwd() . "\\images\\no_image.png";
+        
+        if ($image != null) {
+            if ($image->PimFac != null) {
+                $faceImagePath = $image->PimFac;
+            }
+        }
+       
+        $imageContent = file_get_contents($faceImagePath);
         
         header("Content-Type: image/jpg");
-        echo $image;
+        echo $imageContent;
     }
 }

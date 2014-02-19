@@ -78,6 +78,14 @@ function viewMealModification() {
     });
 }
 
+function viewMealStore() {
+    selectTab(this);
+    
+    var $content = $(".content-body");
+    
+    $content.empty();
+}
+
 function selectTab(selectedTab) {
     $(".sub-menu ul li ").removeClass("selected");
     $(selectedTab).parent().addClass("selected");
@@ -97,7 +105,7 @@ $(function() {
     $("#register-tab").click(viewRegistration);
     $("#food-modification-tab").click(viewMealModification);
     $("#food-preparation-tab").click(viewMealPreparation);
-    $("#food-stock-tab").click(selectTab);
+    $("#food-stock-tab").click(viewMealStore);
     
 //    var newHeight = $("body").height() - $(".top-menu").height() - $(".sub-menu").height() - 50 + "px";
 //    $(".content-body").css("height", newHeight);
