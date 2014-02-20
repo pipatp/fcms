@@ -40,6 +40,10 @@
     margin-top: 5px;
 }
 
+.cell-normal {
+    vertical-align: middle !important;
+}
+
 .last-update-row {
     margin-top: 10px;
 }
@@ -82,6 +86,7 @@
     var tableHtml = "<table class='table table-striped table-condensed'>";
     tableHtml += "<thead>";
     tableHtml += "<th>#</th>";
+    tableHtml += "<th>รูป</th>";
     tableHtml += "<th>ชื่อ</th>";
     tableHtml += "<th>นามสกุล</th>";
     tableHtml += "</tr>";
@@ -106,8 +111,10 @@
                     $table = $tableTemplate.clone();
                     $tableBody = $($table.find("tbody"));
                     for (var index=0; index<players.length; index++) {
-                        $tableBody.append("<tr><td>" + (index+1) + "</td><td>" + players[index].PlyFstNam + "</td><td>" +
-                            players[index].PlyFamNam + "</td></tr>");
+                        $tableBody.append("<tr><td class='cell-normal'>" + (index+1) + 
+                            "</td><td class='cell-normal'><img class=\"thumbnail-image\" src=\"../player/thumbnail/" + 
+                            players[index].PlyCod + "\" /></td><td class='cell-normal'>" + players[index].PlyFstNam + 
+                            "</td><td class='cell-normal'>" + players[index].PlyFamNam + "</td></tr>");
                     }
 
                     $waitingList.append($table);
@@ -138,8 +145,10 @@
                     $table = $tableTemplate.clone();
                     $tableBody = $($table.find("tbody"));
                     for (var index=0; index<players.length; index++) {
-                        $tableBody.append("<tr><td>" + (index+1) + "</td><td>" + players[index].PlyFstNam + "</td><td>" +
-                            players[index].PlyFamNam + "</td></tr>");
+                        $tableBody.append("<tr><td class='cell-normal'>" + (index+1) + 
+                            "</td><td class='cell-normal'><img class=\"thumbnail-image\" src=\"../player/thumbnail/" + 
+                            players[index].PlyCod + "\" /></td><td class='cell-normal'>" + players[index].PlyFstNam + 
+                            "</td><td class='cell-normal'>" + players[index].PlyFamNam + "</td></tr>");
                     }
                     
                     $receiveList.append($table);

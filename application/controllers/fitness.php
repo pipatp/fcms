@@ -19,5 +19,28 @@ class fitness extends CI_Controller {
         
         $this->load->view('fit_main', $data);
     }
+    
+    //----------------------------------------------
+    // Fitness Registration
+    //----------------------------------------------
+    function viewRegistration() {
+        $this->load->view('fit_registration');
+    }
+    
+    function getFitnessWaitingList($date) {
+        $this->load->model('fitness_model');
+        
+        $data["content"] = $this->fitness_model->getFitnessRegistrationList($date, 'N');
+        
+        $this->load->view('json_result', $data);
+    }
+    
+    function getFitnessRegisteredList($date) {
+        $this->load->model('fitness_model');
+        
+        $data["content"] = $this->fitness_model->getFitnessRegistrationList($date, 'Y');
+        
+        $this->load->view('json_result', $data);        
+    }
 }
 

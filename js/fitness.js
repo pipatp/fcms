@@ -1,7 +1,7 @@
-function viewStoreInTransactions() {
+function viewRegistration() {
     selectTab(this);
 
-    $.ajax("viewStoreInTransactions").done(function(result) {
+    $.ajax("viewRegistration").done(function(result) {
         var $content = $(".content-body");
 
         $content.html(result);
@@ -22,11 +22,8 @@ $(function() {
                 
     // Set fitness tab selected
     $(".top-menu ul li:eq(6)").addClass("selected");
-//    $(".sub-menu ul li:eq(0)").addClass("selected");
     
-    
-//    var newHeight = $("body").height() - $(".top-menu").height() - $(".sub-menu").height() - 50 + "px";
-//    $(".content-body").css("height", newHeight);
+    $("#fitness-register-tab").click(viewRegistration);
 });
 
 
