@@ -14,4 +14,12 @@ class player_model extends CI_Model {
         
         return $query->row();
     }
+    
+    function searchPlayer($term) {
+        $data = array($term);
+        
+        $query = $this->db->query("CALL fn_findPlayer(?)", $data);
+        
+        return $query->result();
+    }
 }

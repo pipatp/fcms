@@ -42,5 +42,26 @@ class fitness extends CI_Controller {
         
         $this->load->view('json_result', $data);        
     }
+
+    //----------------------------------------------
+    // Fitness Modification
+    //----------------------------------------------
+    function viewModification() {
+        $this->load->view('fit_modification');
+    }
+    
+    //----------------------------------------------
+    // Fitness Record Result
+    //----------------------------------------------
+    function viewRecordResult() {
+        $this->load->view('fit_record_result');
+    }
+
+    //----------------------------------------------
+    // Fitness Player Info
+    //----------------------------------------------
+    function viewPlayerInfo() {
+        $this->load->view('fit_player_info');
+    }
 }
 

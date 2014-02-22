@@ -71,4 +71,17 @@ class player extends CI_Controller {
         
         header("Content-Type: image/jpg");
         echo $this->image_lib->resize()->save_dynamic();;
-    }}
+    }
+       
+    function search() {
+        $queryParams = $this->getQueryStringParams();
+        
+        $term = $queryParams['term'];
+        
+        $this->load->model('player_model');
+        
+        $data["content"] = $this->player_model->searchPlayer($term);
+        
+        $this->load->view('json_result', $data);        
+    }
+}
