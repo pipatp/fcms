@@ -13,7 +13,7 @@ function viewModification() {
 
     $.ajax("viewModification").done(function(result) {
         var $content = $(".content-body");
-
+        
         $content.html(result);
     });
 }

@@ -5,10 +5,10 @@
         <group>
             <file>file:/L:/AppServ/www/fcms/application/views/fit_player_info.php</file>
             <file>file:/L:/AppServ/www/fcms/application/controllers/fitness.php</file>
+            <file>file:/L:/AppServ/www/fcms/application/views/fit_main.php</file>
             <file>file:/L:/AppServ/www/fcms/application/views/fit_modification.php</file>
             <file>file:/L:/AppServ/www/fcms/application/models/fitness_model.php</file>
             <file>file:/L:/AppServ/www/fcms/js/fitness.js</file>
-            <file>file:/L:/AppServ/www/fcms/application/views/fit_navigation.php</file>
         </group>
     </open-files>
 </project-private>

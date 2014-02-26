@@ -74,6 +74,51 @@
 
     min-height: 300px;
 }
+
+.player-comment-section .comment {
+    border: #AAA solid 1px;
+    
+    white-space: pre;
+}
+
+.fitness-worklist-section {
+    margin: 10px 10px 0 10px;
+}
+
+.fitness-worklist-section .fitness-worklist-add {
+    margin-bottom: 5px;
+}
+
+.fitness-worklist-section .fitness-worklist-add img {
+    margin-left: 10px;
+    margin-right: 5px;
+}
+
+.fitness-worklist-section table {
+    width: 100%;
+}
+
+.fitness-worklist-section .fix-content {
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    width: 36px;
+}
+
+.fitness-worklist-section .fit-content {
+    width: 1px;
+    white-space: nowrap;
+    
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    vertical-align: middle;
+}
+
+.fitness-worklist-section .content {
+    padding-left: 10px;
+    padding-right: 10px;
+}
 </style>
 <div id="fitness-modification">
     <div class="search-box-section">
@@ -86,19 +131,52 @@
                 <div class="player-detail"></div>
             </div>
             <div class="player-comment-section">
-                <textarea class="stretch"></textarea>
+                <div class="stretch comment" title="ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข"></div>
             </div>
         </div>
         <div class="right-col">
-            <div id="modify-date-selection" />
+            <div id="modify-date-selection"></div>
+            <div class="fitness-worklist-section">
+                <div class="fitness-worklist-add"><img src="../../images/add.png" />เพิ่มเติมรายการฟิตเนส</div>
+                <table class="table table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="fix-content"></th>
+                            <th class="fit-content">เริ่ม</th>
+                            <th class="fit-content">สิ้นสุด</th>
+                            <th class="content">รายการ</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="confirmDialog" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    ยืนยันการลบข้อมูล
+                </div>
+                <div class="modal-body">
+                    คุณต้องการที่จะลบรายการหรือไม่
+                </div>
+                <div class="modal-footer">
+                    <button id="deleteConfirmButton" type="button" class="btn btn-danger">ตกลง</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 <script>
+    var playerCode = "";
+    var $selectedRow;
+    
     function addDetail($detailDiv, key, val) {
         $detailDiv.append("<tr><td style='padding-left: 5px;font-weight: bold; text-align:right'>" + key + "</td><td style='padding-left: 10px;'>" + val + "</td></tr>");
     }
-    
+ 
     function displayPlayerInfo(item) {
         playerCode = item.PlyCod;
         
@@ -125,7 +203,20 @@
         
         $("#player-add-meal-table").show();
     }
-
+    
+    function getPlayerComment(playerCode) {
+        $.get("../player/comment/" + playerCode + "?cat=FIT").done(function(result) {
+            var comment = jQuery.parseJSON(result);
+            
+            if (comment.PlcCmt) {
+                $(".player-comment-section .stretch").text(comment.PlcCmt);
+            }
+            else {
+                $(".player-comment-section .stretch").text("");
+            }
+        });
+    }
+ 
     $("#player-search-box").autocomplete({
         source: "../player/search",
         minLength: 2,
@@ -137,6 +228,10 @@
 
             displayPlayerInfo(ui.item);
             
+            getPlayerComment(ui.item.PlyCod);
+            
+            $("#player-modification-detail").show();
+            
             return false;
         }
     }).data("ui-autocomplete")._renderItem = function(ul, item) {
@@ -144,9 +239,109 @@
         return $("<li class='list-auto-item'>").append("<a>" + displayName + "</a>" ).appendTo(ul);
     };
     
+    function formatTime(timeText) {
+        return timeText.substr(0, 2) + ":" + timeText.substr(2, 2);
+    }
+
+    function createWorklistItemRow(item) {
+        var $row = $("<tr>", { "data-worklist-seq": item.WklPwlSeq, "data-item-seq": item.WklSeqNum,
+            "data-item-code": item.WklOdrCod });
+        console.info(item);
+        
+        var $deleteItem = $("<img>", { src: "../../images/delete.png" });
+        $deleteItem.click(function() {
+            var dialog = $("#confirmDialog");
+             
+            $selectedRow = $row;
+            
+            dialog.modal("show");
+        });
+        
+        $("<td>", { class: "fix-content" }).append($deleteItem).appendTo($row);
+        $("<td>", { class: "fit-content" }).text(formatTime(item.WklStrDtm)).appendTo($row);
+        $("<td>", { class: "fit-content" }).text(formatTime(item.WklEndDtm)).appendTo($row);
+        $("<td>", { class: "content" }).text(item.OdrLocNam).appendTo($row);
+        
+        return $row;
+    }
+
     $("#modify-date-selection").datepicker({
         onSelect: function(dateText, inst) {
+            var selectedDate = $(this).datepicker("getDate");
+            
+            var date = $.datepicker.formatDate("yymmdd", selectedDate);
+            
+            $.get("getFitnessWorklist/" + playerCode + "/" + date).done(function(result) {
+                var worklist = jQuery.parseJSON(result);
+                
+                var $tableBody = $(".fitness-worklist-section tbody");
+
+                $tableBody.empty();
+                
+                if (worklist.length > 0) {
+                    for (var index=0; index<worklist.length; index++) {
+                        var $row = createWorklistItemRow(worklist[index]);
+
+                        $tableBody.append($row);
+                    }
+                } else {
+                    $("<tr><td class='content' colspan='4'>*** ไม่มีรายการของวันที่เลือก</td></tr>").appendTo($tableBody);
+                }
+            });
         }
     });
     $("#modify-date-selection").datepicker("setDate", new Date());
+    
+    $(".player-comment-section").dblclick(function() {
+        var $section = $(this);
+       
+        var $commentDiv = $section.children(".stretch");
+        $commentDiv.tooltip('hide');
+        $commentDiv.detach();
+        
+        var $commentBox = $("<textarea class='stretch'></textarea>");
+        $commentBox.val($commentDiv.text());
+        
+        $section.append($commentBox);
+        
+        $commentBox.focus();
+    });
+    $(".player-comment-section").focusout(function() {
+        var $section = $(this);
+       
+        var $commentBox = $section.children(".stretch");
+        $commentBox.detach();
+        
+        var $commentDiv = $("<div class='stretch comment' title='ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข'></div>");
+        $commentDiv.text($commentBox.val());
+        
+        $commentDiv.tooltip();
+        
+        $section.append($commentDiv);
+    });
+    
+    $(".player-comment-section .stretch").tooltip();
+    
+    $("#confirmDialog").modal({ show: false });
+    
+    $("#deleteConfirmButton").click(function() {
+        var dialog = $("#confirmDialog");
+        
+        dialog.attr("data-item-seq");
+        
+        dialog.modal("hide");
+        
+        var deleteItem = {};
+        deleteItem.worklistSeq = $selectedRow.attr("data-worklist-seq");
+        deleteItem.seqNum = $selectedRow.attr("data-item-seq");
+        deleteItem.itemCode = $selectedRow.attr("data-item-code");
+
+        $.post("deleteFitnessWorklist", JSON.stringify(deleteItem)).done(function() {
+            $selectedRow.detach();
+        }).fail(function() {
+           alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    });
+    
+    $("#player-modification-detail").hide();
 </script>

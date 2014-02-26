@@ -17,4 +17,23 @@ class fitness_model extends CI_Model {
         
         return $query->result();
     }
+    
+    //----------------------------------------------
+    // Fitness Modification
+    //----------------------------------------------
+    function getFitnessWorklist($playerCode, $date) {
+        $data = array($playerCode, $date);
+        
+        $query = $this->db->query("CALL fn_getFitnessWorklist(?, ?)", $data);
+        
+        return $query->result();
+    }
+    
+    function deleteFitnessWorklist($worklistSeq, $seqNum, $itemCode) {
+        $data = array($worklistSeq, $seqNum, $itemCode);
+        
+        $query = $this->db->query("CALL fn_deleteWorklistItem(?, ?, ?)", $data);
+        
+        $query->row();
+    }
 }

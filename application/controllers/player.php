@@ -84,4 +84,16 @@ class player extends CI_Controller {
         
         $this->load->view('json_result', $data);        
     }
+    
+    function comment($playerCode) {
+        $queryParams = $this->getQueryStringParams();
+        
+        $category = $queryParams['cat'];
+        
+        $this->load->model('player_model');
+        
+        $data["content"] = $this->player_model->getComment($playerCode, $category);
+        
+        $this->load->view('json_result', $data);
+    }
 }

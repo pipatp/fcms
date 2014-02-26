@@ -22,4 +22,12 @@ class player_model extends CI_Model {
         
         return $query->result();
     }
+    
+    function getComment($playerCode, $category) {
+        $data = array($playerCode, $category);
+        
+        $query = $this->db->query("CALL fn_getPlayerComment(?, ?)", $data);
+        
+        return $query->row();
+    }
 }

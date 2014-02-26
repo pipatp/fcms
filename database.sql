@@ -106,6 +106,16 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_deleteWorklistItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_deleteWorklistItem`(IN `p_worklistSeq` INT, IN `p_seqNum` INT, IN `p_itemCode` VARCHAR(20))
+BEGIN
+	DELETE FROM wklinf
+	WHERE WklPwlSeq = p_worklistSeq AND WklSeqNum = p_seqNum AND WklOdrCod = p_itemCode;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_editPlayerMealItem
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_editPlayerMealItem`(IN `p_worklistSeq` INT, IN `p_orderCode` VARCHAR(20), IN `p_mealSeq` INT, IN `p_mealCode` VARCHAR(20), IN `p_mealWeight` INT, IN `p_mealCalorie` INT)
@@ -153,6 +163,18 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_getFitnessWorklist
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getFitnessWorklist`(IN `p_playerCode` VARCHAR(20), IN `p_date` VARCHAR(8))
+BEGIN
+	SELECT wi.*, om.OdrLocNam, om.OdrEngNam
+	FROM pwlinf pw, wklinf wi, odrmst om
+	WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = p_date AND
+	wi.WklOdrCod = om.OdrCod AND om.OdrCatTyp = 'FIT';
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getFoodMealSet
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getFoodMealSet`(IN `p_yearMonth` VARCHAR(6), IN `p_day` VARCHAR(2))
@@ -162,6 +184,17 @@ BEGIN
 	WHERE om.OmmNum = od.OmdNum AND od.OmdOdrCod = mm.OdrCod AND om.OmmYrm = p_yearMonth AND
 		om.OmmDay = p_day
 	ORDER BY od.OmdNum, od.OmdSeq;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getPlayerComment
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPlayerComment`(IN `p_playerCode` VARCHAR(20), IN `p_category` VARCHAR(20))
+BEGIN
+	SELECT *
+	FROM plcinf
+	WHERE PlcCod = p_playerCode AND PlcCatTyp = p_category;
 END//
 DELIMITER ;
 
@@ -291,7 +324,7 @@ CREATE TABLE IF NOT EXISTS `odrmst` (
 
 -- Dumping data for table fcms.odrmst: ~18 rows (approximately)
 /*!40000 ALTER TABLE `odrmst` DISABLE KEYS */;
-INSERT INTO `odrmst` (`OdrCod`, `OdrLocNam`, `OdrEngNam`, `OdrCatTyp`, `OdrSubTyp`, `OdrCurStt`, `OdrCreDte`, `OdrExpDte`, `OdrUpdUid`, `OdrUpdDts`) VALUES
+INSERT IGNORE INTO `odrmst` (`OdrCod`, `OdrLocNam`, `OdrEngNam`, `OdrCatTyp`, `OdrSubTyp`, `OdrCurStt`, `OdrCreDte`, `OdrExpDte`, `OdrUpdUid`, `OdrUpdDts`) VALUES
 	('FIT000001', 'วิ่งลู่', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL),
 	('FIT000002', 'ปั่นจักรยาน', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL),
 	('NUT000001', 'ข้าวผัดหมู', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL),
@@ -327,7 +360,7 @@ CREATE TABLE IF NOT EXISTS `omdmst` (
 
 -- Dumping data for table fcms.omdmst: ~21 rows (approximately)
 /*!40000 ALTER TABLE `omdmst` DISABLE KEYS */;
-INSERT INTO `omdmst` (`OmdNum`, `OmdSeq`, `OmdOdrCod`, `OmdMelWeg`, `OmdMelCal`, `OmdUpdUid`, `OmdUpdDts`) VALUES
+INSERT IGNORE INTO `omdmst` (`OmdNum`, `OmdSeq`, `OmdOdrCod`, `OmdMelWeg`, `OmdMelCal`, `OmdUpdUid`, `OmdUpdDts`) VALUES
 	(1, 1, 'NUT000001', 300, 350, NULL, NULL),
 	(1, 2, 'NUT000006', 100, 200, NULL, NULL),
 	(1, 3, 'NUT000007', 150, 100, NULL, NULL),
@@ -366,7 +399,7 @@ CREATE TABLE IF NOT EXISTS `ommmst` (
 
 -- Dumping data for table fcms.ommmst: ~18 rows (approximately)
 /*!40000 ALTER TABLE `ommmst` DISABLE KEYS */;
-INSERT INTO `ommmst` (`OmmNum`, `OmmYrm`, `OmmDay`, `OmmWkd`, `OmmTyp`, `OmmUpdUid`, `OmmUpdDts`) VALUES
+INSERT IGNORE INTO `ommmst` (`OmmNum`, `OmmYrm`, `OmmDay`, `OmmWkd`, `OmmTyp`, `OmmUpdUid`, `OmmUpdDts`) VALUES
 	(1, '201401', '24', 5, 'BRK', NULL, NULL),
 	(2, '201401', '24', 5, 'LNH', NULL, NULL),
 	(3, '201401', '24', 5, 'DES', NULL, NULL),
@@ -415,7 +448,7 @@ CREATE TABLE IF NOT EXISTS `piminf` (
 
 -- Dumping data for table fcms.piminf: ~1 rows (approximately)
 /*!40000 ALTER TABLE `piminf` DISABLE KEYS */;
-INSERT INTO `piminf` (`PimPlyCod`, `PimFac`, `PimFnt`, `PimBak`, `PimRit`, `PimLef`, `PimUpdUid`, `PimUpdDts`) VALUES
+INSERT IGNORE INTO `piminf` (`PimPlyCod`, `PimFac`, `PimFnt`, `PimBak`, `PimRit`, `PimLef`, `PimUpdUid`, `PimUpdDts`) VALUES
 	('P00001', 'L:\\AppServ\\www\\fcms\\images\\ChainatFC-logo2013.png', NULL, NULL, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `piminf` ENABLE KEYS */;
 
@@ -434,6 +467,23 @@ CREATE TABLE IF NOT EXISTS `plainf` (
 -- Dumping data for table fcms.plainf: ~0 rows (approximately)
 /*!40000 ALTER TABLE `plainf` DISABLE KEYS */;
 /*!40000 ALTER TABLE `plainf` ENABLE KEYS */;
+
+
+-- Dumping structure for table fcms.plcinf
+CREATE TABLE IF NOT EXISTS `plcinf` (
+  `PlcCod` char(20) NOT NULL,
+  `PlcCatTyp` char(20) NOT NULL,
+  `PlcCmt` text NOT NULL,
+  `PlcUpdUid` char(12) NOT NULL,
+  `PlcUpdDts` char(14) NOT NULL,
+  PRIMARY KEY  (`PlcCod`,`PlcCatTyp`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Player additional comment infomation';
+
+-- Dumping data for table fcms.plcinf: 1 rows
+/*!40000 ALTER TABLE `plcinf` DISABLE KEYS */;
+INSERT IGNORE INTO `plcinf` (`PlcCod`, `PlcCatTyp`, `PlcCmt`, `PlcUpdUid`, `PlcUpdDts`) VALUES
+	('P00001', 'FIT', 'สุขภาพดี', '', '');
+/*!40000 ALTER TABLE `plcinf` ENABLE KEYS */;
 
 
 -- Dumping structure for table fcms.plpinf
@@ -521,7 +571,7 @@ CREATE TABLE IF NOT EXISTS `plyinf` (
 
 -- Dumping data for table fcms.plyinf: ~2 rows (approximately)
 /*!40000 ALTER TABLE `plyinf` DISABLE KEYS */;
-INSERT INTO `plyinf` (`PlyCod`, `PlyTitCod`, `PlyFstNam`, `PlyMidNam`, `PlyFamNam`, `PlyFstEng`, `PlyMidEng`, `PlyFamEng`, `PlyNatCod`, `PlyPerNum`, `PlyPasNum`, `PlyBirDte`, `PlyAddNum`, `PlyAddDtl`, `PlyAddCty`, `PlyAddPrv`, `PlyAddZip`, `PlyAddCot`, `PlyNumEng`, `PlyDtlEng`, `PlyRegCod`, `PlySexTyp`, `PlyPhnNum`, `PlyMblNum`, `PlyConPer`, `PlyConPhn`, `PlyEmlAdd`, `PlyCurStt`, `PlyCreDte`, `PlyExpDte`, `PlyUpdUid`, `PlyUpdDts`) VALUES
+INSERT IGNORE INTO `plyinf` (`PlyCod`, `PlyTitCod`, `PlyFstNam`, `PlyMidNam`, `PlyFamNam`, `PlyFstEng`, `PlyMidEng`, `PlyFamEng`, `PlyNatCod`, `PlyPerNum`, `PlyPasNum`, `PlyBirDte`, `PlyAddNum`, `PlyAddDtl`, `PlyAddCty`, `PlyAddPrv`, `PlyAddZip`, `PlyAddCot`, `PlyNumEng`, `PlyDtlEng`, `PlyRegCod`, `PlySexTyp`, `PlyPhnNum`, `PlyMblNum`, `PlyConPer`, `PlyConPhn`, `PlyEmlAdd`, `PlyCurStt`, `PlyCreDte`, `PlyExpDte`, `PlyUpdUid`, `PlyUpdDts`) VALUES
 	('P00001', NULL, 'สมชาย', NULL, 'เข็มกลัด', 'Somchai', NULL, 'Khemglad', 'ไทย', NULL, NULL, '19800401', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'M', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	('P00002', NULL, 'จิรายุ', NULL, 'ไม่รู้', 'Jirayu', NULL, 'Mairu', 'ไทย', NULL, NULL, '19850125', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'M', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `plyinf` ENABLE KEYS */;
@@ -597,7 +647,7 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
 
 -- Dumping data for table fcms.pwlinf: ~4 rows (approximately)
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
-INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCurStt`, `PwlRegUid`, `PwlVstDtm`, `PwlUpdUid`, `PwlUpdDts`) VALUES
+INSERT IGNORE INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCurStt`, `PwlRegUid`, `PwlVstDtm`, `PwlUpdUid`, `PwlUpdDts`) VALUES
 	(1, 'P00001', '20140221', '0530', 'A', NULL, NULL, NULL, NULL),
 	(2, 'P00001', '20140119', '0530', 'A', NULL, NULL, NULL, NULL),
 	(3, 'P00002', '20140216', '0530', 'A', NULL, NULL, NULL, NULL),
@@ -626,7 +676,7 @@ CREATE TABLE IF NOT EXISTS `usrmst` (
 
 -- Dumping data for table fcms.usrmst: ~1 rows (approximately)
 /*!40000 ALTER TABLE `usrmst` DISABLE KEYS */;
-INSERT INTO `usrmst` (`UsrCod`, `UsrFstNam`, `UsrMidNam`, `UsrFamNam`, `UsrFstEng`, `UsrMidEng`, `UsrFamEng`, `UsrLogPwd`, `UsrEmpCod`, `UsrDepCod`, `UsrCreDte`, `UsrExpDte`, `UsrUpdUid`, `UsrUpdDts`) VALUES
+INSERT IGNORE INTO `usrmst` (`UsrCod`, `UsrFstNam`, `UsrMidNam`, `UsrFamNam`, `UsrFstEng`, `UsrMidEng`, `UsrFamEng`, `UsrLogPwd`, `UsrEmpCod`, `UsrDepCod`, `UsrCreDte`, `UsrExpDte`, `UsrUpdUid`, `UsrUpdDts`) VALUES
 	('test', NULL, NULL, NULL, NULL, NULL, NULL, 'welcome', NULL, NULL, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `usrmst` ENABLE KEYS */;
 
@@ -649,7 +699,7 @@ CREATE TABLE IF NOT EXISTS `wklinf` (
 
 -- Dumping data for table fcms.wklinf: ~12 rows (approximately)
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
-INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
+INSERT IGNORE INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),
 	(1, 2, 'FIT000002', '0700', '0730', 30, 'N', NULL, NULL, NULL, NULL),
 	(1, 3, 'NUTBRK001', '0800', '0900', 60, 'Y', NULL, NULL, NULL, NULL),
@@ -680,7 +730,7 @@ CREATE TABLE IF NOT EXISTS `wklmst` (
 
 -- Dumping data for table fcms.wklmst: ~10 rows (approximately)
 /*!40000 ALTER TABLE `wklmst` DISABLE KEYS */;
-INSERT INTO `wklmst` (`WklPlyCod`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklUpdUid`, `WklUpdDts`) VALUES
+INSERT IGNORE INTO `wklmst` (`WklPlyCod`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklUpdUid`, `WklUpdDts`) VALUES
 	('P00001', 1, 'FIT000001', '0600', '0700', 60, NULL, NULL),
 	('P00001', 2, 'FIT000002', '0700', '0730', 30, NULL, NULL),
 	('P00001', 3, 'NUTBRK001', '0800', '0900', 60, NULL, NULL),
@@ -713,7 +763,7 @@ CREATE TABLE IF NOT EXISTS `wkminf` (
 
 -- Dumping data for table fcms.wkminf: ~9 rows (approximately)
 /*!40000 ALTER TABLE `wkminf` DISABLE KEYS */;
-INSERT INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMelWeg`, `WkmMelCal`, `WkmEdtYon`, `WkmMelYrm`, `WkmMelDay`, `WkmOdrStt`, `WkmUpdUid`, `WkmUpdDts`) VALUES
+INSERT IGNORE INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMelWeg`, `WkmMelCal`, `WkmEdtYon`, `WkmMelYrm`, `WkmMelDay`, `WkmOdrStt`, `WkmUpdUid`, `WkmUpdDts`) VALUES
 	(1, 'NUTBRK001', 2, 'NUT000006', 100, 250, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTBRK001', 3, 'NUT000007', 150, 100, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTBRK001', 4, 'NUT000008', 50, 100, 'N', '201401', '24', 'N', NULL, NULL),
