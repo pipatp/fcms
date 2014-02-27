@@ -149,6 +149,18 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_getAllWorklist
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getAllWorklist`(IN `p_playerCode` VARCHAR(20), IN `p_date` VARCHAR(8))
+BEGIN
+	SELECT wi.*, om.*
+	FROM pwlinf pw JOIN wklinf wi ON pw.PwlSeqNum=wi.WklPwlSeq LEFT JOIN odrmst om
+	ON wi.WklOdrCod = om.OdrCod
+	WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = p_date;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getFitnessRegistrationList
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getFitnessRegistrationList`(IN `p_date` VARCHAR(8), IN `p_worklistState` VARCHAR(1))
