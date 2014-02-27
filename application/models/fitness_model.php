@@ -36,4 +36,12 @@ class fitness_model extends CI_Model {
         
         $query->row();
     }
+    
+    function getAllWorklist($playerCode, $date) {
+        $data = array($playerCode, $date);
+        
+        $query = $this->db->query("CALL fn_getAllWorklist(?, ?)", $data);
+        
+        return $query->result();
+    }
 }

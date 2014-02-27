@@ -71,6 +71,14 @@ class fitness extends CI_Controller {
         }
     }
     
+    function getAllWorklist($playerCode, $date) {
+        $this->load->model('fitness_model');
+        
+        $data["content"] = $this->fitness_model->getAllWorklist($playerCode, $date);
+        
+        $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Fitness Record Result
     //----------------------------------------------

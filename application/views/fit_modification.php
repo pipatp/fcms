@@ -119,6 +119,52 @@
     padding-left: 10px;
     padding-right: 10px;
 }
+
+/* Calendar */
+.time-hour-row {
+    height: 20px;
+    border-bottom: thin dashed rgb(225,225,225);
+}
+
+.calendar-panel {
+    padding-left: 60px;
+}
+
+.calendar-panel .day-event {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    width: 200px;
+    height: 80px;
+
+    padding-left: 8px;
+    padding-right: 8px;
+
+    float: left;
+    position: absolute;
+}
+
+.calendar-panel .day-event .header {
+    font-weight: bold;
+}
+
+.calendar-panel .time-hour {
+    position: absolute;
+    width: 100%;
+
+    margin-left: -60px;
+    z-index: 0;
+}
+
+.calendar-panel .time-hour .time-hour-row:nth-child(4n), .calendar-panel .time-hour .time-hour-row:nth-child(4n-1) {
+    background-color: #EFEFEF;
+}
+
+.event-info {
+    border: 1px solid rgb(30,144,255);
+    background-color: rgb(209,232,255);
+}
 </style>
 <div id="fitness-modification">
     <div class="search-box-section">
@@ -163,6 +209,60 @@
                 </div>
                 <div class="modal-footer">
                     <button id="deleteConfirmButton" type="button" class="btn btn-danger">ตกลง</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="addDialog" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    เพิ่มเติมรายการฟิตเนส
+                </div>
+                <div class="modal-body" style='overflow-y: auto;height: 500px;'>
+                    <div class="row">
+                        <div class="col-md-6 col-xs-6">
+                            <!--<div style="display:block;height:auto">-->
+                                <div class="row">
+                                    <div class="col-md-12 col-xs-12">                   
+                                        <div class="calendar-panel clearfix" style="position: relative">
+                                            <div class="time-hour">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <!--</div>-->
+                        </div>
+                        <div class="col-md-6 col-xs-6">
+                            <div class="form-horizontal" style="margin-left: 10px;">
+                                <div class="form-group">
+                                    <label class="control-label" style="margin-right: 10px;">เวลาเริ่มต้น:</label>
+                                    <select class="form-control hour-selection" style="width:80px;">
+                                    </select>
+                                    <select class="form-control" style="width:80px">
+                                        <option value="00">00</option>
+                                        <option value="30">30</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" style="margin-right: 10px;">เวลาสิ้นสุด:</label>
+                                    <select class="form-control hour-selection" style="width:80px;">
+                                    </select>
+                                    <select class="form-control" style="width:80px">
+                                        <option value="00">00</option>
+                                        <option value="30">30</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" style="margin-right: 10px;">รายการฟิตเนส:</label>
+                                    <input type="text" class="form-control" placeholder="ชื่อรายการฟิตเนส" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>                  
+                </div>
+                <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
                 </div>
             </div>
@@ -323,6 +423,7 @@
     $(".player-comment-section .stretch").tooltip();
     
     $("#confirmDialog").modal({ show: false });
+    $("#addDialog").modal({ show: false });
     
     $("#deleteConfirmButton").click(function() {
         var dialog = $("#confirmDialog");
@@ -343,5 +444,126 @@
         });
     });
     
+    function convertToTimeNumber(timeText) {
+        var h = parseInt(timeText.substr(0, 2));
+        var m = parseFloat(timeText.substr(2, 2));
+        
+        return h + (m/60);
+    }
+    
+    function addWorklistSchedule(item) {
+        var start = convertToTimeNumber(item.WklStrDtm);
+        var end = convertToTimeNumber(item.WklEndDtm);
+        
+        var detail = item.OdrLocNam ? " - " + item.OdrLocNam : "";
+        
+        addSchedule(start, end, item.WklOdrCod + detail);
+    }
+    
+    $(".fitness-worklist-add").click(function() {
+        var selectedDate = $("#modify-date-selection").datepicker("getDate");           
+        var date = $.datepicker.formatDate("yymmdd", selectedDate);
+        
+        $.get("getAllWorklist/" + playerCode + "/" + date).done(function(result) {
+            
+            var worklist = jQuery.parseJSON(result);
+            
+            $(".calendar-panel .day-event").detach();
+            
+            for (var index=0; index<worklist.length; index++) {
+                addWorklistSchedule(worklist[index]);
+            }
+            
+            $("#addDialog").modal("show");
+        });      
+    });
+    
     $("#player-modification-detail").hide();
+    
+    var startTimeDay = 5;
+    var endTimeDay = 21;
+
+    function createHourRow(hour) {
+        var $row = $("<div>", { class:"row time-hour-row" });
+
+        var $timeCol = $("<div>", { class:"col-md-1 col-xs-1" });
+        var $detailCol = $("<div>", { class:"col-md-11 col-xs-11" });
+
+        if (hour) {
+            $timeCol.text(hour);
+        }
+
+        $row.append($timeCol);
+        $row.append($detailCol);
+
+        return $row;
+    }
+    
+    function zeroPadding(num) {
+        var numText = "" + num;
+        if (num < 10) {
+            numText = "0" + numText;
+        }
+        
+        return numText;
+    }
+    
+    function timeFormat(hour) {
+        var hourInt = Math.floor(hour);
+        var hourText = zeroPadding(hourInt);
+        
+        var decimal = (hour - hourInt) * 60;
+
+        var minuteText = zeroPadding(decimal);
+
+        return hourText + ":" + minuteText;
+    }
+
+    function createSchedule(startTime, endTime, detail) {
+        var startPos = (startTime - startTimeDay)  * 40;
+        var height = (endTime-startTime) * 40 + 1;
+
+        var $schedule = $("<div>", { class: "pull-left day-event event-info" } );
+
+        var $header = $("<div>", { class: "header" } );
+        $header.text(timeFormat(startTime) + " - " + timeFormat(endTime));
+
+        $schedule.append($header);
+        $schedule.append(detail);
+
+        $schedule.css("top", startPos);
+        $schedule.css("height", height);
+
+        return $schedule;
+    }
+
+    function addSchedule(startTime, endTime, detail) {
+        $(".calendar-panel").append(createSchedule(startTime, endTime, detail));
+    }
+
+    function initializeTimeSelectOption() {
+        var $option = $(".hour-selection");
+        
+        for (var time=startTimeDay; time<=endTimeDay; time++) {
+            $("<option>", { value: zeroPadding(time) }).text(time).appendTo($option);
+        }
+    }
+
+    $(function() {          
+        var $timeTable = $(".time-hour");
+
+        for (var time=startTimeDay; time<=endTimeDay; time++) {
+            var $row = createHourRow(timeFormat(time));
+            $timeTable.append($row);
+
+            $row = createHourRow();
+            $timeTable.append($row);
+        }
+        
+        initializeTimeSelectOption();
+//
+//        addSchedule(7, 8, "Test sfs sdv sdvd df gdf dfdfdfdgdf gdfdfg df g");
+//
+//        addSchedule(11, 13, "Test sfs sdv sdvd df gdf dfdfdfdgdf gdfdfg df g");
+    });
 </script>
