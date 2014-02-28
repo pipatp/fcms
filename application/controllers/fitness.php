@@ -9,6 +9,11 @@ class fitness extends CI_Controller {
         }
     }
     
+    protected function getQueryStringParams() {
+        parse_str($_SERVER['QUERY_STRING'], $params);
+        return $params;
+    }
+    
     function main() {
         $loginSession = $this->session->userdata('user_login');
         
@@ -53,8 +58,11 @@ class fitness extends CI_Controller {
     function getFitnessWorklist($playerCode, $date) {
         $this->load->model('fitness_model');
         
-        $data["content"] = $this->fitness_model->getFitnessWorklist($playerCode, $date);
-        
+        $obj["worklistSeq"] = $this->fitness_model->hasWorklist($playerCode, $date);
+        $obj["result"] = $this->fitness_model->getFitnessWorklist($playerCode, $date);
+            
+        $data["content"] = $obj;
+
         $this->load->view('json_result', $data);
     }
     
@@ -77,6 +85,35 @@ class fitness extends CI_Controller {
         $data["content"] = $this->fitness_model->getAllWorklist($playerCode, $date);
         
         $this->load->view('json_result', $data);
+    }
+    
+    function searchFitnessOrder() {
+        $queryParams = $this->getQueryStringParams();
+        
+        $term = $queryParams['term'];
+        
+        $this->load->model('fitness_model');
+        
+        $data["content"] = $this->fitness_model->searchFitnessOrder($term);
+        
+        $this->load->view('json_result', $data);           
+    }
+    
+    function addFitnessWorklist() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('fitness_model');
+
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        try {
+            $this->fitness_model->addFitnessWorklist($postData["worklistSeq"],
+                 $postData["orderCode"], $postData["start"],
+                 $postData["end"], $postData["duration"], $user);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Delete item failed.');
+        }
     }
     
     //----------------------------------------------

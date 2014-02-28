@@ -82,6 +82,29 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_addPlayerWorklist
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addPlayerWorklist`(IN `p_worklistSeq` INT, IN `p_orderCode` VARCHAR(20), IN `p_start` VARCHAR(12), IN `p_end` VARCHAR(12), IN `p_duration` SMALLINT, IN `p_user` VARCHAR(12))
+BEGIN
+	DECLARE l_seq INTEGER;
+	
+	DECLARE l_exists INTEGER;
+	SET l_exists = 0;
+	
+	SELECT 1 INTO l_exists FROM pwlinf pw WHERE pw.PwlSeqNum = p_worklistSeq;
+	
+	IF l_exists = 0 THEN
+		CALL pRaiseError("this is a sample error message");
+	END IF;
+	
+	SELECT IFNULL(MAX(wi.WklSeqNum), 0) + 1 INTO l_seq FROM wklInf wi WHERE wi.WklPwlSeq = p_worklistSeq;
+	
+	INSERT INTO wklinf(WklPwlSeq, WklSeqNum, WklOdrCod, WklStrDtm, WklEndDtm, WklActDur, WklCurStt, WklUpdUid, WklUpdDts)
+	VALUES (p_worklistSeq, l_seq, p_orderCode, p_start, p_end, p_duration, 'N', p_user, DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%k%i%S'));
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_deleteFoodMeal
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_deleteFoodMeal`(IN `p_yearMonth` VARCHAR(6), IN `p_day` VARCHAR(2), IN `p_weekDay` SMALLINT, IN `p_type` VARCHAR(3), IN `p_code` VARCHAR(20))
@@ -137,6 +160,18 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_findOrder
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_findOrder`(IN `p_name` VARCHAR(200), IN `p_category` VARCHAR(20))
+BEGIN
+	SELECT *
+	FROM odrmst
+	WHERE OdrCatTyp = p_category AND
+		(OdrLocNam LIKE CONCAT('%', p_name, '%') OR OdrEngNam LIKE CONCAT('%', p_name, '%'));
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_findPlayer
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_findPlayer`(IN `p_term` VARCHAR(100))
@@ -181,7 +216,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getFitnessWorklist`(IN `p_player
 BEGIN
 	SELECT wi.*, om.OdrLocNam, om.OdrEngNam
 	FROM pwlinf pw, wklinf wi, odrmst om
-	WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = p_date AND
+	WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = p_date AND pw.PwlSeqNum = wi.WklPwlSeq AND
 	wi.WklOdrCod = om.OdrCod AND om.OdrCatTyp = 'FIT';
 END//
 DELIMITER ;
@@ -661,7 +696,7 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
 INSERT IGNORE INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCurStt`, `PwlRegUid`, `PwlVstDtm`, `PwlUpdUid`, `PwlUpdDts`) VALUES
 	(1, 'P00001', '20140221', '0530', 'A', NULL, NULL, NULL, NULL),
-	(2, 'P00001', '20140119', '0530', 'A', NULL, NULL, NULL, NULL),
+	(2, 'P00001', '20140301', '0530', 'A', NULL, NULL, NULL, NULL),
 	(3, 'P00002', '20140216', '0530', 'A', NULL, NULL, NULL, NULL),
 	(4, 'P00002', '20140125', '0530', 'A', NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `pwlinf` ENABLE KEYS */;
@@ -709,7 +744,7 @@ CREATE TABLE IF NOT EXISTS `wklinf` (
   PRIMARY KEY  (`WklPwlSeq`,`WklSeqNum`,`WklOdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wklinf: ~12 rows (approximately)
+-- Dumping data for table fcms.wklinf: ~14 rows (approximately)
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
 INSERT IGNORE INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),
@@ -722,6 +757,8 @@ INSERT IGNORE INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`,
 	(1, 8, 'FIT000003', '1500', '1600', 60, 'N', NULL, NULL, NULL, NULL),
 	(1, 9, 'FIT000004', '1600', '1700', 60, 'N', NULL, NULL, NULL, NULL),
 	(1, 10, 'NUTDIN001', '1800', '1900', 60, 'N', NULL, NULL, NULL, NULL),
+	(1, 11, 'FIT000002', '0900', '0930', 30, 'N', NULL, NULL, 'test', '2014030125047'),
+	(2, 1, 'FIT000001', '0530', '0600', 30, 'N', NULL, NULL, 'test', '2014030124809'),
 	(3, 1, 'NUTBRK001', '0700', '0800', 60, 'N', NULL, NULL, NULL, NULL),
 	(3, 2, 'NUTLNH001', '1200', '1300', 60, 'Y', NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `wklinf` ENABLE KEYS */;

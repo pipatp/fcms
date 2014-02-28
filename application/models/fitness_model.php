@@ -44,4 +44,33 @@ class fitness_model extends CI_Model {
         
         return $query->result();
     }
+    
+    function searchFitnessOrder($term) {
+        $data = array($term, 'FIT');
+        
+        $query = $this->db->query("CALL fn_findOrder(?, ?)", $data);
+        
+        return $query->result();
+    }
+    
+    function hasWorklist($playerCode, $date) {
+        $data = array($playerCode, $date);
+        
+        $query = $this->db->query("SELECT PwlSeqNum FROM pwlinf WHERE PwlPlyCod=? AND PwlAppDte=?", $data);
+        
+        $row = $query->row();
+        if ($row) {
+            return $row->PwlSeqNum;
+        }
+        
+        return -1;
+    }
+    
+    function addFitnessWorklist($worklistSeq, $orderCode, $startTime, $endTime, $duration, $user) {
+        $data = array($worklistSeq, $orderCode, $startTime, $endTime, $duration, $user);
+        
+        $query = $this->db->query("CALL fn_addPlayerWorklist(?, ?, ?, ?, ?, ?)", $data);
+        
+        $query->row();
+    }
 }

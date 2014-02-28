@@ -22,6 +22,9 @@
     padding-left: 22px;
     background: url("../../images/search-magnify.png") no-repeat;
     background-position: 3px center;
+    
+    width: 250px;
+    font-size: 13px;
 }
 
 #player-modification-detail .left-col {
@@ -123,6 +126,10 @@
     margin-bottom: 10px;
 }
 
+.ui-autocomplete {
+    z-index: 9999;   
+}
+
 /* Calendar */
 .time-hour-row {
     height: 20px;
@@ -171,7 +178,7 @@
 </style>
 <div id="fitness-modification">
     <div class="search-box-section">
-        <input id="player-search-box" type="text" placeholder="ค้นหานักกีฬา" />
+        <input id="player-search-box" class="form-control input-sm" type="text" placeholder="ค้นหานักกีฬา" />
     </div>
     <div id="player-modification-detail">
         <div class="left-col">
@@ -201,6 +208,19 @@
             </div>
         </div>
     </div>
+    <div id="errorDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <div class="error-content"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="confirmDialog" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
@@ -226,24 +246,23 @@
                 <div class="modal-body" style='overflow-y: auto;height: 500px;'>
                     <div class="row">
                         <div class="col-md-6 col-xs-6">
-                            <!--<div style="display:block;height:auto">-->
-                                <div class="row">
-                                    <div class="col-md-12 col-xs-12">                   
-                                        <div class="calendar-panel clearfix" style="position: relative">
-                                            <div class="time-hour">
-                                            </div>
+                            <div class="row">
+                                <div class="col-md-12 col-xs-12">                   
+                                    <div class="calendar-panel clearfix" style="position: relative">
+                                        <div class="time-hour">
                                         </div>
                                     </div>
                                 </div>
-                            <!--</div>-->
+                            </div>
                         </div>
                         <div class="col-md-6 col-xs-6">
+                            <div id="add-error" class="alert alert-danger hidden">...</div>
                             <div class="form" style="margin-left: 10px;">
                                 <div class="form-inline line-space-nm">
                                     <label class="control-label" style="margin-right: 10px;">เวลาเริ่มต้น:</label>
                                     <select class="form-control hour-selection input-sm">
                                     </select>
-                                    <select class="form-control input-sm">
+                                    <select class="form-control input-sm minute-selection">
                                         <option value="00">00</option>
                                         <option value="30">30</option>
                                     </select>
@@ -252,20 +271,21 @@
                                     <label class="control-label" style="margin-right: 10px;">เวลาสิ้นสุด:</label>
                                     <select class="form-control hour-selection input-sm">
                                     </select>
-                                    <select class="form-control input-sm">
+                                    <select class="form-control input-sm minute-selection">
                                         <option value="00">00</option>
                                         <option value="30">30</option>
                                     </select>
                                 </div>
-                                <div class="form-inline line-space-nm">
+                                <div class="form-group line-space-nm">
                                     <label class="control-label" style="margin-right: 10px;">รายการฟิตเนส:</label>
-                                    <input type="text" class="form-control input-sm" placeholder="ชื่อรายการฟิตเนส" />
+                                    <input id="order-search-box" type="text" class="form-control input-sm" placeholder="ชื่อรายการฟิตเนส" />
                                 </div>
                             </div>
                         </div>
                     </div>                  
                 </div>
                 <div class="modal-footer">
+                    <button id="saveWorklistButton" type="button" class="btn btn-info">ตกลง</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
                 </div>
             </div>
@@ -274,6 +294,8 @@
 </div>
 <script>
     var playerCode = "";
+    var selectedWorklist;
+    var selectedWorklistSeq = -1;
     var $selectedRow;
     
     function addDetail($detailDiv, key, val) {
@@ -333,6 +355,8 @@
             
             getPlayerComment(ui.item.PlyCod);
             
+            loadFitnessWorklist();
+            
             $("#player-modification-detail").show();
             
             return false;
@@ -341,7 +365,25 @@
         var displayName = getDisplayNameWithEng(item.PlyFstNam, item.PlyFamNam, item.PlyFstEng, item.PlyFamEng);
         return $("<li class='list-auto-item'>").append("<a>" + displayName + "</a>" ).appendTo(ul);
     };
-    
+
+    $("#order-search-box").autocomplete({
+        source: "searchFitnessOrder",
+        minLength: 2,
+        focus: function(event, ui) {            
+            return false;
+        },
+        select: function(event, ui) {
+            var $textBox =  $("#order-search-box");
+            
+            $textBox.val(ui.item.OdrLocNam);
+            $textBox.attr("data-order-code", ui.item.OdrCod);
+            
+            return false;
+        }
+    }).data("ui-autocomplete")._renderItem = function(ul, item) {
+        return $("<li class='list-auto-item'>").append("<a>" + item.OdrLocNam + "</a>" ).appendTo(ul);
+    };
+
     function formatTime(timeText) {
         return timeText.substr(0, 2) + ":" + timeText.substr(2, 2);
     }
@@ -349,7 +391,6 @@
     function createWorklistItemRow(item) {
         var $row = $("<tr>", { "data-worklist-seq": item.WklPwlSeq, "data-item-seq": item.WklSeqNum,
             "data-item-code": item.WklOdrCod });
-        console.info(item);
         
         var $deleteItem = $("<img>", { src: "../../images/delete.png" });
         $deleteItem.click(function() {
@@ -368,29 +409,36 @@
         return $row;
     }
 
+    function loadFitnessWorklist() {
+        var selectedDate = $("#modify-date-selection").datepicker("getDate");
+
+        var date = $.datepicker.formatDate("yymmdd", selectedDate);
+
+        $.get("getFitnessWorklist/" + playerCode + "/" + date).done(function(result) {
+            var ret = jQuery.parseJSON(result);
+            var worklist = ret.result;
+
+            selectedWorklistSeq = ret.worklistSeq;
+
+            var $tableBody = $(".fitness-worklist-section tbody");
+
+            $tableBody.empty();
+
+            if (worklist.length > 0) {
+                for (var index=0; index<worklist.length; index++) {
+                    var $row = createWorklistItemRow(worklist[index]);
+
+                    $tableBody.append($row);
+                }
+            } else {
+                $("<tr><td class='content' colspan='4'>*** ไม่มีรายการของวันที่เลือก</td></tr>").appendTo($tableBody);
+            }
+        });
+    }
+
     $("#modify-date-selection").datepicker({
         onSelect: function(dateText, inst) {
-            var selectedDate = $(this).datepicker("getDate");
-            
-            var date = $.datepicker.formatDate("yymmdd", selectedDate);
-            
-            $.get("getFitnessWorklist/" + playerCode + "/" + date).done(function(result) {
-                var worklist = jQuery.parseJSON(result);
-                
-                var $tableBody = $(".fitness-worklist-section tbody");
-
-                $tableBody.empty();
-                
-                if (worklist.length > 0) {
-                    for (var index=0; index<worklist.length; index++) {
-                        var $row = createWorklistItemRow(worklist[index]);
-
-                        $tableBody.append($row);
-                    }
-                } else {
-                    $("<tr><td class='content' colspan='4'>*** ไม่มีรายการของวันที่เลือก</td></tr>").appendTo($tableBody);
-                }
-            });
+            loadFitnessWorklist();
         }
     });
     $("#modify-date-selection").datepicker("setDate", new Date());
@@ -427,6 +475,7 @@
     
     $("#confirmDialog").modal({ show: false });
     $("#addDialog").modal({ show: false });
+    $("#errorDialog").modal({ show: false });
     
     $("#deleteConfirmButton").click(function() {
         var dialog = $("#confirmDialog");
@@ -447,6 +496,68 @@
         });
     });
     
+    $("#saveWorklistButton").click(function() {
+        var $addError = $("#add-error");
+        $addError.addClass("hidden");
+        
+        var $orderBox = $("#order-search-box");
+        
+        var orderCode = $orderBox.attr("data-order-code");
+
+        if (!orderCode) {
+            $addError.text("ข้อมูลไม่ครบถ้วน โปรดเลือกรายการฟิตเนส");
+            $addError.removeClass("hidden");
+            return;
+        }
+        
+        var start = $(".hour-selection")[0].value + $(".minute-selection")[0].value;
+        var end = $(".hour-selection")[1].value + $(".minute-selection")[1].value;
+
+        if (start >= end) {
+            $addError.text("ข้อมูลผิดพลาด เวลาเริ่มต้นไม่สามารถมากกว่าหรือเท่ากับเวลาสิ้นสุด");
+            $addError.removeClass("hidden");
+            return;
+        }
+
+        if (selectedWorklist) {
+            for (var index=0; index<selectedWorklist.length; index++) {
+                var item = selectedWorklist[index];
+                
+                if ((start >= item.WklStrDtm && start < item.WklEndDtm) ||
+                    (end > item.WklStrDtm && end <= item.WklEndDtm)) {
+                    $addError.text("มีรายการอยู่แล้วในช่วงเวลาที่เลือก โปรดเลือกช่วงเวลาใหม่");
+                    $addError.removeClass("hidden");
+                    return;
+                }
+            }
+        }
+
+        var addItem = {};
+        addItem.worklistSeq = selectedWorklistSeq;
+        addItem.orderCode = $("#order-search-box").attr("data-order-code");
+        addItem.start = start;
+        addItem.end = end;
+        addItem.duration = calculateDuration(start, end);
+
+        $.post("addFitnessWorklist", JSON.stringify(addItem)).done(function() {
+            $("#addDialog").modal("hide");
+            
+            loadFitnessWorklist();
+        }).fail(function() {
+           alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    });
+    
+    function calculateDuration(start, end) {
+        var h1 = parseInt(start.substr(0, 2));
+        var m1 = parseInt(start.substr(2, 2));
+        
+        var h2 = parseInt(end.substr(0, 2));
+        var m2 = parseInt(end.substr(2, 2));
+        
+        return ((h2-h1)*60) + (m2-m1);
+    }
+    
     function convertToTimeNumber(timeText) {
         var h = parseInt(timeText.substr(0, 2));
         var m = parseFloat(timeText.substr(2, 2));
@@ -463,7 +574,28 @@
         addSchedule(start, end, item.WklOdrCod + detail);
     }
     
+    function resetAddDialogFields() {
+        $("#add-error").addClass("hidden");
+        
+        $(".hour-selection").prop("selectedIndex", 0);
+        $(".minute-selection").prop("selectedIndex", 0);
+        
+        $("#order-search-box").val("");
+        $("#order-search-box").removeAttr("data-order-code");
+    }
+    
+    $("#addDialog").on("shown.bs.modal",function () {
+        $("#addDialog .modal-body").scrollTop(0);
+    });
+
+    
     $(".fitness-worklist-add").click(function() {
+        if (selectedWorklistSeq < 0) {
+            $("#errorDialog .error-content").text("ไม่สามารถเพิ่มเติมรายการได้เนื่องจากไม่มีรายการนัดหมายของวันที่เลือก");
+            $("#errorDialog").modal("show");
+            return;
+        }
+        
         var selectedDate = $("#modify-date-selection").datepicker("getDate");           
         var date = $.datepicker.formatDate("yymmdd", selectedDate);
         
@@ -471,11 +603,15 @@
             
             var worklist = jQuery.parseJSON(result);
             
+            selectedWorklist = worklist;
+            
             $(".calendar-panel .day-event").detach();
             
             for (var index=0; index<worklist.length; index++) {
                 addWorklistSchedule(worklist[index]);
             }
+            
+            resetAddDialogFields();
             
             $("#addDialog").modal("show");
         });      
@@ -564,9 +700,5 @@
         }
         
         initializeTimeSelectOption();
-//
-//        addSchedule(7, 8, "Test sfs sdv sdvd df gdf dfdfdfdgdf gdfdfg df g");
-//
-//        addSchedule(11, 13, "Test sfs sdv sdvd df gdf dfdfdfdgdf gdfdfg df g");
     });
 </script>
