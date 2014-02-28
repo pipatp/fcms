@@ -90,7 +90,6 @@
 }
 
 .fitness-worklist-section .fitness-worklist-add img {
-    margin-left: 10px;
     margin-right: 5px;
 }
 
@@ -118,6 +117,10 @@
 .fitness-worklist-section .content {
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.line-space-nm {
+    margin-bottom: 10px;
 }
 
 /* Calendar */
@@ -183,7 +186,7 @@
         <div class="right-col">
             <div id="modify-date-selection"></div>
             <div class="fitness-worklist-section">
-                <div class="fitness-worklist-add"><img src="../../images/add.png" />เพิ่มเติมรายการฟิตเนส</div>
+                <div class="fitness-worklist-add btn btn-default"><img src="../../images/add.png" />เพิ่มเติมรายการฟิตเนส</div>
                 <table class="table table-striped table-condensed">
                     <thead>
                         <tr>
@@ -235,28 +238,28 @@
                             <!--</div>-->
                         </div>
                         <div class="col-md-6 col-xs-6">
-                            <div class="form-horizontal" style="margin-left: 10px;">
-                                <div class="form-group">
+                            <div class="form" style="margin-left: 10px;">
+                                <div class="form-inline line-space-nm">
                                     <label class="control-label" style="margin-right: 10px;">เวลาเริ่มต้น:</label>
-                                    <select class="form-control hour-selection" style="width:80px;">
+                                    <select class="form-control hour-selection input-sm">
                                     </select>
-                                    <select class="form-control" style="width:80px">
+                                    <select class="form-control input-sm">
                                         <option value="00">00</option>
                                         <option value="30">30</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-inline line-space-nm">
                                     <label class="control-label" style="margin-right: 10px;">เวลาสิ้นสุด:</label>
-                                    <select class="form-control hour-selection" style="width:80px;">
+                                    <select class="form-control hour-selection input-sm">
                                     </select>
-                                    <select class="form-control" style="width:80px">
+                                    <select class="form-control input-sm">
                                         <option value="00">00</option>
                                         <option value="30">30</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-inline line-space-nm">
                                     <label class="control-label" style="margin-right: 10px;">รายการฟิตเนส:</label>
-                                    <input type="text" class="form-control" placeholder="ชื่อรายการฟิตเนส" />
+                                    <input type="text" class="form-control input-sm" placeholder="ชื่อรายการฟิตเนส" />
                                 </div>
                             </div>
                         </div>
