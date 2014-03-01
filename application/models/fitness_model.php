@@ -73,4 +73,19 @@ class fitness_model extends CI_Model {
         
         $query->row();
     }
+    
+    //----------------------------------------------
+    // Fitness Record Result
+    //----------------------------------------------
+    function getFitnessResult($playerCode, $date, $category, $subcategory) {
+        $data = array($playerCode, $date, $category, $subcategory);
+        
+        $query = $this->db->query("CALL fn_getPlayerResult(?, ?, ?, ?)", $data);
+        
+        $row = $query->row();
+               
+        $query->free_result();
+        
+        return $row;
+    }
 }

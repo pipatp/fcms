@@ -76,10 +76,12 @@
     height: 100%;
 
     min-height: 300px;
+    font-family: Helvetica,tahoma, sans-serif;
 }
 
 .player-comment-section .comment {
     border: #AAA solid 1px;
+    padding: 2px;
     
     white-space: pre;
 }

@@ -20,6 +20,9 @@
     padding-left: 22px;
     background: url("../../images/search-magnify.png") no-repeat;
     background-position: 3px center;
+    
+    width: 250px;
+    font-size: 13px;
 }
 
 .player-info-section {
@@ -86,31 +89,43 @@
 #fitness-addition-tab .stretch {
     width: 100%;
     height: 100%;
+    
+    font-family: Helvetica,tahoma, sans-serif;
+}
+
+#fitness-addition-tab .comment {
+    border: #AAA solid 1px;
+    padding: 2px;
+    
+    white-space: pre;
 }
 
 </style>
 <div id="fitness-record-result">
     <div class="search-box-section">
-        <input id="player-search-box" type="text" placeholder="ค้นหานักกีฬา" />
+        <input id="player-search-box" class="form-control input-sm" type="text" placeholder="ค้นหานักกีฬา" />
     </div>
-    <div class="player-info-section">
-        <img class="player-picture" src="" />
-        <div class="player-detail" />
-    </div>
-    <div id="fitness-addition-tab">
-        <ul>
-            <li><a href="#report-tab">รายงานผลจากผู้ฝึกสอน</a></li>
-            <li><a href="#suggestion-tab">คำแนะนำของผู้ฝึกสอน</a></li>
-        </ul>
-        <div id="report-tab">
-            <textarea class="stretch"></textarea>
+    <div class="fitness-record-detail">
+        <div class="player-info-section">
+            <img class="player-picture" src="" />
+            <div class="player-detail"></div>
         </div>
-        <div id="suggestion-tab">
-            <textarea class="stretch"></textarea>
+        <div id="fitness-addition-tab">
+            <ul>
+                <li><a href="#report-tab">รายงานผลจากผู้ฝึกสอน</a></li>
+                <li><a href="#suggestion-tab">คำแนะนำของผู้ฝึกสอน</a></li>
+            </ul>
+            <div id="report-tab">
+                <div class="stretch comment" title="ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข" readonly></div>
+            </div>
+            <div id="suggestion-tab">
+                <div class="stretch comment" title="ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข" readonly></div>
+            </div>
         </div>
     </div>
 </div>
 <script>
+    var playerCode = "";
     
     $("#fitness-addition-tab").tabs({heightStyle: "fill"});
     
@@ -156,11 +171,80 @@
 
             displayPlayerInfo(ui.item);
             
+            getPlayerResult();
+            
+            $(".fitness-record-detail").show();
+            
             return false;
         }
     }).data("ui-autocomplete")._renderItem = function(ul, item) {
         var displayName = getDisplayNameWithEng(item.PlyFstNam, item.PlyFamNam, item.PlyFstEng, item.PlyFamEng);
         return $("<li class='list-auto-item'>").append("<a>" + displayName + "</a>" ).appendTo(ul);
     };
+    
+    function getPlayerResult() {
+        var date = $.datepicker.formatDate("yymmdd", new Date());
+        
+        $.get("getFitnessResult/" + playerCode + "/" + date).done(function(result) {
+            var comment = jQuery.parseJSON(result);
+            
+            if (comment.result) {
+                $("#report-tab .stretch").text(comment.result.PlrRstCmt);
+            }
+            else {
+                $("#report-tab .stretch").text("");
+            }
+            
+            if (comment.suggestion) {
+                $("#suggestion-tab .stretch").text(comment.suggestion.PlrRstCmt);
+            }
+            else {
+                $("#suggestion-tab .stretch").text("");
+            }
+        });
+    }
+    
+    function convertToTextArea($section) {       
+        var $commentDiv = $section.children(".stretch");
+        $commentDiv.tooltip('hide');
+        $commentDiv.detach();
+        
+        var $commentBox = $("<textarea class='stretch'></textarea>");
+        $commentBox.val($commentDiv.text());
+        
+        $section.append($commentBox);
+        
+        $commentBox.focus();
+    }
+    
+    function convertToDiv($section) {
+        var $commentBox = $section.children(".stretch");
+        $commentBox.detach();
+        
+        var $commentDiv = $("<div class='stretch comment' title='ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข'></div>");
+        $commentDiv.text($commentBox.val());
+        
+        $commentDiv.tooltip();
+        
+        $section.append($commentDiv);
+    }
+    
+    $("#report-tab").dblclick(function() {
+        convertToTextArea($(this));
+    });
+    $("#report-tab").focusout(function() {
+        convertToDiv($(this));
+    });
+    
+    $("#suggestion-tab").dblclick(function() {
+        convertToTextArea($(this));
+    });
+    $("#suggestion-tab").focusout(function() {
+        convertToDiv($(this));
+    });
+    
+    $("#report-tab .stretch").tooltip();
+    $("#suggestion-tab .stretch").tooltip();
+    $(".fitness-record-detail").hide();
 
 </script>

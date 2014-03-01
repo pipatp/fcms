@@ -122,6 +122,17 @@ class fitness extends CI_Controller {
     function viewRecordResult() {
         $this->load->view('fit_record_result');
     }
+    
+    function getFitnessResult($playerCode, $date) {
+        $this->load->model('fitness_model');
+        
+        $obj["result"] = $this->fitness_model->getFitnessResult($playerCode, $date, "FIT", "RST");
+        $obj["suggestion"] = $this->fitness_model->getFitnessResult($playerCode, $date, "FIT", "SGT");
+        
+        $data["content"] = $obj;
+        
+        $this->load->view('json_result', $data);
+    }
 
     //----------------------------------------------
     // Fitness Player Info
