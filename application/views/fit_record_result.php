@@ -126,6 +126,7 @@
 </div>
 <script>
     var playerCode = "";
+    var currentDate = $.datepicker.formatDate("yymmdd", new Date());
     
     $("#fitness-addition-tab").tabs({heightStyle: "fill"});
     
@@ -182,10 +183,8 @@
         return $("<li class='list-auto-item'>").append("<a>" + displayName + "</a>" ).appendTo(ul);
     };
     
-    function getPlayerResult() {
-        var date = $.datepicker.formatDate("yymmdd", new Date());
-        
-        $.get("getFitnessResult/" + playerCode + "/" + date).done(function(result) {
+    function getPlayerResult() {      
+        $.get("getFitnessResult/" + playerCode + "/" + currentDate).done(function(result) {
             var comment = jQuery.parseJSON(result);
             
             if (comment.result) {
@@ -201,6 +200,21 @@
             else {
                 $("#suggestion-tab .stretch").text("");
             }
+        });
+    }
+    
+    function addPlayerResult(comment, subcategory, success) {
+        var result = {};
+        result.playerCode = playerCode;
+        result.date = currentDate;
+        result.comment = comment;
+        result.category = "FIT";
+        result.subcategory = subcategory;
+
+        $.post("addFitnessResult", JSON.stringify(result)).done(function() {
+            success();
+        }).fail(function() {
+           alert("ไม่สามารถแก้ไขข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
         });
     }
     
@@ -233,14 +247,24 @@
         convertToTextArea($(this));
     });
     $("#report-tab").focusout(function() {
-        convertToDiv($(this));
+        var $section = $(this);
+        var comment = $section.children(".stretch").val();
+        
+        addPlayerResult(comment, "RST", function() {
+            convertToDiv($section);
+        });       
     });
     
     $("#suggestion-tab").dblclick(function() {
         convertToTextArea($(this));
     });
     $("#suggestion-tab").focusout(function() {
-        convertToDiv($(this));
+        var $section = $(this);
+        var comment = $section.children(".stretch").val();
+        
+        addPlayerResult(comment, "SGT", function() {
+            convertToDiv($section);
+        });    
     });
     
     $("#report-tab .stretch").tooltip();

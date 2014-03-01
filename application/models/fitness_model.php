@@ -88,4 +88,12 @@ class fitness_model extends CI_Model {
         
         return $row;
     }
+    
+    function addFitnessResult($playerCode, $date, $comment, $category, $subcategory, $user) {
+        $data = array($playerCode, $date, $comment, $category, $subcategory, $user);
+        
+        $query = $this->db->query("CALL fn_addPlayerResult(?, ?, ?, ?, ?, ?)", $data);
+        
+        $query->row();
+    }
 }
