@@ -84,16 +84,50 @@ class player extends CI_Controller {
         
         $this->load->view('json_result', $data);        
     }
-    
+       
     function comment($playerCode) {
         $queryParams = $this->getQueryStringParams();
         
         $category = $queryParams['cat'];
+
+        $this->load->model('player_model');
+
+        $data["content"] = $this->player_model->getComment($playerCode, $category);
+
+        $this->load->view('json_result', $data);
+    }
+    
+    function updateComment() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
         
         $this->load->model('player_model');
         
-        $data["content"] = $this->player_model->getComment($playerCode, $category);
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
         
-        $this->load->view('json_result', $data);
+        try {
+            $this->player_model->addComment($postData["playerCode"],
+                    $postData["category"], $postData["comment"], $user);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Add failed.');
+        }
+    }
+    
+    function updateResult() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('player_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        try {
+            $this->player_model->updateResult($postData["playerCode"],
+                    $postData["date"], $postData["comment"], 
+                    $postData["category"], $postData["subcategory"],
+                    user);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Delete item failed.');
+        }
     }
 }

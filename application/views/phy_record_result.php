@@ -1,5 +1,5 @@
 <style>
-#fitness-record-result { 
+#physical-record-result { 
     padding: 0px; 
     background: none; 
     /*border-width: 0px;*/
@@ -44,7 +44,7 @@
     font-size: 13px;
 }
 
-#fitness-addition-tab { 
+#physical-addition-tab { 
     padding: 0px; 
     background: none; 
     border-width: 0px;
@@ -57,7 +57,7 @@
     min-height: 300px;
 }
 
-#fitness-addition-tab .ui-tabs-nav, #player-meal-modification-tab .ui-tabs-nav { 
+#physical-addition-tab .ui-tabs-nav, #player-meal-modification-tab .ui-tabs-nav { 
     padding-left: 0px; 
     background: transparent; 
     border-width: 0px 0px 1px 0px; 
@@ -66,34 +66,34 @@
     border-radius: 0px;
 }
 
-#fitness-addition-tab .ui-tabs-nav li {
+#physical-addition-tab .ui-tabs-nav li {
     width: 49%;
     
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
 }
 
-#fitness-addition-tab .ui-tabs-nav li a {
+#physical-addition-tab .ui-tabs-nav li a {
     width: 100%;
         
     outline: none;
 }
 
-#fitness-addition-tab .ui-tabs-panel {
+#physical-addition-tab .ui-tabs-panel {
     padding: 10px;
     border-width: 0px 1px 1px 1px;
     
     font-size: 13px;
 }
 
-#fitness-addition-tab .stretch {
+#physical-addition-tab .stretch {
     width: 100%;
     height: 100%;
     
     font-family: Helvetica,tahoma, sans-serif;
 }
 
-#fitness-addition-tab .comment {
+#physical-addition-tab .comment {
     border: #AAA solid 1px;
     padding: 2px;
     
@@ -101,16 +101,16 @@
 }
 
 </style>
-<div id="fitness-record-result">
+<div id="physical-record-result">
     <div class="search-box-section">
         <input id="player-search-box" class="form-control input-sm" type="text" placeholder="ค้นหานักกีฬา" />
     </div>
-    <div class="fitness-record-detail">
+    <div class="physical-record-detail">
         <div class="player-info-section">
             <img class="player-picture" src="" />
             <div class="player-detail"></div>
         </div>
-        <div id="fitness-addition-tab">
+        <div id="physical-addition-tab">
             <ul>
                 <li><a href="#report-tab">รายงานผลจากผู้ฝึกสอน</a></li>
                 <li><a href="#suggestion-tab">คำแนะนำของผู้ฝึกสอน</a></li>
@@ -128,7 +128,7 @@
     var playerCode = "";
     var currentDate = $.datepicker.formatDate("yymmdd", new Date());
     
-    $("#fitness-addition-tab").tabs({heightStyle: "fill"});
+    $("#physical-addition-tab").tabs({heightStyle: "fill"});
     
     function addDetail($detailDiv, key, val) {
         $detailDiv.append("<tr><td style='padding-left: 5px;font-weight: bold; text-align:right'>" + key + "</td><td style='padding-left: 10px;'>" + val + "</td></tr>");
@@ -177,7 +177,7 @@
             
             getPlayerResult();
             
-            $(".fitness-record-detail").show();
+            $(".physical-record-detail").show();
             
             return false;
         }
@@ -187,7 +187,7 @@
     };
     
     function getPlayerResult() {      
-        $.get("getFitnessResult/" + playerCode + "/" + currentDate).done(function(result) {
+        $.get("getPhysicalResult/" + playerCode + "/" + currentDate).done(function(result) {
             var comment = jQuery.parseJSON(result);
             
             if (comment.result) {
@@ -211,7 +211,7 @@
         result.playerCode = playerCode;
         result.date = currentDate;
         result.comment = comment;
-        result.category = "FIT";
+        result.category = "PHY";
         result.subcategory = subcategory;
 
         $.post("../player/updateResult", JSON.stringify(result)).done(function() {
@@ -305,6 +305,6 @@
     
     $("#report-tab .stretch").tooltip();
     $("#suggestion-tab .stretch").tooltip();
-    $(".fitness-record-detail").hide();
+    $(".physical-record-detail").hide();
 
 </script>

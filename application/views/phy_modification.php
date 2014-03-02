@@ -1,5 +1,5 @@
 <style>
-#fitness-modification { 
+#physical-modification { 
     padding: 0px; 
     background: none; 
     
@@ -86,30 +86,30 @@
     white-space: pre;
 }
 
-.fitness-worklist-section {
+.physical-worklist-section {
     margin: 10px 10px 0 10px;
 }
 
-.fitness-worklist-section .fitness-worklist-add {
+.physical-worklist-section .physical-worklist-add {
     margin-bottom: 5px;
 }
 
-.fitness-worklist-section .fitness-worklist-add img {
+.physical-worklist-section .physical-worklist-add img {
     margin-right: 5px;
 }
 
-.fitness-worklist-section table {
+.physical-worklist-section table {
     width: 100%;
 }
 
-.fitness-worklist-section .fix-content {
+.physical-worklist-section .fix-content {
     padding-left: 10px;
     padding-right: 10px;
     
     width: 36px;
 }
 
-.fitness-worklist-section .fit-content {
+.physical-worklist-section .fit-content {
     width: 1px;
     white-space: nowrap;
     
@@ -119,7 +119,7 @@
     vertical-align: middle;
 }
 
-.fitness-worklist-section .content {
+.physical-worklist-section .content {
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -177,8 +177,12 @@
     border: 1px solid rgb(30,144,255);
     background-color: rgb(209,232,255);
 }
+
+.ui-autocomplete {
+    z-index: 9999;   
+}
 </style>
-<div id="fitness-modification">
+<div id="physical-modification">
     <div class="search-box-section">
         <input id="player-search-box" class="form-control input-sm" type="text" placeholder="ค้นหานักกีฬา" />
     </div>
@@ -194,8 +198,8 @@
         </div>
         <div class="right-col">
             <div id="modify-date-selection"></div>
-            <div class="fitness-worklist-section">
-                <div class="fitness-worklist-add btn btn-default"><img src="../../images/add.png" />เพิ่มเติมรายการฟิตเนส</div>
+            <div class="physical-worklist-section">
+                <div class="physical-worklist-add btn btn-default"><img src="../../images/add.png" />เพิ่มเติมรายการกายภาพบำบัด</div>
                 <table class="table table-striped table-condensed">
                     <thead>
                         <tr>
@@ -243,7 +247,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    เพิ่มเติมรายการฟิตเนส
+                    เพิ่มเติมรายการกายภาพบำบัด
                 </div>
                 <div class="modal-body" style='overflow-y: auto;height: 500px;'>
                     <div class="row">
@@ -279,8 +283,8 @@
                                     </select>
                                 </div>
                                 <div class="form-group line-space-nm">
-                                    <label class="control-label" style="margin-right: 10px;">รายการฟิตเนส:</label>
-                                    <input id="order-search-box" type="text" class="form-control input-sm" placeholder="ชื่อรายการฟิตเนส" />
+                                    <label class="control-label" style="margin-right: 10px;">รายการกายภาพบำบัด:</label>
+                                    <input id="order-search-box" type="text" class="form-control input-sm" placeholder="ชื่อรายการกายภาพบำบัด" />
                                 </div>
                             </div>
                         </div>
@@ -332,7 +336,7 @@
     }
     
     function getPlayerComment(playerCode) {
-        $.get("../player/comment/" + playerCode + "?cat=FIT").done(function(result) {
+        $.get("../player/comment/" + playerCode + "?cat=PHY").done(function(result) {
             var comment = jQuery.parseJSON(result);
             
             if (comment.PlcCmt) {
@@ -357,7 +361,7 @@
             
             getPlayerComment(ui.item.PlyCod);
             
-            loadFitnessWorklist();
+            loadPhysicalWorklist();
             
             $("#player-modification-detail").show();
             
@@ -369,7 +373,7 @@
     };
 
     $("#order-search-box").autocomplete({
-        source: "searchFitnessOrder",
+        source: "searchPhysicalOrder",
         minLength: 2,
         focus: function(event, ui) {            
             return false;
@@ -411,18 +415,18 @@
         return $row;
     }
 
-    function loadFitnessWorklist() {
+    function loadPhysicalWorklist() {
         var selectedDate = $("#modify-date-selection").datepicker("getDate");
 
         var date = $.datepicker.formatDate("yymmdd", selectedDate);
 
-        $.get("getFitnessWorklist/" + playerCode + "/" + date).done(function(result) {
+        $.get("getPhysicalWorklist/" + playerCode + "/" + date).done(function(result) {
             var ret = jQuery.parseJSON(result);
             var worklist = ret.result;
 
             selectedWorklistSeq = ret.worklistSeq;
 
-            var $tableBody = $(".fitness-worklist-section tbody");
+            var $tableBody = $(".physical-worklist-section tbody");
 
             $tableBody.empty();
 
@@ -440,7 +444,7 @@
 
     $("#modify-date-selection").datepicker({
         onSelect: function(dateText, inst) {
-            loadFitnessWorklist();
+            loadPhysicalWorklist();
         }
     });
     $("#modify-date-selection").datepicker("setDate", new Date());
@@ -449,7 +453,7 @@
         var result = {};
         result.playerCode = playerCode;
         result.comment = comment;
-        result.category = "FIT";
+        result.category = "PHY";
 
         $.post("../player/updateComment", JSON.stringify(result)).done(function() {
             success();
@@ -539,7 +543,7 @@
         deleteItem.seqNum = $selectedRow.attr("data-item-seq");
         deleteItem.itemCode = $selectedRow.attr("data-item-code");
 
-        $.post("deleteFitnessWorklist", JSON.stringify(deleteItem)).done(function() {
+        $.post("deletePhysicalWorklist", JSON.stringify(deleteItem)).done(function() {
             $selectedRow.detach();
         }).fail(function() {
            alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
@@ -555,7 +559,7 @@
         var orderCode = $orderBox.attr("data-order-code");
 
         if (!orderCode) {
-            $addError.text("ข้อมูลไม่ครบถ้วน โปรดเลือกรายการฟิตเนส");
+            $addError.text("ข้อมูลไม่ครบถ้วน โปรดเลือกรายการกายภาพบำบัด");
             $addError.removeClass("hidden");
             return;
         }
@@ -589,10 +593,10 @@
         addItem.end = end;
         addItem.duration = calculateDuration(start, end);
 
-        $.post("addFitnessWorklist", JSON.stringify(addItem)).done(function() {
+        $.post("addPhysicalWorklist", JSON.stringify(addItem)).done(function() {
             $("#addDialog").modal("hide");
             
-            loadFitnessWorklist();
+            loadPhysicalWorklist();
         }).fail(function() {
            alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
         });
@@ -639,7 +643,7 @@
     });
 
     
-    $(".fitness-worklist-add").click(function() {
+    $(".physical-worklist-add").click(function() {
         if (selectedWorklistSeq < 0) {
             $("#errorDialog .error-content").text("ไม่สามารถเพิ่มเติมรายการได้เนื่องจากไม่มีรายการนัดหมายของวันที่เลือก");
             $("#errorDialog").modal("show");

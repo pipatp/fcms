@@ -20,6 +20,9 @@
     padding-left: 22px;
     background: url("../../images/search-magnify.png") no-repeat;
     background-position: 3px center;
+    
+    width: 250px;
+    font-size: 13px;
 }
 
 .player-info-section {
@@ -87,34 +90,71 @@
     width: 100%;
     height: 100%;
 }
+#schedule-tab table {
+    width: 100%;
+}
 
+#schedule-tab .fit-content {
+    width: 1px;
+    white-space: nowrap;
+    
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    vertical-align: middle;
+}
+
+#schedule-tab .content {
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    vertical-align: middle;
+}
+
+#schedule-tab .control {
+    outline: none;
+}
 </style>
 <div id="fitness-player-info">
     <div class="search-box-section">
-        <input id="player-search-box" type="text" placeholder="ค้นหานักกีฬา" />
+        <input id="player-search-box" class="form-control input-sm" type="text" placeholder="ค้นหานักกีฬา" />
     </div>
-    <div class="player-info-section">
-        <img class="player-picture" src="" />
-        <div class="player-detail" />
-    </div>
-    <div id="fitness-addition-tab">
-        <ul>
-            <li><a href="#normal-info-tab">ข้อมูลทั่วไป</a></li>
-            <li><a href="#physical-info-tab">ข้อมูลทางกายภาพ</a></li>
-            <li><a href="#schedule-tab">ตารางนักกีฬาประจำวัน</a></li>
-        </ul>
-        <div id="normal-info-tab">
-            <textarea class="stretch"></textarea>
+    <div class="fitness-player-info-detail">
+        <div class="player-info-section">
+            <img class="player-picture" src="" />
+            <div class="player-detail"></div>
         </div>
-        <div id="physical-info-tab">
-            <textarea class="stretch"></textarea>
-        </div>
-        <div id="schedule-tab">
-            
+        <div id="fitness-addition-tab">
+            <ul>
+                <li><a href="#normal-info-tab">ข้อมูลทั่วไป</a></li>
+                <li><a href="#physical-info-tab">ข้อมูลทางกายภาพ</a></li>
+                <li><a href="#schedule-tab">ตารางนักกีฬาประจำวัน</a></li>
+            </ul>
+            <div id="normal-info-tab">
+                <textarea class="stretch"></textarea>
+            </div>
+            <div id="physical-info-tab">
+                <textarea class="stretch"></textarea>
+            </div>
+            <div id="schedule-tab">
+                <table class="table table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="fit-content">เริ่ม</th>
+                            <th class="fit-content">สิ้นสุด</th>
+                            <th class="content">รายการ</th>
+                            <th class="fit-content">ระยะเวลา</th>
+                            <th class="fit-content">ลงทะเบียน</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 <script>
+    var playerCode = "";
     
     $("#fitness-addition-tab").tabs({heightStyle: "fill"});
     
@@ -160,6 +200,10 @@
 
             displayPlayerInfo(ui.item);
             
+            getPlayerInfo();
+            
+            $(".fitness-player-info-detail").show();
+            
             return false;
         }
     }).data("ui-autocomplete")._renderItem = function(ul, item) {
@@ -167,4 +211,50 @@
         return $("<li class='list-auto-item'>").append("<a>" + displayName + "</a>" ).appendTo(ul);
     };
 
+    function formatTime(timeText) {
+        return timeText.substr(0, 2) + ":" + timeText.substr(2, 2);
+    }
+
+    function createWorklistItemRow(item) {
+        var $row = $("<tr>", { "data-worklist-seq": item.WklPwlSeq, "data-item-seq": item.WklSeqNum,
+            "data-item-code": item.WklOdrCod });
+        
+        $("<td>", { class: "fit-content" }).text(formatTime(item.WklStrDtm)).appendTo($row);
+        $("<td>", { class: "fit-content" }).text(formatTime(item.WklEndDtm)).appendTo($row);
+        $("<td>", { class: "content" }).text(item.OdrLocNam).appendTo($row);
+        $("<td>", { class: "fit-content" }).text(item.WklActDur).appendTo($row);
+        
+        var checked = item.WklCurStt === "Y" ? true : false;
+        var $checkBox = $("<input>", { class:"form-control", type:"checkbox", disabled:"disabled" } );
+        
+        $checkBox.prop('checked', checked);
+        
+        $("<td>", { class: "" }).append($checkBox).appendTo($row);
+        
+        return $row;
+    }
+    
+    function getPlayerInfo() {      
+        $.get("getPlayerInfo/" + playerCode + "/" + currentDate).done(function(result) {
+            var info = jQuery.parseJSON(result);
+            
+            var $tableBody = $("#schedule-tab tbody");
+
+            $tableBody.empty();
+            
+            var worklist = info.schedule;
+
+            if (worklist.length > 0) {
+                for (var index=0; index<worklist.length; index++) {
+                    var $row = createWorklistItemRow(worklist[index]);
+
+                    $tableBody.append($row);
+                }
+            } else {
+                $("<tr><td class='content' colspan='5'>*** ไม่มีรายการของวันที่เลือก</td></tr>").appendTo($tableBody);
+            }
+        });
+    }
+    
+    $(".fitness-player-info-detail").hide();
 </script>
