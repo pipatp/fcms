@@ -17,7 +17,7 @@
 /*!40000 ALTER TABLE `depmst` DISABLE KEYS */;
 /*!40000 ALTER TABLE `depmst` ENABLE KEYS */;
 
--- Dumping data for table fcms.odrmst: ~18 rows (approximately)
+-- Dumping data for table fcms.odrmst: ~19 rows (approximately)
 /*!40000 ALTER TABLE `odrmst` DISABLE KEYS */;
 INSERT IGNORE INTO `odrmst` (`OdrCod`, `OdrLocNam`, `OdrEngNam`, `OdrCatTyp`, `OdrSubTyp`, `OdrCurStt`, `OdrCreDte`, `OdrExpDte`, `OdrUpdUid`, `OdrUpdDts`) VALUES
 	('FIT000001', 'วิ่งลู่', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL),
@@ -37,7 +37,8 @@ INSERT IGNORE INTO `odrmst` (`OdrCod`, `OdrLocNam`, `OdrEngNam`, `OdrCatTyp`, `O
 	('NUTDIN001', 'ชุดอาหารเย็น Set 1', NULL, 'NUT', 'DIN', NULL, NULL, NULL, NULL, NULL),
 	('NUTDIN002', 'ชุดอาหารเย็น Set 2', NULL, 'NUT', 'DIN', NULL, NULL, NULL, NULL, NULL),
 	('NUTLNH001', 'ชุดอาหารกลางวัน Set 1', NULL, 'NUT', 'LNH', NULL, NULL, NULL, NULL, NULL),
-	('NUTLNH002', 'ชุดอาหารกลางวัน Set 2', NULL, 'NUT', 'LNH', NULL, NULL, NULL, NULL, NULL);
+	('NUTLNH002', 'ชุดอาหารกลางวัน Set 2', NULL, 'NUT', 'LNH', NULL, NULL, NULL, NULL, NULL),
+	('PHY000001', 'กายภาพบำบัด 1', NULL, 'PHY', NULL, NULL, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `odrmst` ENABLE KEYS */;
 
 -- Dumping data for table fcms.omdmst: ~21 rows (approximately)
@@ -99,21 +100,24 @@ INSERT IGNORE INTO `piminf` (`PimPlyCod`, `PimFac`, `PimFnt`, `PimBak`, `PimRit`
 /*!40000 ALTER TABLE `plainf` DISABLE KEYS */;
 /*!40000 ALTER TABLE `plainf` ENABLE KEYS */;
 
--- Dumping data for table fcms.plcinf: 1 rows
+-- Dumping data for table fcms.plcinf: 2 rows
 /*!40000 ALTER TABLE `plcinf` DISABLE KEYS */;
 INSERT IGNORE INTO `plcinf` (`PlcCod`, `PlcCatTyp`, `PlcCmt`, `PlcUpdUid`, `PlcUpdDts`) VALUES
-	('P00001', 'FIT', 'สุขภาพดี', '', '');
+	('P00001', 'FIT', 'Normal status', 'test', '20140302110734'),
+	('P00001', 'PHY', 'test', 'test', '20140302111930');
 /*!40000 ALTER TABLE `plcinf` ENABLE KEYS */;
 
 -- Dumping data for table fcms.plpinf: ~0 rows (approximately)
 /*!40000 ALTER TABLE `plpinf` DISABLE KEYS */;
 /*!40000 ALTER TABLE `plpinf` ENABLE KEYS */;
 
--- Dumping data for table fcms.plrinf: ~0 rows (approximately)
+-- Dumping data for table fcms.plrinf: ~4 rows (approximately)
 /*!40000 ALTER TABLE `plrinf` DISABLE KEYS */;
 INSERT IGNORE INTO `plrinf` (`PlrPlyCod`, `PlrRstDte`, `PlrCatTyp`, `PlrSubTyp`, `PlrRstCmt`, `PlrUpdUid`, `PlrUpdDts`) VALUES
-	('P00001', '20140302', 'FIT', 'RST', 'Normal', NULL, NULL),
-	('P00001', '20140302', 'FIT', 'SGT', 'ปกติ', NULL, NULL);
+	('P00001', '20140302', 'FIT', 'RST', 'Normal test', 'user', '2014030205507'),
+	('P00001', '20140302', 'FIT', 'SGT', 'hello', 'user', '20140302120122'),
+	('P00001', '20140302', 'PHY', 'RST', 'sdvsvdtttt', 'user', '20140302120836'),
+	('P00001', '20140302', 'PHY', 'SGT', 'test 2', 'user', '20140302120855');
 /*!40000 ALTER TABLE `plrinf` ENABLE KEYS */;
 
 -- Dumping data for table fcms.plvinf: ~0 rows (approximately)
@@ -139,8 +143,8 @@ INSERT IGNORE INTO `plyinf` (`PlyCod`, `PlyTitCod`, `PlyFstNam`, `PlyMidNam`, `P
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
 INSERT IGNORE INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCurStt`, `PwlRegUid`, `PwlVstDtm`, `PwlUpdUid`, `PwlUpdDts`) VALUES
 	(1, 'P00001', '20140221', '0530', 'A', NULL, NULL, NULL, NULL),
-	(2, 'P00001', '20140301', '0530', 'A', NULL, NULL, NULL, NULL),
-	(3, 'P00002', '20140216', '0530', 'A', NULL, NULL, NULL, NULL),
+	(2, 'P00001', '20140302', '0530', 'A', NULL, NULL, NULL, NULL),
+	(3, 'P00002', '20140302', '0530', 'A', NULL, NULL, NULL, NULL),
 	(4, 'P00002', '20140125', '0530', 'A', NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `pwlinf` ENABLE KEYS */;
 
@@ -150,7 +154,7 @@ INSERT IGNORE INTO `usrmst` (`UsrCod`, `UsrFstNam`, `UsrMidNam`, `UsrFamNam`, `U
 	('test', NULL, NULL, NULL, NULL, NULL, NULL, 'welcome', NULL, NULL, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `usrmst` ENABLE KEYS */;
 
--- Dumping data for table fcms.wklinf: ~14 rows (approximately)
+-- Dumping data for table fcms.wklinf: ~16 rows (approximately)
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
 INSERT IGNORE INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),
@@ -165,6 +169,8 @@ INSERT IGNORE INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`,
 	(1, 10, 'NUTDIN001', '1800', '1900', 60, 'N', NULL, NULL, NULL, NULL),
 	(1, 11, 'FIT000002', '0900', '0930', 30, 'N', NULL, NULL, 'test', '2014030125047'),
 	(2, 1, 'FIT000001', '0530', '0600', 30, 'N', NULL, NULL, 'test', '2014030124809'),
+	(2, 2, 'PHY000001', '0700', '0800', 30, 'Y', NULL, NULL, 'test', '2014030124809'),
+	(2, 3, 'PHY000001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140302113539'),
 	(3, 1, 'NUTBRK001', '0700', '0800', 60, 'N', NULL, NULL, NULL, NULL),
 	(3, 2, 'NUTLNH001', '1200', '1300', 60, 'Y', NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `wklinf` ENABLE KEYS */;
