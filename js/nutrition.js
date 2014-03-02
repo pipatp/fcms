@@ -81,9 +81,11 @@ function viewMealModification() {
 function viewMealStore() {
     selectTab(this);
     
-    var $content = $(".content-body");
-    
-    $content.empty();
+    $.ajax("viewInventory").done(function(result) {
+        var $content = $(".content-body");
+
+        $content.html(result);
+    });
 }
 
 function selectTab(selectedTab) {

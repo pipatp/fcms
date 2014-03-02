@@ -184,4 +184,11 @@ class nutrition extends CI_Controller {
              $postData["orderCode"], $postData["mealSeq"], $postData["code"], 
              $postData["weight"], $postData["calorie"]);
     }
+    
+    //----------------------------------------------
+    // Meal Inventory
+    //----------------------------------------------
+    function viewInventory() {
+        $this->load->view('nut_inventory');
+    }
 }

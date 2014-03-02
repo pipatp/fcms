@@ -47,7 +47,7 @@
                 </div>
                 <div class="row ">
                     <div class="col-md-2 col-md-offset-2">
-                        <div class="thumbnail btn menu-button">
+                        <div id="physical-button" class="thumbnail btn menu-button">
                             <div class="button-group">
                                 <img src="../../images/physical_enable.jpg" />
                                 <h4>กายภาพบำบัด</h4>
@@ -88,6 +88,10 @@
                     $.get("logout", function(data) {
                         window.location.href = "login";
                     });
+                });
+                
+                $("#physical-button").click(function() {
+                    window.location.href = "../physical/main";
                 });
                 
                 $("#nutrition-button").click(function() {
