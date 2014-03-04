@@ -71,7 +71,7 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="thumbnail btn menu-button">
+                        <div id="coach-button" class="thumbnail btn menu-button">
                             <div class="button-group">
                                 <img src="../../images/coach_enable.jpg" />
                                 <h4>ผู้ฝึกสอน</h4>
@@ -100,6 +100,10 @@
                 
                 $("#fitness-button").click(function() {
                     window.location.href = "../fitness/main";
+                });
+                
+                $("#coach-button").click(function() {
+                    window.location.href = "../coach/main";
                 });
             });
         </script>
