@@ -32,6 +32,21 @@ class coach extends CI_Controller {
         $this->load->view('coa_schedule');
     }
     
+    function getCoachSchedule($date) {
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        $this->load->model('coach_model');
+        
+        $obj["appointment"] = $this->coach_model->getCoachAppointmentInfo($user, $date);
+        
+        $obj["worklist"] = (count($obj["appointment"]) > 0) ? $this->coach_model->getCoachWorklistInfo($obj["appointment"]->CapSeqNum) : array();
+        
+        $data["content"] = $obj;
+        
+        $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Coach Fitness
     //----------------------------------------------

@@ -10,6 +10,26 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
+-- Dumping structure for table fcms.capinf
+CREATE TABLE IF NOT EXISTS `capinf` (
+  `CapSeqNum` bigint(20) unsigned NOT NULL auto_increment,
+  `CapUsrCod` char(20) NOT NULL,
+  `CapWklDte` char(8) NOT NULL,
+  `CapAppDtl` text,
+  `CapUpdUid` char(20) default NULL,
+  `CapUpdDts` char(14) default NULL,
+  PRIMARY KEY  (`CapSeqNum`),
+  KEY `CapUsrCod_CapWklDte` (`CapUsrCod`,`CapWklDte`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table fcms.capinf: 1 rows
+DELETE FROM `capinf`;
+/*!40000 ALTER TABLE `capinf` DISABLE KEYS */;
+INSERT INTO `capinf` (`CapSeqNum`, `CapUsrCod`, `CapWklDte`, `CapAppDtl`, `CapUpdUid`, `CapUpdDts`) VALUES
+	(1, 'test', '20140306', '111', NULL, NULL);
+/*!40000 ALTER TABLE `capinf` ENABLE KEYS */;
+
+
 -- Dumping structure for table fcms.cnfmst
 CREATE TABLE IF NOT EXISTS `cnfmst` (
   `CnfGrpCod` char(20) NOT NULL,
@@ -27,6 +47,26 @@ CREATE TABLE IF NOT EXISTS `cnfmst` (
 DELETE FROM `cnfmst`;
 /*!40000 ALTER TABLE `cnfmst` DISABLE KEYS */;
 /*!40000 ALTER TABLE `cnfmst` ENABLE KEYS */;
+
+
+-- Dumping structure for table fcms.cwlinf
+CREATE TABLE IF NOT EXISTS `cwlinf` (
+  `CwlCapSeq` bigint(20) unsigned NOT NULL,
+  `CwlSeqNum` int(11) NOT NULL,
+  `CwlStrDtm` char(12) NOT NULL,
+  `CwlEndDtm` char(12) NOT NULL,
+  `CwlSchDtl` varchar(500) NOT NULL,
+  `CwlUpdUid` char(12) default NULL,
+  `CwlUpdDts` char(14) default NULL,
+  PRIMARY KEY  (`CwlCapSeq`,`CwlSeqNum`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table fcms.cwlinf: 1 rows
+DELETE FROM `cwlinf`;
+/*!40000 ALTER TABLE `cwlinf` DISABLE KEYS */;
+INSERT INTO `cwlinf` (`CwlCapSeq`, `CwlSeqNum`, `CwlStrDtm`, `CwlEndDtm`, `CwlSchDtl`, `CwlUpdUid`, `CwlUpdDts`) VALUES
+	(1, 1, '1', '1', '1', NULL, NULL);
+/*!40000 ALTER TABLE `cwlinf` ENABLE KEYS */;
 
 
 -- Dumping structure for table fcms.depmst
@@ -225,6 +265,28 @@ BEGIN
 	FROM pwlinf pw JOIN wklinf wi ON pw.PwlSeqNum=wi.WklPwlSeq LEFT JOIN odrmst om
 	ON wi.WklOdrCod = om.OdrCod
 	WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = p_date;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getCoachAppointmentInfo
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getCoachAppointmentInfo`(IN `p_user` CHAR(20), IN `p_date` CHAR(8))
+BEGIN
+	SELECT ci.CapSeqNum, ci.CapUsrCod, ci.CapWklDte, ci.CapAppDtl
+	FROM capinf ci
+	WHERE ci.CapUsrCod = p_user AND ci.CapWklDte = p_date;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getCoachWorklistInfo
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getCoachWorklistInfo`(IN `p_appSeq` BIGINT)
+BEGIN
+	SELECT cw.CwlCapSeq, cw.CwlSeqNum, cw.CwlStrDtm, cw.CwlEndDtm, cw.CwlSchDtl
+	FROM cwlinf cw
+	WHERE cw.CwlCapSeq = p_appSeq;
 END//
 DELIMITER ;
 
