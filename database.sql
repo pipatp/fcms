@@ -25,12 +25,15 @@ CREATE TABLE IF NOT EXISTS `capinf` (
   `CapUpdDts` char(14) default NULL,
   PRIMARY KEY  (`CapSeqNum`),
   KEY `CapUsrCod_CapWklDte` (`CapUsrCod`,`CapWklDte`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.capinf: 1 rows
+-- Dumping data for table fcms.capinf: 4 rows
 /*!40000 ALTER TABLE `capinf` DISABLE KEYS */;
 INSERT INTO `capinf` (`CapSeqNum`, `CapUsrCod`, `CapWklDte`, `CapAppDtl`, `CapUpdUid`, `CapUpdDts`) VALUES
-	(1, 'test', '20140306', '111', NULL, NULL);
+	(1, 'test', '20140306', '333', 'test', '2014030804909'),
+	(2, 'test', '20140307', NULL, 'test', '20140307233643'),
+	(3, 'test', '20140305', NULL, 'test', '20140307235905'),
+	(4, 'test', '20140304', '123', 'test', '2014030804851');
 /*!40000 ALTER TABLE `capinf` ENABLE KEYS */;
 
 
@@ -64,8 +67,10 @@ CREATE TABLE IF NOT EXISTS `cwlinf` (
   PRIMARY KEY  (`CwlCapSeq`,`CwlSeqNum`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.cwlinf: 0 rows
+-- Dumping data for table fcms.cwlinf: 1 rows
 /*!40000 ALTER TABLE `cwlinf` DISABLE KEYS */;
+INSERT INTO `cwlinf` (`CwlCapSeq`, `CwlSeqNum`, `CwlStrDtm`, `CwlEndDtm`, `CwlSchDtl`, `CwlUpdUid`, `CwlUpdDts`) VALUES
+	(2, 1, '0100', '0400', 'test', 'test', '2014030800101');
 /*!40000 ALTER TABLE `cwlinf` ENABLE KEYS */;
 
 
@@ -91,6 +96,44 @@ DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `fFormat`(sFormat TEXT, sPar1 TEXT) RETURNS text CHARSET utf8
 BEGIN
   RETURN REPLACE(sFormat, '%s', sPar1);
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_addCoachWorklistItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addCoachWorklistItem`(IN `p_date` VARCHAR(8), IN `p_startTime` VARCHAR(12), IN `p_endTime` VARCHAR(12), IN `p_detail` VARCHAR(500), IN `p_userCode` VARCHAR(20))
+BEGIN
+	DECLARE l_appSeq BIGINT;
+	DECLARE l_itemSeq INT;
+	DECLARE l_timestamp CHAR(14);
+	
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+	END;
+	
+	SET l_appSeq = -1;
+	
+	START TRANSACTION;
+	
+	SELECT CapSeqNum INTO l_appSeq
+	FROM capinf
+	WHERE CapWklDte = p_date AND CapUsrCod = p_userCode;
+	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
+	IF l_appSeq = -1 THEN
+		INSERT INTO capinf(CapUsrCod, CapWklDte, CapUpdUid, CapUpdDts) VALUES (p_userCode, p_date, p_userCode, l_timestamp);
+		
+		SELECT LAST_INSERT_ID() INTO l_appSeq;
+	END IF;
+	
+	SELECT IFNULL(MAX(ci.CwlSeqNum), 0) + 1 INTO l_itemSeq FROM cwlinf ci WHERE ci.CwlCapSeq = l_appSeq;
+	
+	INSERT INTO cwlinf VALUES (l_appSeq, l_itemSeq, p_startTime, p_endTime, p_detail, p_userCode, l_timestamp);
+	
+	COMMIT;
 END//
 DELIMITER ;
 
@@ -467,6 +510,40 @@ BEGIN
 	COMMIT;
 	
 	SELECT od.OdrLocNam FROM odrmst od WHERE od.OdrCod = p_code;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_updateCoachScheduleDetail
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_updateCoachScheduleDetail`(IN `p_userCode` VARCHAR(20), IN `p_date` VARCHAR(8), IN `p_detail` VARCHAR(500))
+BEGIN
+	DECLARE l_appSeq BIGINT;
+	DECLARE l_timestamp CHAR(14);
+	
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+	END;
+	
+	SET l_appSeq = -1;
+	
+	START TRANSACTION;
+	
+	SELECT CapSeqNum INTO l_appSeq
+	FROM capinf
+	WHERE CapWklDte = p_date AND CapUsrCod = p_userCode;
+	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
+	IF l_appSeq = -1 THEN
+		INSERT INTO capinf(CapUsrCod, CapWklDte, CapAppDtl, CapUpdUid, CapUpdDts)
+		VALUES (p_userCode, p_date, p_detail, p_userCode, l_timestamp);
+	ELSE
+		UPDATE capinf SET CapAppDtl = p_detail, CapUpdUid = p_userCode, CapUpdDts = l_timestamp WHERE CapSeqNum = l_appSeq;
+	END IF;
+	
+	COMMIT;
 END//
 DELIMITER ;
 

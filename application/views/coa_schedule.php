@@ -16,13 +16,20 @@
     width: 100%;
 }
 
-.coach-schedule-panel .appointment-detail {
+#appointment-detail .comment {
     min-height: 200px;
     overflow-y: auto;
     
     padding: 2px;
     
     border: #AAA solid 1px;
+}
+
+.coach-schedule-panel .appointment-detail-edit {
+    min-height: 200px;
+    width: 100%;
+    
+    display: block;
 }
 
 .coach-schedule-panel .coach-worklist-add {
@@ -59,7 +66,9 @@
         <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="schedule-calendar"></div>
             <label>รายละเอียดตารางนัด</label>
-            <div class="appointment-detail"></div>
+            <div id="appointment-detail">
+                <div class="stretch comment" title="ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข"></div>
+            </div>
         </div>
         <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="coach-worklist-add btn btn-default"><img src="../../images/add.png" />เพิ่มรายการ</div>
@@ -87,7 +96,7 @@
                 <div class="row">
                     <div class="col-sm-12 col-md-12 col-xs-12">
                         <div id="add-error" class="alert alert-danger hidden">...</div>
-                        <div class="form" style="margin-left: 10px;">
+                        <div class="form">
                             <div class="form-inline line-space-nm">
                                 <label class="control-label" style="margin-right: 10px;">เวลาเริ่มต้น:</label>
                                 <select class="form-control hour-selection input-sm">
@@ -135,11 +144,13 @@
         
         $("#addDialog").modal({ show: false, keyboard: false });
         
+        $("#appointment-detail .stretch").tooltip();
+        
         initialHourSelection();
         
         $(".coach-worklist-add").click(showAddDialog);
         
-        $("#saveWorklistButton").click();
+        $("#saveWorklistButton").click(addWorklistItem);
     });
     
     function resetAddDialogFields() {
@@ -196,9 +207,13 @@
         $.get("getCoachSchedule/" + date).done(function(result) {
             var schedule = jQuery.parseJSON(result);
             
-            $(".appointment-detail").text("");
+            $("#appointment-detail .stretch").text("");
             
-            $(".appointment-detail").text(schedule.appointment.CapAppDtl);
+            if (schedule.appointment.CapAppDtl) {
+                $("#appointment-detail .stretch").text(schedule.appointment.CapAppDtl);
+            }
+            
+            $("#addDialog").attr("data-appointment-seq", schedule.appointment.CapSeqNum);
  
             var $tableBody = $("#coach-schdule-table tbody");
             $tableBody.empty();
@@ -209,8 +224,106 @@
         });
     }
     
-    function addWorklistRow() {
+    function addWorklistItem() {
+        var addRequest = {};
+    
+        addRequest.date = getDateFromDatePicker($(".schedule-calendar"), "yymmdd");
+        addRequest.startTime = $(".hour-selection")[0].value + $(".minute-selection")[0].value;
+        addRequest.endTime = $(".hour-selection")[1].value + $(".minute-selection")[1].value;
+        addRequest.detail = $("#scheduleDetail").val();
+        
+        var $addError = $("#add-error");
+        $addError.addClass("hidden");
+        
+        if (addRequest.detail.length <= 0) {
+            $addError.text("ข้อมูลไม่ครบถ้วน โปรดกรอกรายการงาน");
+            $addError.removeClass("hidden");
+            return;
+        }
+
+        if (addRequest.startTime >= addRequest.endTime) {
+            $addError.text("ข้อมูลผิดพลาด เวลาเริ่มต้นไม่สามารถมากกว่าหรือเท่ากับเวลาสิ้นสุด");
+            $addError.removeClass("hidden");
+            return;
+        }
+        
+        $.post("addCoachWorklistItem", JSON.stringify(addRequest)).done(function() {
+            $("#addDialog").modal("hide");
+            
+            loadCoachSchedule($(".schedule-calendar"));
+        }).fail(function() {
+            alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
     }
+    
+    var currentComment = "";
+    var editMode = false;
+    
+    function convertToTextArea($section) {       
+        var $commentDiv = $section.children(".stretch");
+        $commentDiv.tooltip('hide');
+        $commentDiv.detach();
+        
+        currentComment = $commentDiv.text();
+        
+        var $commentBox = $("<textarea class='stretch appointment-detail-edit'></textarea>");
+        $commentBox.val($commentDiv.text());
+        
+        $commentBox.keydown(function(e) {
+            if (e.keyCode === 27) {
+                $commentBox.val(currentComment);
+                
+                convertToDiv($section);
+            }
+        });
+        
+        $section.append($commentBox);
+        
+        $commentBox.focus();
+        
+        editMode = true;
+    }
+    
+    function convertToDiv($section) {
+        var $commentBox = $section.children(".stretch");
+        $commentBox.detach();
+        
+        var $commentDiv = $("<div class='stretch comment' title='ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข'></div>");
+        $commentDiv.text($commentBox.val());
+        
+        $commentDiv.tooltip();
+        
+        $section.append($commentDiv);
+        
+        editMode = false;
+    }
+    
+    $("#appointment-detail").dblclick(function() {
+        if (editMode) {
+            return false;
+        }
+        convertToTextArea($(this));
+    });
+    $("#appointment-detail").focusout(function() {
+        var $section = $(this);
+        
+        var $commentBox = $section.children(".stretch");
+        
+        if ($commentBox.val() === currentComment) {
+            convertToDiv($section);
+        } 
+        else {
+            var updateRequest = {};
+            updateRequest.date = getDateFromDatePicker($(".schedule-calendar"), "yymmdd");
+            updateRequest.detail = $commentBox.val();
+            
+            $.post("updateCoachScheduleDetail", JSON.stringify(updateRequest)).done(function() {
+                convertToDiv($section);
+            }).fail(function() {
+                alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+            });
+        }
+    });
     
     // Utility Functions
     function getDateFromDatePicker($datePicker, formatDate) {

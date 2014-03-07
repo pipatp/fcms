@@ -27,10 +27,26 @@ class coach_model extends CI_Model {
         return $query->result();
     }
     
+    function addCoachWorklistItem($date, $startTime, $endTime, $detail, $user) {
+        $data = array($date, $startTime, $endTime, $detail, $user);
+        
+        $query = $this->db->query("CALL fn_addCoachWorklistItem(?, ?, ?, ?, ?)", $data);
+        
+        $query->row();
+    }
+    
     function deleteCoachWorklistItem($appointmentSeq, $itemSeq) {
         $data = array($appointmentSeq, $itemSeq);
         
         $query = $this->db->query("CALL fn_deleteCoachWorklistItem(?, ?)", $data);
+        
+        $query->row();
+    }
+    
+    function updateCoachScheduleDetail($user, $date, $detail) {
+        $data = array($user, $date, $detail);
+        
+        $query = $this->db->query("CALL fn_updateCoachScheduleDetail(?, ?, ?)", $data);
         
         $query->row();
     }

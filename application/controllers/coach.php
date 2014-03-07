@@ -47,6 +47,22 @@ class coach extends CI_Controller {
         $this->load->view('json_result', $data);
     }
     
+    function addCoachWorklistItem() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        $this->load->model('coach_model');
+
+        try {
+            $this->coach_model->addCoachWorklistItem($postData["date"], $postData["startTime"],
+                 $postData["endTime"], $postData["detail"], $user);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Add item failed. ' . $e->getMessage());
+        }
+    }
+    
     function deleteCoachWorklistItem() {
         $postData = json_decode(trim(file_get_contents('php://input')), true);
         
@@ -55,6 +71,22 @@ class coach extends CI_Controller {
         try {
             $this->coach_model->deleteCoachWorklistItem($postData["appointmentSeq"],
                  $postData["itemSeq"]);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Delete item failed. ' . $e->getMessage());
+        }
+    }
+    
+    function updateCoachScheduleDetail() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('coach_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        try {
+            $this->coach_model->updateCoachScheduleDetail($user,
+                 $postData["date"], $postData["detail"]);
         } catch (Exception $e) {
             $this->output->set_status_header('500', 'Delete item failed. ' . $e->getMessage());
         }
