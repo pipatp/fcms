@@ -26,4 +26,12 @@ class coach_model extends CI_Model {
         
         return $query->result();
     }
+    
+    function deleteCoachWorklistItem($appointmentSeq, $itemSeq) {
+        $data = array($appointmentSeq, $itemSeq);
+        
+        $query = $this->db->query("CALL fn_deleteCoachWorklistItem(?, ?)", $data);
+        
+        $query->row();
+    }
 }

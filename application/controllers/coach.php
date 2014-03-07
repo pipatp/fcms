@@ -47,6 +47,19 @@ class coach extends CI_Controller {
         $this->load->view('json_result', $data);
     }
     
+    function deleteCoachWorklistItem() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('coach_model');
+
+        try {
+            $this->coach_model->deleteCoachWorklistItem($postData["appointmentSeq"],
+                 $postData["itemSeq"]);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Delete item failed. ' . $e->getMessage());
+        }
+    }
+    
     //----------------------------------------------
     // Coach Fitness
     //----------------------------------------------

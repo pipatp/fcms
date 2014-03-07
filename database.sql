@@ -10,6 +10,11 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
+-- Dumping database structure for fcms
+CREATE DATABASE IF NOT EXISTS `fcms` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `fcms`;
+
+
 -- Dumping structure for table fcms.capinf
 CREATE TABLE IF NOT EXISTS `capinf` (
   `CapSeqNum` bigint(20) unsigned NOT NULL auto_increment,
@@ -23,7 +28,6 @@ CREATE TABLE IF NOT EXISTS `capinf` (
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.capinf: 1 rows
-DELETE FROM `capinf`;
 /*!40000 ALTER TABLE `capinf` DISABLE KEYS */;
 INSERT INTO `capinf` (`CapSeqNum`, `CapUsrCod`, `CapWklDte`, `CapAppDtl`, `CapUpdUid`, `CapUpdDts`) VALUES
 	(1, 'test', '20140306', '111', NULL, NULL);
@@ -44,7 +48,6 @@ CREATE TABLE IF NOT EXISTS `cnfmst` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.cnfmst: ~0 rows (approximately)
-DELETE FROM `cnfmst`;
 /*!40000 ALTER TABLE `cnfmst` DISABLE KEYS */;
 /*!40000 ALTER TABLE `cnfmst` ENABLE KEYS */;
 
@@ -61,11 +64,8 @@ CREATE TABLE IF NOT EXISTS `cwlinf` (
   PRIMARY KEY  (`CwlCapSeq`,`CwlSeqNum`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.cwlinf: 1 rows
-DELETE FROM `cwlinf`;
+-- Dumping data for table fcms.cwlinf: 0 rows
 /*!40000 ALTER TABLE `cwlinf` DISABLE KEYS */;
-INSERT INTO `cwlinf` (`CwlCapSeq`, `CwlSeqNum`, `CwlStrDtm`, `CwlEndDtm`, `CwlSchDtl`, `CwlUpdUid`, `CwlUpdDts`) VALUES
-	(1, 1, '1', '1', '1', NULL, NULL);
 /*!40000 ALTER TABLE `cwlinf` ENABLE KEYS */;
 
 
@@ -82,7 +82,6 @@ CREATE TABLE IF NOT EXISTS `depmst` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.depmst: ~0 rows (approximately)
-DELETE FROM `depmst`;
 /*!40000 ALTER TABLE `depmst` DISABLE KEYS */;
 /*!40000 ALTER TABLE `depmst` ENABLE KEYS */;
 
@@ -174,6 +173,15 @@ BEGIN
 	
 	INSERT INTO wklinf(WklPwlSeq, WklSeqNum, WklOdrCod, WklStrDtm, WklEndDtm, WklActDur, WklCurStt, WklUpdUid, WklUpdDts)
 	VALUES (p_worklistSeq, l_seq, p_orderCode, p_start, p_end, p_duration, 'N', p_user, DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%k%i%S'));
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_deleteCoachWorklistItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_deleteCoachWorklistItem`(IN `p_appointmentSeq` BIGINT, IN `p_itemSeq` INT)
+BEGIN
+	DELETE FROM cwlinf WHERE CwlCapSeq = p_appointmentSeq AND CwlSeqNum = p_itemSeq;
 END//
 DELIMITER ;
 
@@ -286,7 +294,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getCoachWorklistInfo`(IN `p_appS
 BEGIN
 	SELECT cw.CwlCapSeq, cw.CwlSeqNum, cw.CwlStrDtm, cw.CwlEndDtm, cw.CwlSchDtl
 	FROM cwlinf cw
-	WHERE cw.CwlCapSeq = p_appSeq;
+	WHERE cw.CwlCapSeq = p_appSeq
+	ORDER BY cw.CwlStrDtm;
 END//
 DELIMITER ;
 
@@ -478,7 +487,6 @@ CREATE TABLE IF NOT EXISTS `odrmst` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.odrmst: ~19 rows (approximately)
-DELETE FROM `odrmst`;
 /*!40000 ALTER TABLE `odrmst` DISABLE KEYS */;
 INSERT INTO `odrmst` (`OdrCod`, `OdrLocNam`, `OdrEngNam`, `OdrCatTyp`, `OdrSubTyp`, `OdrCurStt`, `OdrCreDte`, `OdrExpDte`, `OdrUpdUid`, `OdrUpdDts`) VALUES
 	('FIT000001', 'วิ่งลู่', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL),
@@ -516,7 +524,6 @@ CREATE TABLE IF NOT EXISTS `omdmst` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.omdmst: ~21 rows (approximately)
-DELETE FROM `omdmst`;
 /*!40000 ALTER TABLE `omdmst` DISABLE KEYS */;
 INSERT INTO `omdmst` (`OmdNum`, `OmdSeq`, `OmdOdrCod`, `OmdMelWeg`, `OmdMelCal`, `OmdUpdUid`, `OmdUpdDts`) VALUES
 	(1, 1, 'NUT000001', 300, 350, NULL, NULL),
@@ -556,7 +563,6 @@ CREATE TABLE IF NOT EXISTS `ommmst` (
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.ommmst: ~18 rows (approximately)
-DELETE FROM `ommmst`;
 /*!40000 ALTER TABLE `ommmst` DISABLE KEYS */;
 INSERT INTO `ommmst` (`OmmNum`, `OmmYrm`, `OmmDay`, `OmmWkd`, `OmmTyp`, `OmmUpdUid`, `OmmUpdDts`) VALUES
 	(1, '201401', '24', 5, 'BRK', NULL, NULL),
@@ -606,7 +612,6 @@ CREATE TABLE IF NOT EXISTS `piminf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.piminf: ~1 rows (approximately)
-DELETE FROM `piminf`;
 /*!40000 ALTER TABLE `piminf` DISABLE KEYS */;
 INSERT INTO `piminf` (`PimPlyCod`, `PimFac`, `PimFnt`, `PimBak`, `PimRit`, `PimLef`, `PimUpdUid`, `PimUpdDts`) VALUES
 	('P00001', 'D:\\AppServ\\www\\fcms\\images\\ChainatFC-logo2013.png', NULL, NULL, NULL, NULL, NULL, NULL);
@@ -625,7 +630,6 @@ CREATE TABLE IF NOT EXISTS `plainf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.plainf: ~0 rows (approximately)
-DELETE FROM `plainf`;
 /*!40000 ALTER TABLE `plainf` DISABLE KEYS */;
 /*!40000 ALTER TABLE `plainf` ENABLE KEYS */;
 
@@ -641,7 +645,6 @@ CREATE TABLE IF NOT EXISTS `plcinf` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Player additional comment infomation';
 
 -- Dumping data for table fcms.plcinf: 2 rows
-DELETE FROM `plcinf`;
 /*!40000 ALTER TABLE `plcinf` DISABLE KEYS */;
 INSERT INTO `plcinf` (`PlcCod`, `PlcCatTyp`, `PlcCmt`, `PlcUpdUid`, `PlcUpdDts`) VALUES
 	('P00001', 'FIT', 'Normal status', 'test', '20140302110734'),
@@ -670,7 +673,6 @@ CREATE TABLE IF NOT EXISTS `plpinf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.plpinf: ~0 rows (approximately)
-DELETE FROM `plpinf`;
 /*!40000 ALTER TABLE `plpinf` DISABLE KEYS */;
 /*!40000 ALTER TABLE `plpinf` ENABLE KEYS */;
 
@@ -688,7 +690,6 @@ CREATE TABLE IF NOT EXISTS `plrinf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.plrinf: ~4 rows (approximately)
-DELETE FROM `plrinf`;
 /*!40000 ALTER TABLE `plrinf` DISABLE KEYS */;
 INSERT INTO `plrinf` (`PlrPlyCod`, `PlrRstDte`, `PlrCatTyp`, `PlrSubTyp`, `PlrRstCmt`, `PlrUpdUid`, `PlrUpdDts`) VALUES
 	('P00001', '20140302', 'FIT', 'RST', 'Normal test', 'user', '2014030205507'),
@@ -715,7 +716,6 @@ CREATE TABLE IF NOT EXISTS `plvinf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.plvinf: ~0 rows (approximately)
-DELETE FROM `plvinf`;
 /*!40000 ALTER TABLE `plvinf` DISABLE KEYS */;
 /*!40000 ALTER TABLE `plvinf` ENABLE KEYS */;
 
@@ -758,7 +758,6 @@ CREATE TABLE IF NOT EXISTS `plyinf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.plyinf: ~2 rows (approximately)
-DELETE FROM `plyinf`;
 /*!40000 ALTER TABLE `plyinf` DISABLE KEYS */;
 INSERT INTO `plyinf` (`PlyCod`, `PlyTitCod`, `PlyFstNam`, `PlyMidNam`, `PlyFamNam`, `PlyFstEng`, `PlyMidEng`, `PlyFamEng`, `PlyNatCod`, `PlyPerNum`, `PlyPasNum`, `PlyBirDte`, `PlyAddNum`, `PlyAddDtl`, `PlyAddCty`, `PlyAddPrv`, `PlyAddZip`, `PlyAddCot`, `PlyNumEng`, `PlyDtlEng`, `PlyRegCod`, `PlySexTyp`, `PlyPhnNum`, `PlyMblNum`, `PlyConPer`, `PlyConPhn`, `PlyEmlAdd`, `PlyCurStt`, `PlyCreDte`, `PlyExpDte`, `PlyUpdUid`, `PlyUpdDts`) VALUES
 	('P00001', NULL, 'สมชาย', NULL, 'เข็มกลัด', 'Somchai', NULL, 'Khemglad', 'ไทย', NULL, NULL, '19800401', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'M', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -783,7 +782,6 @@ CREATE TABLE IF NOT EXISTS `podinf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.podinf: ~0 rows (approximately)
-DELETE FROM `podinf`;
 /*!40000 ALTER TABLE `podinf` DISABLE KEYS */;
 /*!40000 ALTER TABLE `podinf` ENABLE KEYS */;
 
@@ -805,7 +803,6 @@ CREATE TABLE IF NOT EXISTS `posmst` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.posmst: ~0 rows (approximately)
-DELETE FROM `posmst`;
 /*!40000 ALTER TABLE `posmst` DISABLE KEYS */;
 /*!40000 ALTER TABLE `posmst` ENABLE KEYS */;
 
@@ -837,7 +834,6 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.pwlinf: ~4 rows (approximately)
-DELETE FROM `pwlinf`;
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
 INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCurStt`, `PwlRegUid`, `PwlVstDtm`, `PwlUpdUid`, `PwlUpdDts`) VALUES
 	(1, 'P00001', '20140221', '0530', 'A', NULL, NULL, NULL, NULL),
@@ -867,7 +863,6 @@ CREATE TABLE IF NOT EXISTS `usrmst` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.usrmst: ~1 rows (approximately)
-DELETE FROM `usrmst`;
 /*!40000 ALTER TABLE `usrmst` DISABLE KEYS */;
 INSERT INTO `usrmst` (`UsrCod`, `UsrFstNam`, `UsrMidNam`, `UsrFamNam`, `UsrFstEng`, `UsrMidEng`, `UsrFamEng`, `UsrLogPwd`, `UsrEmpCod`, `UsrDepCod`, `UsrCreDte`, `UsrExpDte`, `UsrUpdUid`, `UsrUpdDts`) VALUES
 	('test', NULL, NULL, NULL, NULL, NULL, NULL, 'welcome', NULL, NULL, NULL, NULL, NULL, NULL);
@@ -891,7 +886,6 @@ CREATE TABLE IF NOT EXISTS `wklinf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.wklinf: ~16 rows (approximately)
-DELETE FROM `wklinf`;
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
 INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),
@@ -927,7 +921,6 @@ CREATE TABLE IF NOT EXISTS `wklmst` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.wklmst: ~10 rows (approximately)
-DELETE FROM `wklmst`;
 /*!40000 ALTER TABLE `wklmst` DISABLE KEYS */;
 INSERT INTO `wklmst` (`WklPlyCod`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklUpdUid`, `WklUpdDts`) VALUES
 	('P00001', 1, 'FIT000001', '0600', '0700', 60, NULL, NULL),
@@ -961,7 +954,6 @@ CREATE TABLE IF NOT EXISTS `wkminf` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.wkminf: ~9 rows (approximately)
-DELETE FROM `wkminf`;
 /*!40000 ALTER TABLE `wkminf` DISABLE KEYS */;
 INSERT INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMelWeg`, `WkmMelCal`, `WkmEdtYon`, `WkmMelYrm`, `WkmMelDay`, `WkmOdrStt`, `WkmUpdUid`, `WkmUpdDts`) VALUES
 	(1, 'NUTBRK001', 2, 'NUT000006', 100, 250, 'N', '201401', '24', 'N', NULL, NULL),
