@@ -28,7 +28,11 @@ class player_model extends CI_Model {
         
         $query = $this->db->query("CALL fn_getPlayerComment(?, ?)", $data);
         
-        return $query->row();
+        $row = $query->row();
+               
+        $query->free_result();
+        
+        return $row;
     }
     
     function addComment($playerCode, $category, $comment, $user) {
@@ -57,5 +61,17 @@ class player_model extends CI_Model {
         $query = $this->db->query("CALL fn_addPlayerResult(?, ?, ?, ?, ?, ?)", $data);
         
         $query->row();
+    }
+    
+    function getInfo($playerCode) {
+        $data = array($playerCode);
+        
+        $query = $this->db->query("CALL fn_getPlayerInfo(?)", $data);
+        
+        $row = $query->row();
+               
+        $query->free_result();
+        
+        return $row;
     }
 }

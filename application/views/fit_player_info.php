@@ -155,6 +155,7 @@
 </div>
 <script>
     var playerCode = "";
+    var currentDate = $.datepicker.formatDate("yymmdd", new Date());
     
     $("#fitness-addition-tab").tabs({heightStyle: "fill"});
     

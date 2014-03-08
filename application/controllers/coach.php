@@ -127,4 +127,23 @@ class coach extends CI_Controller {
     function viewPlayerInfo() {
         $this->load->view('coa_player_info');
     }
+    
+    function getPlayerInfo($playerCode) {
+        $this->load->model('player_model');
+        
+        $obj["comment"] = $this->player_model->getComment($playerCode, 'COA');
+        $obj["detail"] = $this->player_model->getInfo($playerCode);
+        
+        $data["content"] = $obj;
+        
+        $this->load->view('json_result', $data);
+    }
+    
+    function getPlayerWorklist($playerCode, $date) {
+        $this->load->model('worklist_model');
+        
+        $data["content"] = $this->worklist_model->getAllWorklist($playerCode, $date);
+        
+        return $this->load->view('json_result', $data);
+    }
 }

@@ -315,7 +315,8 @@ BEGIN
 	SELECT wi.*, om.*
 	FROM pwlinf pw JOIN wklinf wi ON pw.PwlSeqNum=wi.WklPwlSeq LEFT JOIN odrmst om
 	ON wi.WklOdrCod = om.OdrCod
-	WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = p_date;
+	WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = p_date
+	ORDER BY wi.WklStrDtm;
 END//
 DELIMITER ;
 
@@ -377,6 +378,17 @@ BEGIN
 	SELECT *
 	FROM plcinf
 	WHERE PlcCod = p_playerCode AND PlcCatTyp = p_category;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getPlayerInfo
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPlayerInfo`(IN `p_playerCode` VARCHAR(20))
+BEGIN
+	SELECT *
+	FROM plyinf pi LEFT JOIN plpinf pp ON pi.PlyCod = pp.PlpPlyCod
+	WHERE pi.PlyCod = p_playerCode;
 END//
 DELIMITER ;
 
@@ -735,11 +747,12 @@ CREATE TABLE IF NOT EXISTS `plcinf` (
   PRIMARY KEY  (`PlcCod`,`PlcCatTyp`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Player additional comment infomation';
 
--- Dumping data for table fcms.plcinf: 2 rows
+-- Dumping data for table fcms.plcinf: 3 rows
 /*!40000 ALTER TABLE `plcinf` DISABLE KEYS */;
 INSERT INTO `plcinf` (`PlcCod`, `PlcCatTyp`, `PlcCmt`, `PlcUpdUid`, `PlcUpdDts`) VALUES
-	('P00001', 'FIT', 'Normal status', 'test', '20140302110734'),
-	('P00001', 'PHY', 'test', 'test', '20140302111930');
+	('P00001', 'FIT', 'Normal', 'test', '20140308170515'),
+	('P00001', 'PHY', 'test', 'test', '20140302111930'),
+	('P00001', 'COA', 'Hello test', 'test', '20140308175604');
 /*!40000 ALTER TABLE `plcinf` ENABLE KEYS */;
 
 
@@ -763,8 +776,10 @@ CREATE TABLE IF NOT EXISTS `plpinf` (
   PRIMARY KEY  (`PlpPlyCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.plpinf: ~0 rows (approximately)
+-- Dumping data for table fcms.plpinf: ~1 rows (approximately)
 /*!40000 ALTER TABLE `plpinf` DISABLE KEYS */;
+INSERT INTO `plpinf` (`PlpPlyCod`, `PlpSeq`, `PlpStrDte`, `PlpEndDte`, `PlpAcc`, `PlpAgt`, `PlpBal`, `PlpJum`, `PlpNaf`, `PlpPac`, `PlpStm`, `PlpSta`, `PlpGkp`, `PlpUpdUid`, `PlpUpdDts`) VALUES
+	('P00001', 1, NULL, NULL, 1, 2, 3, 4, 5, 6, 7, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `plpinf` ENABLE KEYS */;
 
 
@@ -976,7 +991,7 @@ CREATE TABLE IF NOT EXISTS `wklinf` (
   PRIMARY KEY  (`WklPwlSeq`,`WklSeqNum`,`WklOdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wklinf: ~17 rows (approximately)
+-- Dumping data for table fcms.wklinf: ~18 rows (approximately)
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
 INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),
