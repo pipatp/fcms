@@ -99,6 +99,14 @@ class coach extends CI_Controller {
         $this->load->view('coa_fitness');
     }
     
+    function getFitnessSchedule($date) {
+        $this->load->model('coach_model');
+        
+        $data["content"] = $this->coach_model->getCoachViewSchedule($date, 'FIT');
+        
+        $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Coach Physical Theraphy
     //----------------------------------------------

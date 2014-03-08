@@ -9,7 +9,7 @@
     </head>
     <body>
         <? $this->load->view('mnu_header'); ?>
-        <div class="content-body">
+        <div class="content-body" style="top: 115px; height: auto; position: absolute; overflow: auto;">
             
         </div>
         <script src="../../js/jquery-2.0.3.js"></script>

@@ -331,6 +331,20 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_getCoachViewSchedule
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getCoachViewSchedule`(IN `p_date` VARCHAR(8), IN `p_type` VARCHAR(20))
+BEGIN
+	SELECT pw.PwlSeqNum, pw.PwlPlyCod, pw.PwlAppDte, pi.PlyFstNam, pi.PlyFamNam, pi.PlyFstEng, pi.PlyFamEng,
+	wi.WklOdrCod, wi.WklStrDtm, wi.WklEndDtm, om.OdrLocNam, om.OdrEngNam
+	FROM pwlinf pw, plyinf pi, wklinf wi, odrmst om
+	WHERE pw.PwlSeqNum = wi.WklPwlSeq AND pw.PwlPlyCod = pi.PlyCod AND wi.WklOdrCod = om.OdrCod AND
+	pw.PwlAppDte = p_date AND om.OdrCatTyp = p_type
+	ORDER BY wi.WklStrDtm, wi.WklEndDtm;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getCoachWorklistInfo
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getCoachWorklistInfo`(IN `p_appSeq` BIGINT)
@@ -913,9 +927,9 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
 -- Dumping data for table fcms.pwlinf: ~4 rows (approximately)
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
 INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCurStt`, `PwlRegUid`, `PwlVstDtm`, `PwlUpdUid`, `PwlUpdDts`) VALUES
-	(1, 'P00001', '20140221', '0530', 'A', NULL, NULL, NULL, NULL),
+	(1, 'P00001', '20140308', '0530', 'A', NULL, NULL, NULL, NULL),
 	(2, 'P00001', '20140302', '0530', 'A', NULL, NULL, NULL, NULL),
-	(3, 'P00002', '20140302', '0530', 'A', NULL, NULL, NULL, NULL),
+	(3, 'P00002', '20140308', '0530', 'A', NULL, NULL, NULL, NULL),
 	(4, 'P00002', '20140125', '0530', 'A', NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `pwlinf` ENABLE KEYS */;
 
@@ -962,7 +976,7 @@ CREATE TABLE IF NOT EXISTS `wklinf` (
   PRIMARY KEY  (`WklPwlSeq`,`WklSeqNum`,`WklOdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wklinf: ~16 rows (approximately)
+-- Dumping data for table fcms.wklinf: ~17 rows (approximately)
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
 INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),
@@ -980,7 +994,9 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(2, 2, 'PHY000001', '0700', '0800', 30, 'Y', NULL, NULL, 'test', '2014030124809'),
 	(2, 3, 'PHY000001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140302113539'),
 	(3, 1, 'NUTBRK001', '0700', '0800', 60, 'N', NULL, NULL, NULL, NULL),
-	(3, 2, 'NUTLNH001', '1200', '1300', 60, 'Y', NULL, NULL, NULL, NULL);
+	(3, 2, 'NUTLNH001', '1200', '1300', 60, 'Y', NULL, NULL, NULL, NULL),
+	(3, 3, 'FIT000002', '0800', '1300', 60, 'Y', NULL, NULL, NULL, NULL),
+	(3, 4, 'FIT000002', '0700', '0730', 30, 'N', NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `wklinf` ENABLE KEYS */;
 
 

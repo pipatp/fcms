@@ -50,4 +50,15 @@ class coach_model extends CI_Model {
         
         $query->row();
     }
+    
+    //----------------------------------------------
+    // Coach Fitness
+    //----------------------------------------------
+    function getCoachViewSchedule($date, $category) {
+        $data = array($date, $category);
+        
+        $query = $this->db->query("CALL fn_getCoachViewSchedule(?, ?)", $data);
+        
+        return $query->result();
+    }
 }
