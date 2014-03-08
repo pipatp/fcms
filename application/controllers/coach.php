@@ -114,6 +114,13 @@ class coach extends CI_Controller {
         $this->load->view('coa_physical');
     }
     
+    function getPhysicalSchedule($date) {
+        $this->load->model('coach_model');
+        
+        $data["content"] = $this->coach_model->getCoachViewSchedule($date, 'PHY');
+        
+        $this->load->view('json_result', $data);
+    }
     //----------------------------------------------
     // Coach Player Info
     //----------------------------------------------
