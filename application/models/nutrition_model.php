@@ -100,12 +100,12 @@ class nutrition_model extends CI_Model {
         return $query->result();
     }
     
-    function addPlayerMealItem($worklistSeq, $orderCode, $foodCode, $foodWeight,
-                               $foodCalorie, $yearMonth, $day) {
-        $data = array($worklistSeq, $orderCode, $foodCode, $foodWeight, 
-                      $foodCalorie, $yearMonth, $day);
+    function addPlayerMealItem($playerCode, $yearMonth, $day, $orderCode, 
+                               $foodCode, $foodWeight, $foodCalorie, $user) {
+        $data = array($playerCode, $yearMonth, $day, $orderCode, 
+                      $foodCode, $foodWeight, $foodCalorie, $user);
         
-        $query = $this->db->query("CALL fn_addPlayerMealItem(?, ?, ?, ?, ?, ?, ?)", $data);
+        $query = $this->db->query("CALL fn_addPlayerMealItem(?, ?, ?, ?, ?, ?, ?, ?)", $data);
         
         return $query->row();
     }

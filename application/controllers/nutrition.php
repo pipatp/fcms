@@ -158,10 +158,13 @@ class nutrition extends CI_Controller {
         $postData = json_decode(trim(file_get_contents('php://input')), true);
 
         $this->load->model('nutrition_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
 
-        $data["content"] = $this->nutrition_model->addPlayerMealItem($postData["worklistSeq"],
-             $postData["orderCode"], $postData["code"], $postData["weight"],
-             $postData["calorie"], $postData["yearMonth"], $postData["day"]);
+        $data["content"] = $this->nutrition_model->addPlayerMealItem($postData["playerCode"],
+             $postData["yearMonth"], $postData["day"], $postData["orderCode"],
+             $postData["mealCode"], $postData["weight"], $postData["calorie"], $user);
 
         $this->load->view('json_result', $data);
     }

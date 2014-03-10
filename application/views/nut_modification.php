@@ -247,7 +247,12 @@
     
     var playerCode;
     var worklistSeq;
-    var availableOrderCode = {};
+    var availableOrderCode = {
+        "BRK" : "NUTBRK001",
+        "LNH" : "NUTLNH001",
+        "DES" : "NUTDES001",
+        "DIN" : "NUTDIN001"
+    };
 
     function getSelectionDate() {
         var selectedDate = $("#modify-date-selection").datepicker("getDate");
@@ -463,7 +468,7 @@
 
             // Clear worklist sequence
             worklistSeq = -1;
-            availableOrderCode = {};
+//            availableOrderCode = {};
             
             // Add items to tables
             for (var index=0; index<foodItems.length; index++) {
@@ -475,7 +480,7 @@
                              (foodType === "LNH") ? $lunchTable :
                              (foodType === "DES") ? $dessertTable : $dinnerTable;
                 
-                availableOrderCode[foodType] = foodItem.WkmOdrCod;
+//                availableOrderCode[foodType] = foodItem.WkmOdrCod;
                
                 addMealItemRow($table, foodItem, foodType);
                 
@@ -494,15 +499,17 @@
             var yearMonth = $.datepicker.formatDate("yymm", selectedDate);
             var day = $.datepicker.formatDate("dd", selectedDate);
 
-            $.ajax("getPlayerWorklistMeal/" + playerCode + "/" + yearMonth + "/" + day).done(function(result) {
-                var availableMeals = jQuery.parseJSON(result);
-                
-                for (var index=0; index<availableMeals.length; index++) {
-                    availableOrderCode[availableMeals[index].OdrSubTyp] = availableMeals[index].WklOdrCod;
-                }
-                
-                getPlayerMealSet(yearMonth, day);
-            });
+            getPlayerMealSet(yearMonth, day);
+            
+//            $.ajax("getPlayerWorklistMeal/" + playerCode + "/" + yearMonth + "/" + day).done(function(result) {
+//                var availableMeals = jQuery.parseJSON(result);
+//                
+//                for (var index=0; index<availableMeals.length; index++) {
+//                    availableOrderCode[availableMeals[index].OdrSubTyp] = availableMeals[index].WklOdrCod;
+//                }
+//                
+//                getPlayerMealSet(yearMonth, day);
+//            });
         }
      });
     
@@ -527,10 +534,10 @@
                    (selectedTabIndex === 2) ? "DES" : "DIN";
 
         var orderCode = availableOrderCode[type];
-        if (!orderCode) {
-            alert("ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากไม่มีรายการงานสำหรับมื้อนี้");
-            return;
-        }
+//        if (!orderCode) {
+//            alert("ไม่สามารถเพิ่มข้อมูลได้ เนื่องจากไม่มีรายการงานสำหรับมื้อนี้");
+//            return;
+//        }
        
         var $addRow = $addFoodItemTemplate.clone(true, true);
 
@@ -574,9 +581,9 @@
            var selectionDate = getSelectionDate();
 
            var foodItem = new Object();
+           foodItem.playerCode = playerCode;
            foodItem.orderCode = orderCode;
-           foodItem.worklistSeq = worklistSeq;
-           foodItem.code = $addFoodCode.val();
+           foodItem.mealCode = $addFoodCode.val();
            foodItem.weight = $addFoodWeight.val();
            foodItem.calorie = $addFoodCalorie.val();        
            foodItem.yearMonth = selectionDate.yearMonth;
