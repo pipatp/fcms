@@ -59,4 +59,12 @@ class worklist_model extends CI_Model {
         
         $query->row();
     }
+    
+    function addWorklistItemWithAutoAddPlayerWorklist($playerCode, $date, $orderCode, $startTime, $endTime, $duration, $user) {
+        $data = array($playerCode, $date, $orderCode, $startTime, $endTime, $duration, $user);
+        
+        $query = $this->db->query("CALL fn_addPlayerWorklistWithAutoAddPlayerWorklist(?, ?, ?, ?, ?, ?, ?)", $data);
+        
+        $query->row();
+    }
 }

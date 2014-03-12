@@ -301,7 +301,6 @@
 <script>
     var playerCode = "";
     var selectedWorklist;
-    var selectedWorklistSeq = -1;
     var $selectedRow;
     
     function addDetail($detailDiv, key, val) {
@@ -423,8 +422,6 @@
         $.get("getPhysicalWorklist/" + playerCode + "/" + date).done(function(result) {
             var ret = jQuery.parseJSON(result);
             var worklist = ret.result;
-
-            selectedWorklistSeq = ret.worklistSeq;
 
             var $tableBody = $(".physical-worklist-section tbody");
 
@@ -585,9 +582,13 @@
                 }
             }
         }
+        
+        var selectedDate = $("#modify-date-selection").datepicker("getDate");
+        var date = $.datepicker.formatDate("yymmdd", selectedDate);
 
         var addItem = {};
-        addItem.worklistSeq = selectedWorklistSeq;
+        addItem.playerCode = playerCode;
+        addItem.date = date;
         addItem.orderCode = $("#order-search-box").attr("data-order-code");
         addItem.start = start;
         addItem.end = end;
@@ -644,11 +645,11 @@
 
     
     $(".physical-worklist-add").click(function() {
-        if (selectedWorklistSeq < 0) {
-            $("#errorDialog .error-content").text("ไม่สามารถเพิ่มเติมรายการได้เนื่องจากไม่มีรายการนัดหมายของวันที่เลือก");
-            $("#errorDialog").modal("show");
-            return;
-        }
+//        if (selectedWorklistSeq < 0) {
+//            $("#errorDialog .error-content").text("ไม่สามารถเพิ่มเติมรายการได้เนื่องจากไม่มีรายการนัดหมายของวันที่เลือก");
+//            $("#errorDialog").modal("show");
+//            return;
+//        }
         
         var selectedDate = $("#modify-date-selection").datepicker("getDate");           
         var date = $.datepicker.formatDate("yymmdd", selectedDate);

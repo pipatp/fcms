@@ -144,7 +144,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addPlayerComment`(IN `p_playerCo
 BEGIN
 	DECLARE l_timestamp CHAR(14);
 	
-	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%k%i%S');
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
 	
 	INSERT INTO plcinf(PlcCod, PlcCatTyp, PlcCmt, PlcUpdUid, PlcUpdDts)
 	VALUES (p_playerCode, p_category,  p_comment, p_user, l_timestamp)
@@ -187,7 +187,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addPlayerResult`(IN `p_playerCod
 BEGIN
 	DECLARE l_timestamp CHAR(14);
 	
-	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%k%i%S');
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
 	
 	INSERT INTO plrinf(PlrPlyCod, PlrRstDte, PlrRstCmt, PlrCatTyp, PlrSubTyp, PlrUpdUid, PlrUpdDts)
 	VALUES (p_playerCode, p_date, p_comment, p_category, p_subcategory, p_user, l_timestamp)
@@ -199,7 +199,7 @@ DELIMITER ;
 
 -- Dumping structure for procedure fcms.fn_addPlayerWorklist
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addPlayerWorklist`(IN `p_worklistSeq` INT, IN `p_orderCode` VARCHAR(20), IN `p_start` VARCHAR(12), IN `p_end` VARCHAR(12), IN `p_duration` SMALLINT, IN `p_user` VARCHAR(12))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addPlayerWorklist`(IN `p_worklistSeq` INT, IN `p_orderCode` VARCHAR(20), IN `p_start` VARCHAR(12), IN `p_end` VARCHAR(12), IN `p_duration` SMALLINT, IN `p_user` VARCHAR(20))
 BEGIN
 	DECLARE l_seq INTEGER;
 	
@@ -215,7 +215,43 @@ BEGIN
 	SELECT IFNULL(MAX(wi.WklSeqNum), 0) + 1 INTO l_seq FROM wklInf wi WHERE wi.WklPwlSeq = p_worklistSeq;
 	
 	INSERT INTO wklinf(WklPwlSeq, WklSeqNum, WklOdrCod, WklStrDtm, WklEndDtm, WklActDur, WklCurStt, WklUpdUid, WklUpdDts)
-	VALUES (p_worklistSeq, l_seq, p_orderCode, p_start, p_end, p_duration, 'N', p_user, DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%k%i%S'));
+	VALUES (p_worklistSeq, l_seq, p_orderCode, p_start, p_end, p_duration, 'N', p_user, DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S'));
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_addPlayerWorklistWithAutoAddPlayerWorklist
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addPlayerWorklistWithAutoAddPlayerWorklist`(IN `p_playerCode` VARCHAR(20), IN `p_date` VARCHAR(8), IN `p_orderCode` VARCHAR(20), IN `p_start` VARCHAR(12), IN `p_end` VARCHAR(12), IN `p_duration` SMALLINT, IN `p_user` VARCHAR(20))
+BEGIN
+	DECLARE l_playerWorklist INT;
+	DECLARE l_seq INTEGER;
+	DECLARE l_timestamp CHAR(14);
+	
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+	END;
+	
+	START TRANSACTION;
+	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
+	SELECT PwlSeqNum INTO l_playerWorklist FROM pwlinf pw WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = p_date;
+
+	IF l_playerWorklist IS NULL THEN
+		INSERT INTO pwlinf(PwlPlyCod, PwlAppDte, PwlAppTim, PwlCurStt, PwlUpdUid, PwlUpdDts) 
+		VALUES (p_playerCode, p_date, '0530', 'N', p_user, l_timestamp);
+		
+		SET l_playerWorklist = LAST_INSERT_ID();
+	END IF;
+
+	SELECT IFNULL(MAX(wi.WklSeqNum), 0) + 1 INTO l_seq FROM wklInf wi WHERE wi.WklPwlSeq = l_playerWorklist;
+	
+	INSERT INTO wklinf(WklPwlSeq, WklSeqNum, WklOdrCod, WklStrDtm, WklEndDtm, WklActDur, WklCurStt, WklUpdUid, WklUpdDts)
+	VALUES (l_playerWorklist, l_seq, p_orderCode, p_start, p_end, p_duration, 'N', p_user, l_timestamp);
+	
+	COMMIT;
 END//
 DELIMITER ;
 
@@ -937,7 +973,7 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
   `PwlUpdUid` char(20) default NULL,
   `PwlUpdDts` char(14) default NULL,
   PRIMARY KEY  (`PwlSeqNum`,`PwlPlyCod`,`PwlAppDte`,`PwlAppTim`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.pwlinf: ~4 rows (approximately)
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
@@ -945,7 +981,9 @@ INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCu
 	(1, 'P00001', '20140308', '0530', 'A', NULL, NULL, NULL, NULL),
 	(2, 'P00001', '20140302', '0530', 'A', NULL, NULL, NULL, NULL),
 	(3, 'P00002', '20140308', '0530', 'A', NULL, NULL, NULL, NULL),
-	(4, 'P00002', '20140125', '0530', 'A', NULL, NULL, NULL, NULL);
+	(4, 'P00002', '20140125', '0530', 'A', NULL, NULL, NULL, NULL),
+	(13, 'P00001', '20140316', '0530', 'N', NULL, NULL, 'test', '20140313010408'),
+	(14, 'P00001', '20140317', '0530', 'N', NULL, NULL, 'test', '20140313010903');
 /*!40000 ALTER TABLE `pwlinf` ENABLE KEYS */;
 
 
@@ -1011,7 +1049,10 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(3, 1, 'NUTBRK001', '0700', '0800', 60, 'N', NULL, NULL, NULL, NULL),
 	(3, 2, 'NUTLNH001', '1200', '1300', 60, 'Y', NULL, NULL, NULL, NULL),
 	(3, 3, 'FIT000002', '0800', '1300', 60, 'Y', NULL, NULL, NULL, NULL),
-	(3, 4, 'FIT000002', '0700', '0730', 30, 'N', NULL, NULL, NULL, NULL);
+	(3, 4, 'FIT000002', '0700', '0730', 30, 'N', NULL, NULL, NULL, NULL),
+	(13, 1, 'FIT000001', '0500', '0600', 60, 'N', NULL, NULL, 'test', '20140313010441'),
+	(13, 2, 'PHY000001', '0600', '0700', 60, 'N', NULL, NULL, 'test', '20140313010840'),
+	(14, 1, 'PHY000001', '1200', '1300', 60, 'N', NULL, NULL, 'test', '20140313010903');
 /*!40000 ALTER TABLE `wklinf` ENABLE KEYS */;
 
 

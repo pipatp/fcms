@@ -108,8 +108,8 @@ class fitness extends CI_Controller {
         $user = $loginSession["username"];
         
         try {
-            $this->worklist_model->addWorklistItem($postData["worklistSeq"],
-                 $postData["orderCode"], $postData["start"],
+            $this->worklist_model->addWorklistItemWithAutoAddPlayerWorklist($postData["playerCode"],
+                 $postData["date"], $postData["orderCode"], $postData["start"],
                  $postData["end"], $postData["duration"], $user);
         } catch (Exception $e) {
             $this->output->set_status_header('500', 'Delete item failed.');
