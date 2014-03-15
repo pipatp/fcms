@@ -192,6 +192,27 @@ class nutrition extends CI_Controller {
     // Meal Inventory
     //----------------------------------------------
     function viewInventory() {
-        $this->load->view('nut_inventory');
+        $this->load->model('inventory_model');
+        
+        $data["inventory_items"] = $this->inventory_model->getAllInventoryItems();
+        
+        $this->load->view('nut_inventory', $data);
+    }
+    
+    function storeInInventory() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('inventory_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+
+        try {
+            $this->inventory_model->addStoreInTransaction($postData["date"],
+                $postData["category"], $postData["type"], $postData["department"],
+                $postData["remark"], $user, $postData["items"]);
+        } catch (Exception $e) {
+            show_error($e->getMessage(), 500);
+        }
     }
 }

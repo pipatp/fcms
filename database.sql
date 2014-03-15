@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `capinf` (
   `CapUpdDts` char(14) default NULL,
   PRIMARY KEY  (`CapSeqNum`),
   KEY `CapUsrCod_CapWklDte` (`CapUsrCod`,`CapWklDte`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.capinf: 4 rows
 /*!40000 ALTER TABLE `capinf` DISABLE KEYS */;
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `cwlinf` (
   `CwlUpdUid` char(12) default NULL,
   `CwlUpdDts` char(14) default NULL,
   PRIMARY KEY  (`CwlCapSeq`,`CwlSeqNum`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.cwlinf: 1 rows
 /*!40000 ALTER TABLE `cwlinf` DISABLE KEYS */;
@@ -256,6 +256,36 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_addStoreInItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addStoreInItem`(IN `p_storeInSeq` BIGINT, IN `p_code` VARCHAR(20), IN `p_amount` SMALLINT, IN `p_price` INT, IN `p_expire` TINYINT, IN `p_expireDate` VARCHAR(8), IN `p_category` VARCHAR(20), IN `p_user` VARCHAR(20))
+BEGIN
+	DECLARE l_timestamp CHAR(14);
+	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
+	INSERT INTO invsdt
+	VALUES (p_storeInSeq, p_code, p_amount, p_amount, p_price, p_expire, p_expireDate, p_category, p_user, l_timestamp);
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_addStoreInTransaction
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addStoreInTransaction`(IN `p_storeInDate` CHAR(8), IN `p_category` CHAR(20), IN `p_storeInType` TINYINT, IN `p_storeInDepartment` CHAR(20), IN `p_remark` TEXT, IN `p_user` CHAR(20))
+BEGIN
+	DECLARE l_timestamp CHAR(14);
+	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
+	INSERT INTO invsit(InvSitDte, InvCatTyp, InvSitTyp, InvTypDep, InvSitRmk, InvUpdUid, InvUpdDte)
+	VALUES (p_storeInDate, p_category, p_storeInType, p_storeInDepartment, p_remark, p_user, l_timestamp);
+	
+	SELECT LAST_INSERT_ID() AS InvSitSeq;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_deleteCoachWorklistItem
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_deleteCoachWorklistItem`(IN `p_appointmentSeq` BIGINT, IN `p_itemSeq` INT)
@@ -340,6 +370,18 @@ BEGIN
 	FROM plyinf p
 	WHERE p.PlyFstNam LIKE CONCAT('%', p_term, '%') OR p.PlyFamNam LIKE CONCAT('%', p_term, '%') OR
 		p.PlyFstEng LIKE CONCAT('%', p_term, '%') OR p.PlyFamEng LIKE CONCAT('%', p_term, '%');
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getAllInventoryItems
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getAllInventoryItems`()
+BEGIN
+	SELECT *
+	FROM odrmst om
+	WHERE om.OdrCatTyp = "INV"
+	ORDER BY om.OdrLocNam;
 END//
 DELIMITER ;
 
@@ -610,6 +652,55 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for table fcms.invsdt
+CREATE TABLE IF NOT EXISTS `invsdt` (
+  `InvSitSeq` bigint(20) unsigned NOT NULL,
+  `InvOdrCod` char(20) NOT NULL,
+  `InvOdrAmt` smallint(5) unsigned NOT NULL,
+  `InvOdrRem` smallint(5) unsigned NOT NULL,
+  `InvOdrPrc` int(10) unsigned default NULL,
+  `InvExpTyp` tinyint(3) unsigned NOT NULL,
+  `InvExpDte` char(8) default NULL,
+  `InvCatTyp` char(20) NOT NULL,
+  `InvUpdUid` char(20) default NULL,
+  `InvUpdDte` char(20) default NULL,
+  KEY `InvSitSeq` (`InvSitSeq`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Dumping data for table fcms.invsdt: ~10 rows (approximately)
+/*!40000 ALTER TABLE `invsdt` DISABLE KEYS */;
+INSERT INTO `invsdt` (`InvSitSeq`, `InvOdrCod`, `InvOdrAmt`, `InvOdrRem`, `InvOdrPrc`, `InvExpTyp`, `InvExpDte`, `InvCatTyp`, `InvUpdUid`, `InvUpdDte`) VALUES
+	(99, 'INV000001', 1, 1, 25, 0, NULL, 'NUT', 'test', '20140315202256'),
+	(99, 'INV000003', 2, 2, 60, 1, '20140424', 'NUT', 'test', '20140315202256'),
+	(102, 'INV000003', 2, 2, 45, 1, '20140312', 'NUT', 'test', '20140315203742');
+/*!40000 ALTER TABLE `invsdt` ENABLE KEYS */;
+
+
+-- Dumping structure for table fcms.invsit
+CREATE TABLE IF NOT EXISTS `invsit` (
+  `InvSitSeq` bigint(20) unsigned NOT NULL auto_increment,
+  `InvSitDte` char(8) NOT NULL,
+  `InvCatTyp` char(20) NOT NULL,
+  `InvSitTyp` tinyint(3) unsigned NOT NULL,
+  `InvTypDep` char(20) default NULL,
+  `InvSitRmk` text,
+  `InvUpdUid` char(20) default NULL,
+  `InvUpdDte` char(14) default NULL,
+  PRIMARY KEY  (`InvSitSeq`),
+  KEY `InvSitDep` (`InvCatTyp`),
+  KEY `InvSitDte` (`InvSitDte`)
+) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table fcms.invsit: ~1 rows (approximately)
+/*!40000 ALTER TABLE `invsit` DISABLE KEYS */;
+INSERT INTO `invsit` (`InvSitSeq`, `InvSitDte`, `InvCatTyp`, `InvSitTyp`, `InvTypDep`, `InvSitRmk`, `InvUpdUid`, `InvUpdDte`) VALUES
+	(99, '20140315', 'NUT', 1, 'FIT', 'test', 'test', '20140315202256'),
+	(100, '20140315', 'NUT', 1, 'FIT', 'test', 'test', '20140315202355'),
+	(101, '20140315', 'NUT', 0, NULL, 'test', 'test', '20140315202407'),
+	(102, '20140315', 'NUT', 0, NULL, '', 'test', '20140315203742');
+/*!40000 ALTER TABLE `invsit` ENABLE KEYS */;
+
+
 -- Dumping structure for table fcms.odrmst
 CREATE TABLE IF NOT EXISTS `odrmst` (
   `OdrCod` char(20) NOT NULL,
@@ -618,6 +709,7 @@ CREATE TABLE IF NOT EXISTS `odrmst` (
   `OdrCatTyp` char(20) NOT NULL,
   `OdrSubTyp` char(20) default NULL,
   `OdrCurStt` char(1) default NULL,
+  `OdrUnt` varchar(50) default NULL,
   `OdrCreDte` char(8) default NULL,
   `OdrExpDte` char(8) default NULL,
   `OdrUpdUid` char(20) default NULL,
@@ -625,28 +717,31 @@ CREATE TABLE IF NOT EXISTS `odrmst` (
   PRIMARY KEY  (`OdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.odrmst: ~19 rows (approximately)
+-- Dumping data for table fcms.odrmst: ~22 rows (approximately)
 /*!40000 ALTER TABLE `odrmst` DISABLE KEYS */;
-INSERT INTO `odrmst` (`OdrCod`, `OdrLocNam`, `OdrEngNam`, `OdrCatTyp`, `OdrSubTyp`, `OdrCurStt`, `OdrCreDte`, `OdrExpDte`, `OdrUpdUid`, `OdrUpdDts`) VALUES
-	('FIT000001', 'วิ่งลู่', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('FIT000002', 'ปั่นจักรยาน', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('NUT000001', 'ข้าวผัดหมู', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('NUT000002', 'ข้าวผัดไก่', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('NUT000003', 'ข้าวผัดปู', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('NUT000004', 'ราดหน้าหมู', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('NUT000005', 'ข้าวต้มหมู', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('NUT000006', 'อาหารเสริม', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('NUT000007', 'สลัดผัก', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('NUT000008', 'ขนมปัง', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL),
-	('NUTBRK001', 'ชุดอาหารเช้า Set 1', NULL, 'NUT', 'BRK', NULL, NULL, NULL, NULL, NULL),
-	('NUTBRK002', 'ชุดอาหารเช้า Set 2', NULL, 'NUT', 'BRK', NULL, NULL, NULL, NULL, NULL),
-	('NUTDES001', 'ชุดอาหารว่าง Set 1', NULL, 'NUT', 'DES', NULL, NULL, NULL, NULL, NULL),
-	('NUTDES002', 'ชุดอาหารว่าง Set 2', NULL, 'NUT', 'DES', NULL, NULL, NULL, NULL, NULL),
-	('NUTDIN001', 'ชุดอาหารเย็น Set 1', NULL, 'NUT', 'DIN', NULL, NULL, NULL, NULL, NULL),
-	('NUTDIN002', 'ชุดอาหารเย็น Set 2', NULL, 'NUT', 'DIN', NULL, NULL, NULL, NULL, NULL),
-	('NUTLNH001', 'ชุดอาหารกลางวัน Set 1', NULL, 'NUT', 'LNH', NULL, NULL, NULL, NULL, NULL),
-	('NUTLNH002', 'ชุดอาหารกลางวัน Set 2', NULL, 'NUT', 'LNH', NULL, NULL, NULL, NULL, NULL),
-	('PHY000001', 'กายภาพบำบัด 1', NULL, 'PHY', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `odrmst` (`OdrCod`, `OdrLocNam`, `OdrEngNam`, `OdrCatTyp`, `OdrSubTyp`, `OdrCurStt`, `OdrUnt`, `OdrCreDte`, `OdrExpDte`, `OdrUpdUid`, `OdrUpdDts`) VALUES
+	('FIT000001', 'วิ่งลู่', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('FIT000002', 'ปั่นจักรยาน', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('INV000001', 'ผ้าพันแผล', NULL, 'INV', NULL, NULL, 'อัน', NULL, NULL, NULL, NULL),
+	('INV000002', 'ดินสอ', NULL, 'INV', NULL, NULL, 'แท่ง', NULL, NULL, NULL, NULL),
+	('INV000003', 'ยาแก้ปวด', NULL, 'INV', NULL, NULL, 'เม็ด', NULL, NULL, NULL, NULL),
+	('NUT000001', 'ข้าวผัดหมู', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUT000002', 'ข้าวผัดไก่', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUT000003', 'ข้าวผัดปู', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUT000004', 'ราดหน้าหมู', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUT000005', 'ข้าวต้มหมู', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUT000006', 'อาหารเสริม', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUT000007', 'สลัดผัก', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUT000008', 'ขนมปัง', NULL, 'NUT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUTBRK001', 'ชุดอาหารเช้า Set 1', NULL, 'NUT', 'BRK', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUTBRK002', 'ชุดอาหารเช้า Set 2', NULL, 'NUT', 'BRK', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUTDES001', 'ชุดอาหารว่าง Set 1', NULL, 'NUT', 'DES', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUTDES002', 'ชุดอาหารว่าง Set 2', NULL, 'NUT', 'DES', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUTDIN001', 'ชุดอาหารเย็น Set 1', NULL, 'NUT', 'DIN', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUTDIN002', 'ชุดอาหารเย็น Set 2', NULL, 'NUT', 'DIN', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUTLNH001', 'ชุดอาหารกลางวัน Set 1', NULL, 'NUT', 'LNH', NULL, NULL, NULL, NULL, NULL, NULL),
+	('NUTLNH002', 'ชุดอาหารกลางวัน Set 2', NULL, 'NUT', 'LNH', NULL, NULL, NULL, NULL, NULL, NULL),
+	('PHY000001', 'กายภาพบำบัด 1', NULL, 'PHY', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `odrmst` ENABLE KEYS */;
 
 
@@ -781,14 +876,14 @@ CREATE TABLE IF NOT EXISTS `plcinf` (
   `PlcUpdUid` char(12) NOT NULL,
   `PlcUpdDts` char(14) NOT NULL,
   PRIMARY KEY  (`PlcCod`,`PlcCatTyp`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Player additional comment infomation';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player additional comment infomation';
 
 -- Dumping data for table fcms.plcinf: 3 rows
 /*!40000 ALTER TABLE `plcinf` DISABLE KEYS */;
 INSERT INTO `plcinf` (`PlcCod`, `PlcCatTyp`, `PlcCmt`, `PlcUpdUid`, `PlcUpdDts`) VALUES
+	('P00001', 'COA', 'Hello test', 'test', '20140308175604'),
 	('P00001', 'FIT', 'Normal', 'test', '20140308170515'),
-	('P00001', 'PHY', 'test', 'test', '20140302111930'),
-	('P00001', 'COA', 'Hello test', 'test', '20140308175604');
+	('P00001', 'PHY', 'test', 'test', '20140302111930');
 /*!40000 ALTER TABLE `plcinf` ENABLE KEYS */;
 
 
@@ -975,7 +1070,7 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
   PRIMARY KEY  (`PwlSeqNum`,`PwlPlyCod`,`PwlAppDte`,`PwlAppTim`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.pwlinf: ~4 rows (approximately)
+-- Dumping data for table fcms.pwlinf: ~6 rows (approximately)
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
 INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCurStt`, `PwlRegUid`, `PwlVstDtm`, `PwlUpdUid`, `PwlUpdDts`) VALUES
 	(1, 'P00001', '20140308', '0530', 'A', NULL, NULL, NULL, NULL),
@@ -1029,7 +1124,7 @@ CREATE TABLE IF NOT EXISTS `wklinf` (
   PRIMARY KEY  (`WklPwlSeq`,`WklSeqNum`,`WklOdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wklinf: ~18 rows (approximately)
+-- Dumping data for table fcms.wklinf: ~21 rows (approximately)
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
 INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),

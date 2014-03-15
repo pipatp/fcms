@@ -163,6 +163,8 @@ class CI_Exceptions {
 	 */
 	function show_php_error($severity, $message, $filepath, $line)
 	{
+                set_status_header(500);
+                
 		$severity = ( ! isset($this->levels[$severity])) ? $severity : $this->levels[$severity];
 
 		$filepath = str_replace("\\", "/", $filepath);

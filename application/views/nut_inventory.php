@@ -35,6 +35,10 @@
     border-width: 0px 1px 1px 1px;
     
     font-size: 14px;
+    
+    min-height: 400px;
+    max-height: 600px;
+    height: auto !important; 
 }
 
 #inventory-section .line-space-nm {
@@ -68,7 +72,7 @@
     padding-right: 5px;
 }
 </style>
-<div class="row">
+<div class='row'>
     <div class="col-md-12 col-lg-12">
         <div id="inventory-section">
             <ul>
@@ -80,29 +84,30 @@
             <div id="store-in-panel">
                 <div class="form-group">
                     <label>วันที่รับเข้า</label>
-                    <div class="form-inline"><input type="text" class="form-control input-sm" /></div>
+                    <div class="form-inline"><input id="store-date-text" type="text" class="form-control input-sm" /></div>
                 </div>    
                 <div class="form-group">
                     <label>ประเภทการรับเข้า</label>
                     <div class="form-inline">
                         <div class="radio">
                             <label>
-                                <input type="radio" name="store-in-type" value="option1" checked> จัดซื้อปกติ
+                                <input type="radio" name="store-in-type" value="0" checked> จัดซื้อปกติ
                             </label>
                         </div>
                         <div class="radio" style="margin-left:40px;">
                             <label>
-                                <input type="radio" name="store-in-type" value="option1"> แผนก
+                                <input type="radio" name="store-in-type" value="1"> แผนก
                             </label>
                         </div>
-                        <select class="form-control input-sm" style="margin-left:10px;">
-                            <option>กายภาพบำบัด</option>
-                            <option>ฟิตเนส</option>
+                        <select id="store-in-department" class="form-control input-sm" style="margin-left:10px;">
+                            <option value="MED">ยาและเวชภัณฑ์</option>
+                            <option value="PHY">กายภาพบำบัด</option>
+                            <option value="FIT">ฟิตเนส</option>
                         </select>
                         <div id="add-item-button" class="pull-right btn btn-info">เพิ่มรายการ</div>
                     </div>
                 </div>
-                <table class="table table-striped table-condensed">
+                <table id="store-in-table" class="table table-striped table-condensed">
                     <thead>
                         <tr>
                             <th class="fit-content">รายการ</th>
@@ -115,6 +120,11 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+                <div class="form-group">
+                    <label>หมายเหตุ</label>
+                    <div class="form-inline"><textarea id="store-in-remark" class="form-control" style="width: 400px; min-height: 200px"></textarea></div>
+                </div>
+                <div id="save-item-button" class="pull-right btn btn-success">บันทึก</div>
             </div>
             <div id="deliver-panel">
 
@@ -137,32 +147,42 @@
             <div class="modal-body">
                 <div class="form form-horizontal">
                     <div class="row">
+                        <div id="add-warning" class="alert alert-danger hidden"></div>
                         <div class="col-lg-4 col-md-4">
                             <div class="form-group padding-h-sm">
                                 <label>รายการ</label>
-                                <input class="form-control input-sm" type="text">
-                            </div>
-                        </div>
-                        <div class="col-lg-2 col-md-2">
-                            <div class="form-group padding-h-sm">
-                                <label>หน่วย</label>
-                                <input class="form-control input-sm" type="text">
+                                <select id="order-select" class="form-control input-sm">
+                                    <option value=""></option>
+                                    <?php 
+                                    foreach ($inventory_items as $item) {
+                                    ?>
+                                    <option value="<? echo $item->OdrCod ?>" data-item-unit="<? echo $item->OdrUnt ?>"><? echo $item->OdrLocNam ?></option>
+                                    <?php
+                                    }
+                                    ?>
+                                </select>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-2 col-md-2">
+                        <div class="col-lg-3 col-md-3">
                             <div class="form-group padding-h-sm">
                                 <label>จำนวน</label>
-                                <input class="form-control input-sm" type="text">
+                                <input id="order-amount-text" class="form-control input-sm" type="text">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group padding-h-sm">
+                                <label>หน่วย</label>
+                                <input id="order-unit-text" class="form-control input-sm" type="text" readonly="true">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-2 col-md-2">
+                        <div class="col-lg-3 col-md-3">
                             <div class="form-group padding-h-sm">
-                                <label>ราคา</label>
-                                <input class="form-control input-sm" type="text">
+                                <label>ราคาต่อหน่วย</label>
+                                <input id="order-price-text" class="form-control input-sm" type="text">
                             </div>
                         </div>
                     </div>
@@ -173,19 +193,25 @@
                                 <div class="form-inline">
                                     <div class="radio" style="padding-top: 2px;">
                                         <label>
-                                            <input type="radio" name="expireType" checked>
+                                            <input type="radio" name="expireType" value="0" checked>
                                         </label>
                                     </div>
-                                    <span>จำนวน</span>
-                                    <input class="form-control input-sm" type="text">
+                                    <span>ไม่มี</span>
+                                    <div class="radio" style="padding-top: 2px; margin-left: 40px;">
+                                        <label>
+                                            <input type="radio" name="expireType" value="1">
+                                        </label>
+                                    </div>
+                                    <span>อีก</span>
+                                    <input id="expire-day-text" class="form-control input-sm" type="text">
                                     <span>วัน</span>
                                     <div class="radio" style="padding-top: 2px; margin-left: 40px;">
                                         <label>
-                                            <input type="radio" name="expireType">
+                                            <input type="radio" name="expireType" value="2">
                                         </label>
                                     </div>
                                     <span>วันที่</span>
-                                    <input class="form-control input-sm" type="text">
+                                    <input id="expire-date-text" class="form-control input-sm" type="text">
                                 </div>
                             </div>
                         </div>
@@ -193,17 +219,221 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="deleteConfirmButton" type="button" class="btn btn-primary">ตกลง</button>
+                <button id="addItemButton" type="button" class="btn btn-primary">ตกลง</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
             </div>
         </div>
     </div>
 </div>
+<div id="errorDialog" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="error-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="errorCloseButton" type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
-    $("#inventory-section").tabs({heightStyle: "fill"});
-    $("#addItemDialog").modal({ show: false });
+    var storeCategory = "NUT";
     
-    $("#add-item-button").click(function() {
-        $("#addItemDialog").modal("show");
+    $(function() {
+        $("#inventory-section").tabs({heightStyle: "fill"});
+        $("#addItemDialog").modal({ show: false, keyboard: false });
+        $("#errorDialog").modal({ show: false });
+        
+        $("#store-date-text").datepicker({ dateFormat: 'dd/mm/yy' });
+        $("#store-date-text").datepicker("setDate", new Date());
+        
+        $("#expire-date-text").datepicker({ dateFormat: 'dd/mm/yy' });
+        
+        // Handle add item button to show add dialog
+        $("#add-item-button").click(function() {
+            clearAddInventoryDialog();
+            $("#addItemDialog").modal("show");
+        });
+        
+        // Handle combobox select event to set item unit
+        $("#order-select").change(function() {
+            var $combo = $(this);
+            var itemUnit = $combo.find(":selected").attr("data-item-unit");
+            
+            $("#order-unit-text").val(itemUnit);
+        });
+        
+        $("#addItemButton").click(addInventoryItem);
+        $("#save-item-button").click(saveInventoryItem);
     });
+    
+    function addInventoryItem() {
+        if (!validateInventoryItem()) {
+            showAddWarning(true);
+            return;
+        }
+        
+        showAddWarning(false);
+        
+        var $tableBody = $("#store-in-table tbody");
+        
+        var $orderSelect = $("#order-select :selected");
+        
+        var $expireType = $('input[name=expireType]:checked').val();
+
+        var expireDateText;
+        if ($expireType === "1") {
+            var expireDate = new Date();
+            expireDate.setDate(expireDate.getDate() + parseInt($("#expire-day-text").val()));
+
+            expireDateText = $.datepicker.formatDate("dd/mm/yy", expireDate);
+        }
+        else if ($expireType === "2") {
+            var selectedDate = $("#expire-date-text").datepicker("getDate");
+            expireDateText = $.datepicker.formatDate("dd/mm/yy", selectedDate);
+        }
+
+        createInventoryRow($orderSelect.val(), 
+            $orderSelect.text(), 
+            $("#order-unit-text").val(),
+            $("#order-amount-text").val(),
+            $("#order-price-text").val(),
+            expireDateText).appendTo($tableBody);
+            
+        $("#addItemDialog").modal("hide");
+    }
+    
+    function createInventoryRow(itemCode, itemName, itemUnit, itemAmount, itemPrice, itemExpireDate) {
+        var $row = $("<tr>");
+        $row.attr("data-item-code", itemCode);
+        
+        $("<td>").text(itemName).appendTo($row);
+        $("<td>").text(itemAmount).appendTo($row);
+        $("<td>").text(itemUnit).appendTo($row);
+        $("<td>").text(itemPrice).appendTo($row);
+        
+        if (!itemExpireDate) {
+            $("<td>").attr("data-expire", 0).text("ไม่มี").appendTo($row);
+        } 
+        else {
+            $("<td>").text(itemExpireDate).appendTo($row);
+        }
+        
+        var $deleteButton = $("<div>", {"class":"btn btn-danger"}).text("ลบ");
+        $deleteButton.click(function() {
+            $row.detach();
+        });
+        
+        $("<td>").append($deleteButton).appendTo($row);
+        
+        return $row;
+    }
+    
+    function validateInventoryItem() {
+        var $addWarning = $("#add-warning");
+        
+        var $orderSelect = $("#order-select :selected");
+        if (!$orderSelect.val()) {
+            $addWarning.text("โปรดเลือ�?ราย�?าร");
+            return false;
+        }
+        
+        if (!$("#order-amount-text").val()) {
+            $addWarning.text("โปรด�?รอ�?จำนวน");
+            return false;
+        }
+        
+        var $expireType = $('input[name=expireType]:checked').val();
+        if ($expireType === "1") {
+            if (!$("#expire-day-text").val()) {
+                $addWarning.text("โปรด�?รอ�?จำนวนวันที่จะหมดอายุ");
+                return false;
+            }
+            else {
+                var dayValue = parseInt($("#expire-day-text").val());
+                if (dayValue === 0) {
+                    $addWarning.text("จำนวนวันที่จะหมดอายุไม่ถู�?ต้องหรือจำนวนวันเท่า�?ับ 0");
+                    return false;
+                }
+            }
+        }
+        else if ($expireType === "2") {
+            if (!$("#expire-date-text").val()) {
+                $addWarning.text("โปรด�?รอ�?วันที่หมดอายุ");
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    function showAddWarning($show) {
+        var $addWarning = $("#add-warning");
+        $show ? $addWarning.removeClass("hidden") : $addWarning.addClass("hidden");
+    }
+    
+    function clearAddInventoryDialog() {
+        $("select#order-select").prop('selectedIndex', 0);
+        $("#order-unit-text").val("");
+        $("#order-amount-text").val("");
+        $("#order-price-text").val("");
+        $('input[name=expireType][value=0]').prop('checked', true);
+        $("#expire-day-text").val("");
+        $("#expire-date-text").val("");
+    }
+    
+    function saveInventoryItem() {
+        var storeInTrans = {};
+        
+        var selectedDate = $("#store-date-text").datepicker("getDate");
+        storeInTrans.date = $.datepicker.formatDate("yymmdd", selectedDate);
+        storeInTrans.category = storeCategory;
+        storeInTrans.type = $('input[name=store-in-type]:checked').val();
+        storeInTrans.department = storeInTrans.type === "0" ? null : $("#store-in-department :selected").val();
+        storeInTrans.remark = $("#store-in-remark").val();
+        
+        storeInTrans.items = [];
+        
+        var $tableRows = $("#store-in-table tbody tr");
+        
+        if ($tableRows.length <= 0) {
+            $(".error-content").text("ไม่สามารถบันทึ�?ได้ เนื่องจา�?ไม่มีราย�?ารนำเข้า");
+            $("#errorDialog").modal("show");
+            $("#errorDialog").on('shown.bs.modal', function() {
+                $("#errorCloseButton").focus();
+            });
+            return;
+        }
+        
+        for (var index=0; index<$tableRows.length; index++) {
+            var $row = $($tableRows[index]);
+            
+            var item = {};
+            item.code = $row.attr("data-item-code");
+            item.amount = $row.children().eq(1).text();
+            item.price = $row.children().eq(3).text();
+            if ($row.children().eq(4).attr("data-expire")) {
+                item.expire = 0;
+                item.expireDate = null;
+            }
+            else {
+                item.expire = 1;
+                
+                var expireDate = $.datepicker.parseDate('dd/mm/yy', $row.children().eq(4).text());
+                item.expireDate = $.datepicker.formatDate("yymmdd", expireDate);;
+            }
+            
+            item.category = storeCategory;
+            
+            storeInTrans.items.push(item);
+        }
+        
+        $.post("storeInInventory", JSON.stringify(storeInTrans)).done(function() {
+            viewMealStore();
+        }).fail(function() {
+           alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอี�?ครั้งหนึ่ง");
+        });
+    }
 </script>
