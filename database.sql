@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `capinf` (
   KEY `CapUsrCod_CapWklDte` (`CapUsrCod`,`CapWklDte`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.capinf: 4 rows
+-- Dumping data for table fcms.capinf: ~4 rows (approximately)
 /*!40000 ALTER TABLE `capinf` DISABLE KEYS */;
 INSERT INTO `capinf` (`CapSeqNum`, `CapUsrCod`, `CapWklDte`, `CapAppDtl`, `CapUpdUid`, `CapUpdDts`) VALUES
 	(1, 'test', '20140306', '333', 'test', '2014030804909'),
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `cwlinf` (
   PRIMARY KEY  (`CwlCapSeq`,`CwlSeqNum`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.cwlinf: 1 rows
+-- Dumping data for table fcms.cwlinf: ~1 rows (approximately)
 /*!40000 ALTER TABLE `cwlinf` DISABLE KEYS */;
 INSERT INTO `cwlinf` (`CwlCapSeq`, `CwlSeqNum`, `CwlStrDtm`, `CwlEndDtm`, `CwlSchDtl`, `CwlUpdUid`, `CwlUpdDts`) VALUES
 	(2, 1, '0100', '0400', 'test', 'test', '2014030800101');
@@ -134,6 +134,36 @@ BEGIN
 	INSERT INTO cwlinf VALUES (l_appSeq, l_itemSeq, p_startTime, p_endTime, p_detail, p_userCode, l_timestamp);
 	
 	COMMIT;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_addDeliverItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addDeliverItem`(IN `p_deliverSeq` BIGINT, IN `p_code` VARCHAR(20), IN `p_amount` SMALLINT, IN `p_category` VARCHAR(20), IN `p_user` VARCHAR(20))
+BEGIN
+	DECLARE l_timestamp CHAR(14);
+	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
+	INSERT INTO invddt
+	VALUES (p_deliverSeq, p_code, p_amount, p_category, p_user, l_timestamp);
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_addDeliverTransaction
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addDeliverTransaction`(IN `p_deliverDate` CHAR(8), IN `p_category` CHAR(20), IN `p_deliverType` TINYINT, IN `p_deliverDepartment` CHAR(20), IN `p_remark` TEXT, IN `p_user` CHAR(20))
+BEGIN
+	DECLARE l_timestamp CHAR(14);
+	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
+	INSERT INTO invdlt(InvDltDte, InvCatTyp, InvDltTyp, InvTypDep, InvDltRmk, InvUpdUid, InvUpdDte)
+	VALUES (p_deliverDate, p_category, p_deliverType, p_deliverDepartment, p_remark, p_user, l_timestamp);
+	
+	SELECT LAST_INSERT_ID() AS InvDltSeq;
 END//
 DELIMITER ;
 
@@ -282,6 +312,15 @@ BEGIN
 	VALUES (p_storeInDate, p_category, p_storeInType, p_storeInDepartment, p_remark, p_user, l_timestamp);
 	
 	SELECT LAST_INSERT_ID() AS InvSitSeq;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_decrementInventoryItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_decrementInventoryItem`(IN `p_storeInItemSeq` BIGINT, IN `p_oldRemain` SMALLINT, IN `p_newRemain` SMALLINT)
+BEGIN
+	UPDATE invsdt SET InvOdrRem = p_newRemain WHERE InvSdtSeq = p_storeInItemSeq AND InvOdrRem = p_oldRemain;
 END//
 DELIMITER ;
 
@@ -537,6 +576,17 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_getRemainInventoryItemList
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getRemainInventoryItemList`(IN `p_code` VARCHAR(20), IN `p_category` VARCHAR(20))
+BEGIN
+	SELECT *
+	FROM invsdt sd
+	WHERE sd.InvOdrCod = p_code AND sd.InvCatTyp = p_category AND sd.InvOdrRem > 0;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getTodayPreparation
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getTodayPreparation`(IN `p_date` VARCHAR(8), IN `p_mealType` VARCHAR(20))
@@ -549,6 +599,18 @@ WHERE pl.PwlPlyCod = pi.PlyCod AND pl.PwlSeqNum = wm.WkmPwlSeq AND
 	pl.PwlAppDte = p_date AND od1.OdrSubTyp = p_mealType
 ORDER BY pl.PwlSeqNum, wm.WkmMelSeq;
 
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getTotalInventoryItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getTotalInventoryItem`(IN `p_code` VARCHAR(20), IN `p_category` VARCHAR(20))
+BEGIN
+	SELECT InvOdrCod, SUM(InvOdrRem) AS InvTtlRem
+	FROM invsdt sd
+	WHERE sd.InvOdrCod = p_code AND sd.InvCatTyp = p_category
+	GROUP BY InvOdrCod;
 END//
 DELIMITER ;
 
@@ -652,8 +714,61 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for table fcms.invddt
+CREATE TABLE IF NOT EXISTS `invddt` (
+  `InvDltSeq` bigint(20) unsigned NOT NULL,
+  `InvOdrCod` char(20) NOT NULL,
+  `InvOdrAmt` smallint(5) unsigned NOT NULL,
+  `InvCatTyp` char(20) NOT NULL,
+  `InvUpdUid` char(20) default NULL,
+  `InvUpdDte` char(20) default NULL,
+  KEY `InvDltSeq` (`InvDltSeq`),
+  KEY `InvOdrCod` (`InvOdrCod`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='deliver detail';
+
+-- Dumping data for table fcms.invddt: ~2 rows (approximately)
+/*!40000 ALTER TABLE `invddt` DISABLE KEYS */;
+INSERT INTO `invddt` (`InvDltSeq`, `InvOdrCod`, `InvOdrAmt`, `InvCatTyp`, `InvUpdUid`, `InvUpdDte`) VALUES
+	(106, 'INV000002', 4, 'NUT', 'test', '20140315233422'),
+	(107, 'INV000003', 4, 'NUT', 'test', '20140315233500'),
+	(109, 'INV000001', 2, 'NUT', 'test', '20140316004801'),
+	(110, 'INV000001', 2, 'NUT', 'test', '20140316004822'),
+	(111, 'INV000001', 4, 'NUT', 'test', '20140316004837'),
+	(114, 'INV000001', 2, 'NUT', 'test', '20140316005010'),
+	(114, 'INV000003', 1, 'NUT', 'test', '20140316005010');
+/*!40000 ALTER TABLE `invddt` ENABLE KEYS */;
+
+
+-- Dumping structure for table fcms.invdlt
+CREATE TABLE IF NOT EXISTS `invdlt` (
+  `InvDltSeq` bigint(20) unsigned NOT NULL auto_increment,
+  `InvDltDte` char(8) NOT NULL,
+  `InvCatTyp` char(20) NOT NULL,
+  `InvDltTyp` tinyint(3) unsigned NOT NULL,
+  `InvTypDep` char(20) default NULL,
+  `InvDltRmk` text,
+  `InvUpdUid` char(20) default NULL,
+  `InvUpdDte` char(14) default NULL,
+  PRIMARY KEY  (`InvDltSeq`),
+  KEY `InvDltDep` (`InvCatTyp`),
+  KEY `InvDltDte` (`InvDltDte`)
+) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table fcms.invdlt: ~2 rows (approximately)
+/*!40000 ALTER TABLE `invdlt` DISABLE KEYS */;
+INSERT INTO `invdlt` (`InvDltSeq`, `InvDltDte`, `InvCatTyp`, `InvDltTyp`, `InvTypDep`, `InvDltRmk`, `InvUpdUid`, `InvUpdDte`) VALUES
+	(106, '20140315', 'NUT', 0, NULL, 'test', 'test', '20140315233422'),
+	(107, '20140315', 'NUT', 1, 'FIT', 'vv', 'test', '20140315233500'),
+	(109, '20140316', 'NUT', 0, NULL, '', 'test', '20140316004801'),
+	(110, '20140316', 'NUT', 0, NULL, '', 'test', '20140316004822'),
+	(111, '20140316', 'NUT', 0, NULL, '', 'test', '20140316004837'),
+	(114, '20140316', 'NUT', 0, NULL, '', 'test', '20140316005010');
+/*!40000 ALTER TABLE `invdlt` ENABLE KEYS */;
+
+
 -- Dumping structure for table fcms.invsdt
 CREATE TABLE IF NOT EXISTS `invsdt` (
+  `InvSdtSeq` bigint(20) unsigned NOT NULL auto_increment,
   `InvSitSeq` bigint(20) unsigned NOT NULL,
   `InvOdrCod` char(20) NOT NULL,
   `InvOdrAmt` smallint(5) unsigned NOT NULL,
@@ -664,15 +779,20 @@ CREATE TABLE IF NOT EXISTS `invsdt` (
   `InvCatTyp` char(20) NOT NULL,
   `InvUpdUid` char(20) default NULL,
   `InvUpdDte` char(20) default NULL,
-  KEY `InvSitSeq` (`InvSitSeq`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  PRIMARY KEY  (`InvSdtSeq`),
+  KEY `InvSitSeq` (`InvSitSeq`),
+  KEY `InvOdrCod` (`InvOdrCod`),
+  KEY `InvCatTyp` (`InvCatTyp`),
+  KEY `InvOdrRem` (`InvOdrRem`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='store in detail';
 
--- Dumping data for table fcms.invsdt: ~10 rows (approximately)
+-- Dumping data for table fcms.invsdt: ~4 rows (approximately)
 /*!40000 ALTER TABLE `invsdt` DISABLE KEYS */;
-INSERT INTO `invsdt` (`InvSitSeq`, `InvOdrCod`, `InvOdrAmt`, `InvOdrRem`, `InvOdrPrc`, `InvExpTyp`, `InvExpDte`, `InvCatTyp`, `InvUpdUid`, `InvUpdDte`) VALUES
-	(99, 'INV000001', 1, 1, 25, 0, NULL, 'NUT', 'test', '20140315202256'),
-	(99, 'INV000003', 2, 2, 60, 1, '20140424', 'NUT', 'test', '20140315202256'),
-	(102, 'INV000003', 2, 2, 45, 1, '20140312', 'NUT', 'test', '20140315203742');
+INSERT INTO `invsdt` (`InvSdtSeq`, `InvSitSeq`, `InvOdrCod`, `InvOdrAmt`, `InvOdrRem`, `InvOdrPrc`, `InvExpTyp`, `InvExpDte`, `InvCatTyp`, `InvUpdUid`, `InvUpdDte`) VALUES
+	(1, 99, 'INV000001', 1, 1, 25, 0, NULL, 'NUT', 'test', '20140315202256'),
+	(2, 99, 'INV000003', 2, 2, 60, 1, '20140424', 'NUT', 'test', '20140315202256'),
+	(3, 102, 'INV000003', 2, 2, 45, 1, '20140312', 'NUT', 'test', '20140315203742'),
+	(4, 105, 'INV000001', 3, 3, 3, 0, NULL, 'NUT', 'test', '20140315233948');
 /*!40000 ALTER TABLE `invsdt` ENABLE KEYS */;
 
 
@@ -689,15 +809,16 @@ CREATE TABLE IF NOT EXISTS `invsit` (
   PRIMARY KEY  (`InvSitSeq`),
   KEY `InvSitDep` (`InvCatTyp`),
   KEY `InvSitDte` (`InvSitDte`)
-) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.invsit: ~1 rows (approximately)
+-- Dumping data for table fcms.invsit: ~5 rows (approximately)
 /*!40000 ALTER TABLE `invsit` DISABLE KEYS */;
 INSERT INTO `invsit` (`InvSitSeq`, `InvSitDte`, `InvCatTyp`, `InvSitTyp`, `InvTypDep`, `InvSitRmk`, `InvUpdUid`, `InvUpdDte`) VALUES
 	(99, '20140315', 'NUT', 1, 'FIT', 'test', 'test', '20140315202256'),
 	(100, '20140315', 'NUT', 1, 'FIT', 'test', 'test', '20140315202355'),
 	(101, '20140315', 'NUT', 0, NULL, 'test', 'test', '20140315202407'),
-	(102, '20140315', 'NUT', 0, NULL, '', 'test', '20140315203742');
+	(102, '20140315', 'NUT', 0, NULL, '', 'test', '20140315203742'),
+	(105, '20140324', 'NUT', 1, 'FIT', 'eeeee', 'test', '20140315233948');
 /*!40000 ALTER TABLE `invsit` ENABLE KEYS */;
 
 
@@ -878,7 +999,7 @@ CREATE TABLE IF NOT EXISTS `plcinf` (
   PRIMARY KEY  (`PlcCod`,`PlcCatTyp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player additional comment infomation';
 
--- Dumping data for table fcms.plcinf: 3 rows
+-- Dumping data for table fcms.plcinf: ~3 rows (approximately)
 /*!40000 ALTER TABLE `plcinf` DISABLE KEYS */;
 INSERT INTO `plcinf` (`PlcCod`, `PlcCatTyp`, `PlcCmt`, `PlcUpdUid`, `PlcUpdDts`) VALUES
 	('P00001', 'COA', 'Hello test', 'test', '20140308175604'),

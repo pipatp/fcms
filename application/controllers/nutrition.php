@@ -215,4 +215,35 @@ class nutrition extends CI_Controller {
             show_error($e->getMessage(), 500);
         }
     }
+    
+    function deliverInventory() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('inventory_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+
+        try {
+            $result = $this->inventory_model->addDeliverTransaction($postData["date"],
+                        $postData["category"], $postData["type"], $postData["department"],
+                        $postData["remark"], $user, $postData["items"]);
+            
+            if (!$result) {
+                show_error("Deliver item is not enought", 403);
+            }
+        } catch (Exception $e) {
+            show_error($e->getMessage(), 500);
+        }
+    }
+    
+    function test() {
+        $this->load->model('inventory_model');
+        
+        if ($this->inventory_model->decrementDeliverItem('INV000001', 5, 'NUT')) {
+            echo "true";
+        } else {
+            echo "false";
+        }
+    }
 }

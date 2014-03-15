@@ -127,7 +127,47 @@
                 <div id="save-item-button" class="pull-right btn btn-success">บันทึก</div>
             </div>
             <div id="deliver-panel">
-
+                <div class="form-group">
+                    <label>วันที่จ่ายออก</label>
+                    <div class="form-inline"><input id="deliver-date-text" type="text" class="form-control input-sm" /></div>
+                </div>    
+                <div class="form-group">
+                    <label>ประเภทการจ่ายออก</label>
+                    <div class="form-inline">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="deliver-type" value="0" checked> จ่ายออกปกติ
+                            </label>
+                        </div>
+                        <div class="radio" style="margin-left:40px;">
+                            <label>
+                                <input type="radio" name="deliver-type" value="1"> แผนก
+                            </label>
+                        </div>
+                        <select id="deliver-department" class="form-control input-sm" style="margin-left:10px;">
+                            <option value="MED">ยาและเวชภัณฑ์</option>
+                            <option value="PHY">กายภาพบำบัด</option>
+                            <option value="FIT">ฟิตเนส</option>
+                        </select>
+                        <div id="add-deliver-item-button" class="pull-right btn btn-info">เพิ่มรายการ</div>
+                    </div>
+                </div>
+                <table id="deliver-table" class="table table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="fit-content">รายการ</th>
+                            <th class="fit-content">จำนวน</th>
+                            <th class="fit-content">หน่วย</th>
+                            <th class="fit-content"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div class="form-group">
+                    <label>หมายเหตุ</label>
+                    <div class="form-inline"><textarea id="deliver-remark" class="form-control" style="width: 400px; min-height: 200px"></textarea></div>
+                </div>
+                <div id="save-deliver-item-button" class="pull-right btn btn-success">บันทึก</div>
             </div>
             <div id="stock-panel">
 
@@ -225,6 +265,55 @@
         </div>
     </div>
 </div>
+<div id="addDeliverItemDialog" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header ">
+                เพิ่มรายการ
+            </div>
+            <div class="modal-body">
+                <div class="form form-horizontal">
+                    <div class="row">
+                        <div id="add-deliver-warning" class="alert alert-danger hidden"></div>
+                        <div class="col-lg-4 col-md-4">
+                            <div class="form-group padding-h-sm">
+                                <label>รายการ</label>
+                                <select id="deliver-order-select" class="form-control input-sm">
+                                    <option value=""></option>
+                                    <?php 
+                                    foreach ($inventory_items as $item) {
+                                    ?>
+                                    <option value="<? echo $item->OdrCod ?>" data-item-unit="<? echo $item->OdrUnt ?>"><? echo $item->OdrLocNam ?></option>
+                                    <?php
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group padding-h-sm">
+                                <label>จำนวน</label>
+                                <input id="deliver-order-amount-text" class="form-control input-sm" type="text">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group padding-h-sm">
+                                <label>หน่วย</label>
+                                <input id="deliver-order-unit-text" class="form-control input-sm" type="text" readonly="true">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="addDeliverItemButton" type="button" class="btn btn-primary">ตกลง</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="errorDialog" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -244,10 +333,13 @@
     $(function() {
         $("#inventory-section").tabs({heightStyle: "fill"});
         $("#addItemDialog").modal({ show: false, keyboard: false });
+        $("#addDeliverItemDialog").modal({ show: false, keyboard: false });
         $("#errorDialog").modal({ show: false });
         
         $("#store-date-text").datepicker({ dateFormat: 'dd/mm/yy' });
         $("#store-date-text").datepicker("setDate", new Date());
+        $("#deliver-date-text").datepicker({ dateFormat: 'dd/mm/yy' });
+        $("#deliver-date-text").datepicker("setDate", new Date());
         
         $("#expire-date-text").datepicker({ dateFormat: 'dd/mm/yy' });
         
@@ -255,6 +347,11 @@
         $("#add-item-button").click(function() {
             clearAddInventoryDialog();
             $("#addItemDialog").modal("show");
+        });
+        // Handle add item button to show add dialog
+        $("#add-deliver-item-button").click(function() {
+            clearAddDeliverInventoryDialog();
+            $("#addDeliverItemDialog").modal("show");
         });
         
         // Handle combobox select event to set item unit
@@ -264,9 +361,17 @@
             
             $("#order-unit-text").val(itemUnit);
         });
+        $("#deliver-order-select").change(function() {
+            var $combo = $(this);
+            var itemUnit = $combo.find(":selected").attr("data-item-unit");
+            
+            $("#deliver-order-unit-text").val(itemUnit);
+        });
         
         $("#addItemButton").click(addInventoryItem);
+        $("#addDeliverItemButton").click(addDeliverInventoryItem);
         $("#save-item-button").click(saveInventoryItem);
+        $("#save-deliver-item-button").click(saveDeliverInventoryItem);
     });
     
     function addInventoryItem() {
@@ -305,6 +410,26 @@
         $("#addItemDialog").modal("hide");
     }
     
+    function addDeliverInventoryItem() {
+        if (!validateDeliverInventoryItem()) {
+            showAddDeliverWarning(true);
+            return;
+        }
+        
+        showAddDeliverWarning(false);
+        
+        var $tableBody = $("#deliver-table tbody");
+        
+        var $orderSelect = $("#deliver-order-select :selected");
+        
+        createDeliverInventoryRow($orderSelect.val(), 
+            $orderSelect.text(), 
+            $("#deliver-order-unit-text").val(),
+            $("#deliver-order-amount-text").val()).appendTo($tableBody);
+            
+        $("#addDeliverItemDialog").modal("hide");
+    }
+    
     function createInventoryRow(itemCode, itemName, itemUnit, itemAmount, itemPrice, itemExpireDate) {
         var $row = $("<tr>");
         $row.attr("data-item-code", itemCode);
@@ -331,37 +456,70 @@
         return $row;
     }
     
+    function createDeliverInventoryRow(itemCode, itemName, itemUnit, itemAmount) {
+        var $row = $("<tr>");
+        $row.attr("data-item-code", itemCode);
+        
+        $("<td>").text(itemName).appendTo($row);
+        $("<td>").text(itemAmount).appendTo($row);
+        $("<td>").text(itemUnit).appendTo($row);
+        
+        var $deleteButton = $("<div>", {"class":"btn btn-danger"}).text("ลบ");
+        $deleteButton.click(function() {
+            $row.detach();
+        });
+        
+        $("<td>").append($deleteButton).appendTo($row);
+        
+        return $row;
+    }
+    
     function validateInventoryItem() {
         var $addWarning = $("#add-warning");
         
         var $orderSelect = $("#order-select :selected");
         if (!$orderSelect.val()) {
-            $addWarning.text("โปรดเลือ�?ราย�?าร");
+            $addWarning.text("โปรดเลือกรายการ");
             return false;
         }
         
         if (!$("#order-amount-text").val()) {
-            $addWarning.text("โปรด�?รอ�?จำนวน");
+            $addWarning.text("โปรดกรอกจำนวน");
             return false;
+        }
+        else {
+            var amountValue = parseInt($("#order-amount-text").val());
+            if (!amountValue || amountValue === 0) {
+                $addWarning.text("จำนวนไม่ถูกต้องหรือจำนวนเท่ากับ 0");
+                return false;
+            }
+        }
+        
+        if ($("#order-price-text").val()) {
+            var priceVal = parseInt($("#order-price-text").val());
+            if (!priceVal || priceVal === 0) {
+                $addWarning.text("ราคาไม่ถูกต้องหรือราคาเท่ากับ 0");
+                return false;
+            }
         }
         
         var $expireType = $('input[name=expireType]:checked').val();
         if ($expireType === "1") {
             if (!$("#expire-day-text").val()) {
-                $addWarning.text("โปรด�?รอ�?จำนวนวันที่จะหมดอายุ");
+                $addWarning.text("โปรดกรอกจำนวนวันที่จะหมดอายุ");
                 return false;
             }
             else {
                 var dayValue = parseInt($("#expire-day-text").val());
-                if (dayValue === 0) {
-                    $addWarning.text("จำนวนวันที่จะหมดอายุไม่ถู�?ต้องหรือจำนวนวันเท่า�?ับ 0");
+                if (!dayValue || dayValue === 0) {
+                    $addWarning.text("จำนวนวันที่จะหมดอายุไม่ถูกต้องหรือจำนวนวันเท่ากับ 0");
                     return false;
                 }
             }
         }
         else if ($expireType === "2") {
             if (!$("#expire-date-text").val()) {
-                $addWarning.text("โปรด�?รอ�?วันที่หมดอายุ");
+                $addWarning.text("โปรดกรอกวันที่หมดอายุ");
                 return false;
             }
         }
@@ -369,8 +527,36 @@
         return true;
     }
     
+    function validateDeliverInventoryItem() {
+        var $addWarning = $("#add-deliver-warning");
+        
+        var $orderSelect = $("#deliver-order-select :selected");
+        if (!$orderSelect.val()) {
+            $addWarning.text("โปรดเลือกรายการ");
+            return false;
+        }
+        
+        if (!$("#deliver-order-amount-text").val()) {
+            $addWarning.text("โปรดกรอกจำนวน");
+            return false;
+        }
+        else {
+            var amountValue = parseInt($("#deliver-order-amount-text").val());
+            if (!amountValue || amountValue === 0) {
+                $addWarning.text("จำนวนไม่ถูกต้องหรือจำนวนเท่ากับ 0");
+                return false;
+            }
+        }
+        return true;
+    }
+    
     function showAddWarning($show) {
         var $addWarning = $("#add-warning");
+        $show ? $addWarning.removeClass("hidden") : $addWarning.addClass("hidden");
+    }
+    
+    function showAddDeliverWarning($show) {
+        var $addWarning = $("#add-deliver-warning");
         $show ? $addWarning.removeClass("hidden") : $addWarning.addClass("hidden");
     }
     
@@ -382,6 +568,12 @@
         $('input[name=expireType][value=0]').prop('checked', true);
         $("#expire-day-text").val("");
         $("#expire-date-text").val("");
+    }
+    
+    function clearAddDeliverInventoryDialog() {
+        $("select#deliver-order-select").prop('selectedIndex', 0);
+        $("#deliver-order-unit-text").val("");
+        $("#deliver-order-amount-text").val("");
     }
     
     function saveInventoryItem() {
@@ -399,7 +591,7 @@
         var $tableRows = $("#store-in-table tbody tr");
         
         if ($tableRows.length <= 0) {
-            $(".error-content").text("ไม่สามารถบันทึ�?ได้ เนื่องจา�?ไม่มีราย�?ารนำเข้า");
+            $(".error-content").text("ไม่สามารถบันทึกได้ เนื่องจากไม่มีรายการนำเข้า");
             $("#errorDialog").modal("show");
             $("#errorDialog").on('shown.bs.modal', function() {
                 $("#errorCloseButton").focus();
@@ -431,9 +623,72 @@
         }
         
         $.post("storeInInventory", JSON.stringify(storeInTrans)).done(function() {
-            viewMealStore();
+            cleaStoreInTransaction();
         }).fail(function() {
-           alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอี�?ครั้งหนึ่ง");
+           alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
         });
+    }
+    
+    function saveDeliverInventoryItem() {
+        var deliverTrans = {};
+        
+        var selectedDate = $("#deliver-date-text").datepicker("getDate");
+        deliverTrans.date = $.datepicker.formatDate("yymmdd", selectedDate);
+        deliverTrans.category = storeCategory;
+        deliverTrans.type = $('input[name=deliver-type]:checked').val();
+        deliverTrans.department = deliverTrans.type === "0" ? null : $("#deliver-department :selected").val();
+        deliverTrans.remark = $("#deliver-remark").val();
+        
+        deliverTrans.items = [];
+        
+        var $tableRows = $("#deliver-table tbody tr");
+        
+        if ($tableRows.length <= 0) {
+            $(".error-content").text("ไม่สามารถบันทึกได้ เนื่องจากไม่มีรายการจ่ายออก");
+            $("#errorDialog").modal("show");
+            $("#errorDialog").on('shown.bs.modal', function() {
+                $("#errorCloseButton").focus();
+            });
+            return;
+        }
+        
+        for (var index=0; index<$tableRows.length; index++) {
+            var $row = $($tableRows[index]);
+            
+            var item = {};
+            item.code = $row.attr("data-item-code");
+            item.amount = $row.children().eq(1).text();
+            
+            item.category = storeCategory;
+            
+            deliverTrans.items.push(item);
+        }
+        
+        $.post("deliverInventory", JSON.stringify(deliverTrans)).done(function() {
+            clearDeliverTransaction();
+        }).fail(function(jqXHR) {
+            if (jqXHR.status === 403) {
+                alert("บางรายการมีจำนวนไม่พอที่จะจ่ายออก โปรดแก้ไขจำนวนใหม่");
+            }
+            else {
+                alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+            }
+        });
+    }
+    
+    function cleaStoreInTransaction() {
+        $("#store-date-text").datepicker("setDate", new Date());
+        $('input[name=store-in-type][value=0]').prop('checked', true);
+        $("select#store-in-department").prop('selectedIndex', 0);
+        $("#store-in-table tbody").empty();
+        $("#store-in-remark").val("");
+    }
+    
+    function clearDeliverTransaction() {
+        $("#deliver-date-text").datepicker("setDate", new Date());
+        $('input[name=deliver-type][value=0]').prop('checked', true);
+        $("select#deliver-department").prop('selectedIndex', 0);
+        $("#deliver-table tbody").empty();
+        $("#deliver-remark").val("");
     }
 </script>
