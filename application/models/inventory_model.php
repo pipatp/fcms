@@ -152,4 +152,20 @@ class inventory_model extends CI_Model {
         
         return $this->db->affected_rows() == 1 ;
     }
+    
+    function getInvetoryStock($category) {
+        $data = array($category);
+        
+        $query = $this->db->query("CALL fn_getInvetoryStock(?)", $data);
+        
+        return $query->result();
+    }
+    
+    function getExpireInventoryItems($category) {
+        $data = array($category);
+        
+        $query = $this->db->query("CALL fn_getExpireInventoryItems(?)", $data);
+        
+        return $query->result();
+    }
 }

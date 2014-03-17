@@ -237,13 +237,19 @@ class nutrition extends CI_Controller {
         }
     }
     
-    function test() {
+    function getInvetoryStock($category) {
         $this->load->model('inventory_model');
         
-        if ($this->inventory_model->decrementDeliverItem('INV000001', 5, 'NUT')) {
-            echo "true";
-        } else {
-            echo "false";
-        }
+        $data["content"] = $this->inventory_model->getInvetoryStock($category);
+        
+        $this->load->view('json_result', $data);
+    }
+    
+    function getExpireInventoryItems($category) {
+        $this->load->model('inventory_model');
+        
+        $data["content"] = $this->inventory_model->getExpireInventoryItems($category);
+        
+        $this->load->view('json_result', $data);
     }
 }

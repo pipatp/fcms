@@ -45,14 +45,18 @@
     margin-bottom: 5px;
 }
 
-#store-in-panel .fix-content {
+#inventory-section .fix-content {
     padding-left: 10px;
     padding-right: 10px;
     
     width: 36px;
 }
 
-#store-in-panel .fit-content {
+#inventory-section .middle-content {
+    vertical-align: middle;
+}
+
+#inventory-section .fit-content {
     width: 1px;
     white-space: nowrap;
     
@@ -62,7 +66,7 @@
     vertical-align: middle;
 }
 
-#store-in-panel .content {
+#inventory-section .content {
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -170,10 +174,34 @@
                 <div id="save-deliver-item-button" class="pull-right btn btn-success">บันทึก</div>
             </div>
             <div id="stock-panel">
-
+                <div id="refresh-stock-button" class="pull-right btn btn-info">ปรับปรุงข้อมูล</div>
+                <table id="stock-table" class="table table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="fit-content">#</th>
+                            <th class="fit-content">รายการ</th>
+                            <th class="fit-content">คงเหลือ</th>
+                            <th class="fit-content">หน่วย</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
             <div id="expire-panel">
-
+                <div id="deliver-expire-stock-button" class="pull-right btn btn-info">จ่ายรายการหมดอายุ</div>
+                <table id="expire-table" class="table table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="fit-content"></th>
+                            <th class="fit-content">วันที่หมดอายุ</th>
+                            <th class="fit-content">รายการ</th>
+                            <th class="fit-content">จำนวน</th>
+                            <th class="fit-content">หน่วย</th>
+                            <th class="fit-content">วันที่นำเข้า</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -331,7 +359,19 @@
     var storeCategory = "NUT";
     
     $(function() {
-        $("#inventory-section").tabs({heightStyle: "fill"});
+        $("#inventory-section").tabs({
+            heightStyle: "fill",
+            beforeActivate: function(event, ui) {
+            if (ui.newPanel.attr('id') === "stock-panel") {
+                var $tableBody = $("#stock-table tbody");
+                $tableBody.empty();
+                
+                refreshStockItems();
+            } else if (ui.newPanel.attr('id') === "expire-panel") {
+                getExpireInventoryItems();
+            }
+        }
+        });
         $("#addItemDialog").modal({ show: false, keyboard: false });
         $("#addDeliverItemDialog").modal({ show: false, keyboard: false });
         $("#errorDialog").modal({ show: false });
@@ -372,6 +412,7 @@
         $("#addDeliverItemButton").click(addDeliverInventoryItem);
         $("#save-item-button").click(saveInventoryItem);
         $("#save-deliver-item-button").click(saveDeliverInventoryItem);
+        $("#refresh-stock-button").click(refreshStockItems)
     });
     
     function addInventoryItem() {
@@ -614,7 +655,7 @@
                 item.expire = 1;
                 
                 var expireDate = $.datepicker.parseDate('dd/mm/yy', $row.children().eq(4).text());
-                item.expireDate = $.datepicker.formatDate("yymmdd", expireDate);;
+                item.expireDate = $.datepicker.formatDate("yymmdd", expireDate);
             }
             
             item.category = storeCategory;
@@ -690,5 +731,69 @@
         $("select#deliver-department").prop('selectedIndex', 0);
         $("#deliver-table tbody").empty();
         $("#deliver-remark").val("");
+    }
+    
+    function refreshStockItems() {
+        $.get("getInvetoryStock/" + storeCategory).done(function(result) {
+            var items = jQuery.parseJSON(result);
+            
+            var $tableBody = $("#stock-table tbody");
+            $tableBody.empty();
+
+            for (var index=0; index<items.length; index++) {
+                var $row = createStockItemRow(index+1, items[index]);
+                
+                $tableBody.append($row);
+            }
+        }).fail(function() {
+           alert("ไม่สามารถดึงข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    }
+    
+    function createStockItemRow(index, item) {
+        var $row = $("<tr>");
+        
+        $("<td>").text(index).appendTo($row);
+        $("<td>").text(item.OdrLocNam).appendTo($row);
+        $("<td>").text(item.InvTtlRem).appendTo($row);
+        $("<td>").text(item.OdrUnt).appendTo($row);
+        
+        return $row;
+    }
+    
+    function getExpireInventoryItems() {
+        $.get("getExpireInventoryItems/" + storeCategory).done(function(result) {
+            var items = jQuery.parseJSON(result);
+            
+            var $tableBody = $("#expire-table tbody");
+            $tableBody.empty();
+
+            for (var index=0; index<items.length; index++) {
+                var $row = createExpireItemRow(items[index]);
+                
+                $tableBody.append($row);
+            }
+        }).fail(function() {
+           alert("ไม่สามารถดึงข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    }
+    
+    function createExpireItemRow(item) {
+        var $row = $("<tr>");
+        $row.attr("data-item-seq", item.InvSdtSeq);
+        
+        $("<td>").html('<input type="checkbox" class="form-control" style="outline: none;">').appendTo($row);
+        
+        var expireDate = $.datepicker.parseDate('yymmdd', item.InvExpDte);
+        
+        $("<td>", { "class":"middle-content" }).text($.datepicker.formatDate("dd/mm/yy", expireDate)).appendTo($row);
+        $("<td>", { "class":"middle-content" }).text(item.OdrLocNam).appendTo($row);
+        $("<td>", { "class":"middle-content" }).text(item.InvOdrRem).appendTo($row);
+        $("<td>", { "class":"middle-content" }).text(item.OdrUnt).appendTo($row);
+        
+        var storeInDate = $.datepicker.parseDate('yymmdd', item.InvStiDte);
+        $("<td>", { "class":"middle-content" }).text($.datepicker.formatDate("dd/mm/yy", storeInDate)).appendTo($row);
+        
+        return $row;
     }
 </script>
