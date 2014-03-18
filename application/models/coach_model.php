@@ -51,6 +51,16 @@ class coach_model extends CI_Model {
         $query->row();
     }
     
+    function getCoachScheduleDates($year, $month) {
+        $yearMonth = $year . $month . "%";
+        
+        $data = array($yearMonth);
+        
+        $query = $this->db->query("CALL fn_getCoachAppointmentDates(?)", $data);
+        
+        return $query->result();
+    }
+    
     //----------------------------------------------
     // Coach Fitness
     //----------------------------------------------

@@ -60,6 +60,15 @@
 .line-space-nm {
     margin-bottom: 10px;
 }
+
+.has-schedule {
+    background-color: red !important;
+}
+
+.has-schedule a {
+    background-color: greenyellow !important;
+    background-image: none !important;
+}
 </style>
 <div class="coach-schedule-panel">
     <div class="content">
@@ -131,10 +140,33 @@
     </div>    
 </div>
 <script>
+    var scheduleDates = undefined;
     $(function() {
         $(".schedule-calendar").datepicker({
             onSelect: function() {
                 loadCoachSchedule($(this));
+            },
+            beforeShowDay: function(date) {
+                if (scheduleDates) {
+                    var showDate = $.datepicker.formatDate("yymmdd", date);
+                    
+                    for (var index=0; index<scheduleDates.length; index++) {
+                        if (showDate === scheduleDates[index]) {
+                            return [true, "has-schedule", "Busy"];
+                        } else if (showDate < scheduleDates[index]) {
+                            break;
+                        }
+                    }
+                }
+                
+                return [true, ""];
+            },
+            onChangeMonthYear: function(year, month) {
+                var paddingMonth = month;
+                if (paddingMonth < 10) {
+                    paddingMonth = "0" + paddingMonth;
+                }
+                getCoachAppointmentDates(year, paddingMonth);
             }
         });
         
@@ -151,7 +183,24 @@
         $(".coach-worklist-add").click(showAddDialog);
         
         $("#saveWorklistButton").click(addWorklistItem);
+        
+        var currentDate = new Date();
+        getCoachAppointmentDates($.datepicker.formatDate("yy", currentDate), $.datepicker.formatDate("mm", currentDate));
     });
+    
+    function getCoachAppointmentDates(year, month) {
+        scheduleDates = undefined;
+                
+        $.get("getCoachScheduleDates/" + year + "/" + month).done(function(result) {
+            var appointmentDates = jQuery.parseJSON(result);
+
+            scheduleDates = [];
+            for (var index=0; index<appointmentDates.length; index++) {
+                scheduleDates.push(appointmentDates[index].CapWklDte);
+            }
+            $(".schedule-calendar").datepicker("refresh");
+        });
+    }
     
     function resetAddDialogFields() {
         $("#add-error").addClass("hidden");

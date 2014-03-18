@@ -90,7 +90,7 @@
                     <label>วันที่รับเข้า</label>
                     <div class="form-inline"><input id="store-date-text" type="text" class="form-control input-sm" /></div>
                 </div>    
-                <div class="form-group">
+                <div class="form-group hidden">
                     <label>ประเภทการรับเข้า</label>
                     <div class="form-inline">
                         <div class="radio">
@@ -108,9 +108,10 @@
                             <option value="PHY">กายภาพบำบัด</option>
                             <option value="FIT">ฟิตเนส</option>
                         </select>
-                        <div id="add-item-button" class="pull-right btn btn-info">เพิ่มรายการ</div>
+                        <!--<div id="add-item-button" class="pull-right btn btn-info">เพิ่มรายการ</div>-->
                     </div>
                 </div>
+                <div id="add-item-button" class="pull-right btn btn-info">เพิ่มรายการ</div>
                 <table id="store-in-table" class="table table-striped table-condensed">
                     <thead>
                         <tr>
@@ -135,7 +136,7 @@
                     <label>วันที่จ่ายออก</label>
                     <div class="form-inline"><input id="deliver-date-text" type="text" class="form-control input-sm" /></div>
                 </div>    
-                <div class="form-group">
+                <div class="form-group hidden">
                     <label>ประเภทการจ่ายออก</label>
                     <div class="form-inline">
                         <div class="radio">
@@ -153,9 +154,10 @@
                             <option value="PHY">กายภาพบำบัด</option>
                             <option value="FIT">ฟิตเนส</option>
                         </select>
-                        <div id="add-deliver-item-button" class="pull-right btn btn-info">เพิ่มรายการ</div>
+<!--                        <div id="add-deliver-item-button" class="pull-right btn btn-info">เพิ่มรายการ</div>-->
                     </div>
                 </div>
+                <div id="add-deliver-item-button" class="pull-right btn btn-info">เพิ่มรายการ</div>
                 <table id="deliver-table" class="table table-striped table-condensed">
                     <thead>
                         <tr>
@@ -188,16 +190,15 @@
                 </table>
             </div>
             <div id="expire-panel">
-                <div id="deliver-expire-stock-button" class="pull-right btn btn-info">จ่ายรายการหมดอายุ</div>
                 <table id="expire-table" class="table table-striped table-condensed">
                     <thead>
                         <tr>
-                            <th class="fit-content"></th>
                             <th class="fit-content">วันที่หมดอายุ</th>
                             <th class="fit-content">รายการ</th>
                             <th class="fit-content">จำนวน</th>
                             <th class="fit-content">หน่วย</th>
                             <th class="fit-content">วันที่นำเข้า</th>
+                            <th class="fit-content"></th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -782,8 +783,6 @@
         var $row = $("<tr>");
         $row.attr("data-item-seq", item.InvSdtSeq);
         
-        $("<td>").html('<input type="checkbox" class="form-control" style="outline: none;">').appendTo($row);
-        
         var expireDate = $.datepicker.parseDate('yymmdd', item.InvExpDte);
         
         $("<td>", { "class":"middle-content" }).text($.datepicker.formatDate("dd/mm/yy", expireDate)).appendTo($row);
@@ -793,6 +792,26 @@
         
         var storeInDate = $.datepicker.parseDate('yymmdd', item.InvStiDte);
         $("<td>", { "class":"middle-content" }).text($.datepicker.formatDate("dd/mm/yy", storeInDate)).appendTo($row);
+        
+        var $deliverButton = $("<div>", { "class": "btn btn-warning" }).text("จ่ายออก");
+        $deliverButton.click(function() {
+            var deliverTrans = {};
+            deliverTrans.date = $.datepicker.formatDate("yymmdd", new Date());
+            deliverTrans.category = storeCategory;
+            deliverTrans.type = 2;
+            deliverTrans.department = null;
+            deliverTrans.remark = "";
+            deliverTrans.itemSeq = item.InvSdtSeq;
+            deliverTrans.itemAmount = item.InvOdrRem;
+            
+            $.post("deliverExpireInventoryItem", JSON.stringify(deliverTrans)).done(function() {
+                $row.detach();
+            }).fail(function() {
+                alert("ไม่สามารถจ่ายออกได้ โปรดลองใหม่อีกครั้ง");
+            });
+        });
+        
+        $("<td>").append($deliverButton).appendTo($row);
         
         return $row;
     }

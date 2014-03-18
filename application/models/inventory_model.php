@@ -168,4 +168,45 @@ class inventory_model extends CI_Model {
         
         return $query->result();
     }
+    
+    function deliverExpireInventoryItem($date, $category, $type, $department, $remark, $user, $itemSeq, $itemAmount) {
+        $data = array($date, $category, $type, $department, $remark, $user);
+        
+        $this->db->trans_begin();
+                
+        $query = $this->db->query("CALL fn_addDeliverTransaction(?, ?, ?, ?, ?, ?)", $data);
+        
+        $row = $query->row();
+        
+        $query->free_result();
+        
+        if (!$this->expireInventoryItem($itemSeq, $itemAmount, $row->InvDltSeq, $category, $user)) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        
+        if ($this->db->trans_status() === FALSE)
+        {
+            $this->db->trans_rollback();
+            
+            throw new Exception('Failed to add deliver transaction');
+        }
+        else
+        {
+            $this->db->trans_commit();
+        }
+        
+        return true;
+    }
+    
+    private function expireInventoryItem($itemSeq, $itemAmount, $deliverSeq, $category, $user) {
+        $data = array($itemSeq, $itemAmount, $deliverSeq, $category, $user);
+
+        $query = $this->db->query("CALL fn_expireInventoryItem(?, ?, ?, ?, ?)", $data);
+        $row = $query->row();
+        
+        $query->free_result();
+        
+        return $row->result == 1;
+    }
 }

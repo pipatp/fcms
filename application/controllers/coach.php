@@ -92,6 +92,14 @@ class coach extends CI_Controller {
         }
     }
     
+    function getCoachScheduleDates($year, $month) {
+        $this->load->model('coach_model');
+        
+        $data["content"] = $this->coach_model->getCoachScheduleDates($year, $month);
+        
+        $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Coach Fitness
     //----------------------------------------------

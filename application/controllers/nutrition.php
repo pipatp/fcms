@@ -252,4 +252,25 @@ class nutrition extends CI_Controller {
         
         $this->load->view('json_result', $data);
     }
+    
+    function deliverExpireInventoryItem() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('inventory_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        try {
+            $result = $this->inventory_model->deliverExpireInventoryItem($postData["date"],
+                        $postData["category"], $postData["type"], $postData["department"],
+                        $postData["remark"], $user, $postData["itemSeq"], $postData["itemAmount"]);
+            
+            if (!$result) {
+                show_error("Deliver expire item is invalid state", 403);
+            }
+        } catch (Exception $e) {
+            show_error($e->getMessage(), 500);
+        }
+    }
 }

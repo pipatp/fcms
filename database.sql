@@ -379,6 +379,33 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_expireInventoryItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_expireInventoryItem`(IN `p_itemSeq` BIGINT, IN `p_amount` SMALLINT, IN `p_deliverSeq` BIGINT, IN `p_category` VARCHAR(20), IN `p_user` VARCHAR(20))
+BEGIN
+	DECLARE l_rowAffected INT;
+	DECLARE l_orderCode CHAR(20);
+	DECLARE l_timestamp CHAR(14);
+	
+	UPDATE invsdt SET InvOdrRem = 0 WHERE InvSdtSeq = p_itemSeq AND InvOdrRem = p_amount;
+	
+	SET l_rowAffected = ROW_COUNT();
+	
+	IF l_rowAffected = 1 THEN
+		SELECT sd.InvOdrCod INTO l_orderCode
+		FROM invsdt sd
+		WHERE sd.InvSdtSeq = p_itemSeq;
+		
+		SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+		
+		INSERT INTO invddt VALUES (p_deliverSeq, l_orderCode, p_amount, p_category, p_user, l_timestamp);
+	END IF;
+	
+	SELECT l_rowAffected AS result;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_findFoodMeal
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_findFoodMeal`(IN `p_name` VARCHAR(50))
@@ -434,6 +461,18 @@ BEGIN
 	ON wi.WklOdrCod = om.OdrCod
 	WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = p_date
 	ORDER BY wi.WklStrDtm;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getCoachAppointmentDates
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getCoachAppointmentDates`(IN `p_yearMonth` VARCHAR(8))
+BEGIN
+	SELECT ca.CapWklDte
+	FROM capinf ca
+	WHERE ca.CapWklDte LIKE p_yearMonth
+	ORDER BY ca.CapWklDte;
 END//
 DELIMITER ;
 
@@ -755,7 +794,7 @@ CREATE TABLE IF NOT EXISTS `invddt` (
   KEY `InvOdrCod` (`InvOdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='deliver detail';
 
--- Dumping data for table fcms.invddt: ~8 rows (approximately)
+-- Dumping data for table fcms.invddt: ~11 rows (approximately)
 /*!40000 ALTER TABLE `invddt` DISABLE KEYS */;
 INSERT INTO `invddt` (`InvDltSeq`, `InvOdrCod`, `InvOdrAmt`, `InvCatTyp`, `InvUpdUid`, `InvUpdDte`) VALUES
 	(106, 'INV000002', 4, 'NUT', 'test', '20140315233422'),
@@ -765,7 +804,10 @@ INSERT INTO `invddt` (`InvDltSeq`, `InvOdrCod`, `InvOdrAmt`, `InvCatTyp`, `InvUp
 	(111, 'INV000001', 4, 'NUT', 'test', '20140316004837'),
 	(114, 'INV000001', 2, 'NUT', 'test', '20140316005010'),
 	(114, 'INV000003', 1, 'NUT', 'test', '20140316005010'),
-	(116, 'INV000003', 3, 'NUT', 'test', '20140318000949');
+	(116, 'INV000003', 3, 'NUT', 'test', '20140318000949'),
+	(133, 'INV000003', 2, 'NUT', 'test', '20140319005256'),
+	(135, 'INV000003', 3, 'NUT', 'test', '20140319005353'),
+	(136, 'INV000003', 2, 'NUT', 'test', '20140319005614');
 /*!40000 ALTER TABLE `invddt` ENABLE KEYS */;
 
 
@@ -782,9 +824,9 @@ CREATE TABLE IF NOT EXISTS `invdlt` (
   PRIMARY KEY  (`InvDltSeq`),
   KEY `InvDltDep` (`InvCatTyp`),
   KEY `InvDltDte` (`InvDltDte`)
-) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.invdlt: ~7 rows (approximately)
+-- Dumping data for table fcms.invdlt: ~11 rows (approximately)
 /*!40000 ALTER TABLE `invdlt` DISABLE KEYS */;
 INSERT INTO `invdlt` (`InvDltSeq`, `InvDltDte`, `InvCatTyp`, `InvDltTyp`, `InvTypDep`, `InvDltRmk`, `InvUpdUid`, `InvUpdDte`) VALUES
 	(106, '20140315', 'NUT', 0, NULL, 'test', 'test', '20140315233422'),
@@ -793,7 +835,11 @@ INSERT INTO `invdlt` (`InvDltSeq`, `InvDltDte`, `InvCatTyp`, `InvDltTyp`, `InvTy
 	(110, '20140316', 'NUT', 0, NULL, '', 'test', '20140316004822'),
 	(111, '20140316', 'NUT', 0, NULL, '', 'test', '20140316004837'),
 	(114, '20140316', 'NUT', 0, NULL, '', 'test', '20140316005010'),
-	(116, '20140318', 'NUT', 0, NULL, '', 'test', '20140318000949');
+	(116, '20140318', 'NUT', 0, NULL, '', 'test', '20140318000949'),
+	(130, '20140319', 'NUT', 2, NULL, '', 'test', '20140319004844'),
+	(133, '20140319', 'NUT', 2, NULL, '', 'test', '20140319005256'),
+	(135, '20140319', 'NUT', 2, NULL, '', 'test', '20140319005353'),
+	(136, '20140319', 'NUT', 2, NULL, '', 'test', '20140319005614');
 /*!40000 ALTER TABLE `invdlt` ENABLE KEYS */;
 
 

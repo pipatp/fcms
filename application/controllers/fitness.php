@@ -43,7 +43,7 @@ class fitness extends CI_Controller {
     function getFitnessRegisteredList($date) {
         $this->load->model('worklist_model');
         
-        $data["content"] = $this->worklist_model->getFitnessRegistrationList($date, "FIT", 'Y');
+        $data["content"] = $this->worklist_model->getRegistrationList($date, "FIT", 'Y');
         
         $this->load->view('json_result', $data);        
     }
