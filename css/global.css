@@ -163,3 +163,9 @@ body {
     
     background: #FFFFFF
 }
+
+/*Highlight Calendar*/
+.has-schedule a {
+    background-color: greenyellow !important;
+    background-image: none !important;
+}

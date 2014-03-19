@@ -81,17 +81,56 @@
     </div>
 </div>
 <script>
+    var scheduleDates = undefined;
+    var permission = <?php echo json_encode($permission) ?>;
+    
     $(function() {
         $("#date-selection").datepicker({ 
             dateFormat: "dd/mm/yy", 
             onSelect: function() {
                 loadFitnessSchedule($(this));
+            },
+            beforeShowDay: function(date) {
+                if (scheduleDates) {
+                    var showDate = $.datepicker.formatDate("yymmdd", date);
+                    
+                    for (var index=0; index<scheduleDates.length; index++) {
+                        if (showDate === scheduleDates[index]) {
+                            return [true, "has-schedule", "Busy"];
+                        } else if (showDate < scheduleDates[index]) {
+                            break;
+                        }
+                    }
+                }
+                
+                return [true, ""];
+            },
+            onChangeMonthYear: function(year, month) {
+                var paddingMonth = month;
+                if (paddingMonth < 10) {
+                    paddingMonth = "0" + paddingMonth;
+                }
+                getCoachFitnessDates(year, paddingMonth);
             }
         });
         $("#date-selection").datepicker("setDate", new Date());
         
         loadFitnessSchedule($("#date-selection"));
     });
+    
+    function getCoachFitnessDates(year, month) {
+        scheduleDates = undefined;
+                
+        $.get("getFitnessScheduleDates/" + year + "/" + month).done(function(result) {
+            var appointmentDates = jQuery.parseJSON(result);
+
+            scheduleDates = [];
+            for (var index=0; index<appointmentDates.length; index++) {
+                scheduleDates.push(appointmentDates[index].PwlAppDte);
+            }
+            $("#date-selection").datepicker("refresh");
+        });
+    }
     
     function loadFitnessSchedule($dateSelector) {
         var date = getDateFromDatePicker($dateSelector, "yymmdd");

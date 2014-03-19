@@ -81,19 +81,58 @@
     </div>
 </div>
 <script>
+    var scheduleDates = undefined;
+    var permission = <?php echo json_encode($permission) ?>;
+    
     $(function() {
         $("#date-selection").datepicker({ 
             dateFormat: "dd/mm/yy", 
             onSelect: function() {
-                loadFitnessSchedule($(this));
+                loadPhysicalSchedule($(this));
+            },
+            beforeShowDay: function(date) {
+                if (scheduleDates) {
+                    var showDate = $.datepicker.formatDate("yymmdd", date);
+                    
+                    for (var index=0; index<scheduleDates.length; index++) {
+                        if (showDate === scheduleDates[index]) {
+                            return [true, "has-schedule", "Busy"];
+                        } else if (showDate < scheduleDates[index]) {
+                            break;
+                        }
+                    }
+                }
+                
+                return [true, ""];
+            },
+            onChangeMonthYear: function(year, month) {
+                var paddingMonth = month;
+                if (paddingMonth < 10) {
+                    paddingMonth = "0" + paddingMonth;
+                }
+                getCoachPhysicalDates(year, paddingMonth);
             }
         });
         $("#date-selection").datepicker("setDate", new Date());
         
-        loadFitnessSchedule($("#date-selection"));
+        loadPhysicalSchedule($("#date-selection"));
     });
     
-    function loadFitnessSchedule($dateSelector) {
+    function getCoachPhysicalDates(year, month) {
+        scheduleDates = undefined;
+                
+        $.get("getPhysicalScheduleDates/" + year + "/" + month).done(function(result) {
+            var appointmentDates = jQuery.parseJSON(result);
+
+            scheduleDates = [];
+            for (var index=0; index<appointmentDates.length; index++) {
+                scheduleDates.push(appointmentDates[index].PwlAppDte);
+            }
+            $("#date-selection").datepicker("refresh");
+        });
+    }
+    
+    function loadPhysicalSchedule($dateSelector) {
         var date = getDateFromDatePicker($dateSelector, "yymmdd");
         
         $.get("getPhysicalSchedule/" + date).done(function(result) {

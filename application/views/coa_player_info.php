@@ -188,6 +188,12 @@
     </div>
 </div>
 <script>
+    var scheduleDates = undefined;
+    var permission = <?php echo json_encode($permission) ?>;
+    
+    var currentComment = "";
+    var editMode = false;
+    
     $(function() {
         $("#player-info-tab").tabs({heightStyle: "fill"});
         $("#player-detail-tab").tabs({heightStyle: "fill"});
@@ -196,6 +202,28 @@
             dateFormat: "dd/mm/yy", 
             onSelect: function() {
                 getPlayerSchedule();
+            },
+            beforeShowDay: function(date) {
+                if (scheduleDates) {
+                    var showDate = $.datepicker.formatDate("yymmdd", date);
+                    
+                    for (var index=0; index<scheduleDates.length; index++) {
+                        if (showDate === scheduleDates[index]) {
+                            return [true, "has-schedule", "Busy"];
+                        } else if (showDate < scheduleDates[index]) {
+                            break;
+                        }
+                    }
+                }
+                
+                return [true, ""];
+            },
+            onChangeMonthYear: function(year, month) {
+                var paddingMonth = month;
+                if (paddingMonth < 10) {
+                    paddingMonth = "0" + paddingMonth;
+                }
+                getPlayerScheduleDates(year, paddingMonth);
             }
         });
         $("#date-selection").datepicker("setDate", new Date());
@@ -215,6 +243,12 @@
                 
                 getPlayerSchedule();
                 
+                var selectedDate = $("#date-selection").datepicker("getDate");           
+                var year = $.datepicker.formatDate("yy", selectedDate);
+                var month = $.datepicker.formatDate("mm", selectedDate);
+                
+                getPlayerScheduleDates(year, month);
+                
                 return false;
             }
         }).data("ui-autocomplete")._renderItem = function(ul, item) {
@@ -222,8 +256,62 @@
             return $("<li class='list-auto-item'>").append("<a>" + displayName + "</a>" ).appendTo(ul);
         };
         
-        $("#coach-comment .stretch").tooltip();
+        if (permission.write) {
+            $("#coach-comment .stretch").tooltip();
+
+            $("#coach-comment").dblclick(function() {
+                if (editMode) {
+                    return false;
+                }
+
+                if (!$("#coach-player-info").attr("data-player-code")) {
+                    return false;
+                }
+
+                convertToTextArea($(this));
+            });
+            $("#coach-comment").focusout(function() {
+                var $section = $(this);
+
+                var $commentBox = $section.children(".stretch");
+
+                if ($commentBox.val() === currentComment) {
+                    convertToDiv($section);
+                } 
+                else {
+                    var result = {};
+                    result.playerCode = $("#coach-player-info").attr("data-player-code");
+                    result.comment = $commentBox.val();
+                    result.category = "COA";
+
+                    $.post("../player/updateComment", JSON.stringify(result)).done(function() {
+                        convertToDiv($section);
+                    }).fail(function() {
+                        alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+                    });
+                }
+            });
+        }
     });
+    
+    function getPlayerScheduleDates(year, month) {
+        scheduleDates = undefined;
+        
+        var playerCode = $("#coach-player-info").attr("data-player-code");
+        if (!playerCode) {
+            return;
+        }
+                
+        $.get("getPlayerScheduleDates/" + playerCode + "/" + year + "/" + month).done(function(result) {
+            var appointmentDates = jQuery.parseJSON(result);
+
+            scheduleDates = [];
+            for (var index=0; index<appointmentDates.length; index++) {
+                scheduleDates.push(appointmentDates[index].PwlAppDte);
+            }
+            $("#date-selection").datepicker("refresh");
+        });
+    }
     
     function getPlayerInfo(playerCode) {
         $.get("getPlayerInfo/" + playerCode).done(function(result) {
@@ -321,9 +409,6 @@
         return time.substr(0, 2) + ":" + time.substr(2, 2);
     }
     
-    var currentComment = "";
-    var editMode = false;
-    
     function convertToTextArea($section) {       
         var $commentDiv = $section.children(".stretch");
         $commentDiv.tooltip('hide');
@@ -362,37 +447,4 @@
         
         editMode = false;
     }
-    
-    $("#coach-comment").dblclick(function() {
-        if (editMode) {
-            return false;
-        }
-        
-        if (!$("#coach-player-info").attr("data-player-code")) {
-            return false;
-        }
-        
-        convertToTextArea($(this));
-    });
-    $("#coach-comment").focusout(function() {
-        var $section = $(this);
-        
-        var $commentBox = $section.children(".stretch");
-        
-        if ($commentBox.val() === currentComment) {
-            convertToDiv($section);
-        } 
-        else {
-            var result = {};
-            result.playerCode = $("#coach-player-info").attr("data-player-code");
-            result.comment = $commentBox.val();
-            result.category = "COA";
-            
-            $.post("../player/updateComment", JSON.stringify(result)).done(function() {
-                convertToDiv($section);
-            }).fail(function() {
-                alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-            });
-        }
-    });
 </script>

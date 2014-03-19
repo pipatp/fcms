@@ -9,14 +9,18 @@ class coach extends CI_Controller {
         $this->load->library('permission');
         
         if (!$this->session->userdata('user_login')) {
-            redirect('../main/login');
+            redirect('main/login');
         }
         
         if (!$this->session->userdata('user_permission')) {
-            redirect('../main/menu');
+            redirect('main/menu');
         }
         
         $perms = $this->session->userdata('user_permission');
+        
+        if (!array_key_exists('COA', $perms)) {
+            redirect('main/menu');
+        }
         
         $this->permission = $perms["COA"];
     }
@@ -118,7 +122,9 @@ class coach extends CI_Controller {
     // Coach Fitness
     //----------------------------------------------
     function viewCoachFitness() {
-        $this->load->view('coa_fitness');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('coa_fitness', $data);
     }
     
     function getFitnessSchedule($date) {
@@ -129,11 +135,21 @@ class coach extends CI_Controller {
         $this->load->view('json_result', $data);
     }
     
+    function getFitnessScheduleDates($year, $month) {
+        $this->load->model('coach_model');
+        
+        $data["content"] = $this->coach_model->getCoachViewScheduleDates($year, $month, 'FIT');
+        
+        $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Coach Physical Theraphy
     //----------------------------------------------
     function viewCoachPhysical() {
-        $this->load->view('coa_physical');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('coa_physical', $data);
     }
     
     function getPhysicalSchedule($date) {
@@ -143,11 +159,22 @@ class coach extends CI_Controller {
         
         $this->load->view('json_result', $data);
     }
+    
+    function getPhysicalScheduleDates($year, $month) {
+        $this->load->model('coach_model');
+        
+        $data["content"] = $this->coach_model->getCoachViewScheduleDates($year, $month, 'PHY');
+        
+        $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Coach Player Info
     //----------------------------------------------
     function viewPlayerInfo() {
-        $this->load->view('coa_player_info');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('coa_player_info', $data);
     }
     
     function getPlayerInfo($playerCode) {
@@ -165,6 +192,14 @@ class coach extends CI_Controller {
         $this->load->model('worklist_model');
         
         $data["content"] = $this->worklist_model->getAllWorklist($playerCode, $date);
+        
+        return $this->load->view('json_result', $data);
+    }
+    
+    function getPlayerScheduleDates($playerCode, $year, $month) {
+        $this->load->model('worklist_model');
+        
+        $data["content"] = $this->worklist_model->getPlayerScheduleDates($playerCode, $year, $month);
         
         return $this->load->view('json_result', $data);
     }

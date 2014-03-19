@@ -25,15 +25,16 @@ CREATE TABLE IF NOT EXISTS `capinf` (
   `CapUpdDts` char(14) default NULL,
   PRIMARY KEY  (`CapSeqNum`),
   KEY `CapUsrCod_CapWklDte` (`CapUsrCod`,`CapWklDte`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.capinf: ~4 rows (approximately)
+-- Dumping data for table fcms.capinf: ~5 rows (approximately)
 /*!40000 ALTER TABLE `capinf` DISABLE KEYS */;
 INSERT INTO `capinf` (`CapSeqNum`, `CapUsrCod`, `CapWklDte`, `CapAppDtl`, `CapUpdUid`, `CapUpdDts`) VALUES
 	(1, 'test', '20140306', '333', 'test', '2014030804909'),
 	(2, 'test', '20140307', NULL, 'test', '20140307233643'),
 	(3, 'test', '20140305', NULL, 'test', '20140307235905'),
-	(4, 'test', '20140304', '123', 'test', '2014030804851');
+	(4, 'test', '20140304', '123', 'test', '2014030804851'),
+	(5, 'test1', '20140307', 'comment', 'test1', '20140319231908');
 /*!40000 ALTER TABLE `capinf` ENABLE KEYS */;
 
 
@@ -67,10 +68,11 @@ CREATE TABLE IF NOT EXISTS `cwlinf` (
   PRIMARY KEY  (`CwlCapSeq`,`CwlSeqNum`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.cwlinf: ~1 rows (approximately)
+-- Dumping data for table fcms.cwlinf: ~2 rows (approximately)
 /*!40000 ALTER TABLE `cwlinf` DISABLE KEYS */;
 INSERT INTO `cwlinf` (`CwlCapSeq`, `CwlSeqNum`, `CwlStrDtm`, `CwlEndDtm`, `CwlSchDtl`, `CwlUpdUid`, `CwlUpdDts`) VALUES
-	(2, 1, '0100', '0400', 'test', 'test', '2014030800101');
+	(2, 1, '0100', '0400', 'test', 'test', '2014030800101'),
+	(5, 1, '0200', '0300', 'Go home', 'test1', '20140319231926');
 /*!40000 ALTER TABLE `cwlinf` ENABLE KEYS */;
 
 
@@ -502,6 +504,19 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_getCoachViewScheduleDates
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getCoachViewScheduleDates`(IN `p_yearMonth` VARCHAR(8), IN `p_category` VARCHAR(20))
+BEGIN
+	SELECT DISTINCT pw.PwlAppDte
+	FROM pwlinf pw, wklinf wi, odrmst om
+	WHERE pw.PwlSeqNum = wi.WklPwlSeq AND wi.WklOdrCod = om.OdrCod AND om.OdrCatTyp = p_category AND
+		pw.PwlAppDte LIKE p_yearMonth
+	ORDER BY pw.PwlAppDte;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getCoachWorklistInfo
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getCoachWorklistInfo`(IN `p_appSeq` BIGINT)
@@ -610,6 +625,18 @@ BEGIN
 	FROM plrinf
 	WHERE PlrPlyCod = p_playerCode AND PlrRstDte = p_date AND 
 		PlrCatTyp = p_category AND PlrSubTyp = p_subcategory;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getPlayerScheduleDates
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPlayerScheduleDates`(IN `p_playerCode` VARCHAR(20), IN `p_yearMonth` VARCHAR(8))
+BEGIN
+	SELECT pw.PwlAppDte
+	FROM pwlinf pw
+	WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte LIKE p_yearMonth
+	ORDER BY pw.PwlAppDte;
 END//
 DELIMITER ;
 
@@ -926,11 +953,13 @@ CREATE TABLE IF NOT EXISTS `odrmst` (
   PRIMARY KEY  (`OdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.odrmst: ~22 rows (approximately)
+-- Dumping data for table fcms.odrmst: ~24 rows (approximately)
 /*!40000 ALTER TABLE `odrmst` DISABLE KEYS */;
 INSERT INTO `odrmst` (`OdrCod`, `OdrLocNam`, `OdrEngNam`, `OdrCatTyp`, `OdrSubTyp`, `OdrCurStt`, `OdrUnt`, `OdrCreDte`, `OdrExpDte`, `OdrUpdUid`, `OdrUpdDts`) VALUES
 	('FIT000001', 'วิ่งลู่', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
 	('FIT000002', 'ปั่นจักรยาน', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('FIT000003', 'ยกเวท', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('FIT000004', 'โยคะ', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
 	('INV000001', 'ผ้าพันแผล', NULL, 'INV', NULL, NULL, 'อัน', NULL, NULL, NULL, NULL),
 	('INV000002', 'ดินสอ', NULL, 'INV', NULL, NULL, 'แท่ง', NULL, NULL, NULL, NULL),
 	('INV000003', 'ยาแก้ปวด', NULL, 'INV', NULL, NULL, 'เม็ด', NULL, NULL, NULL, NULL),
@@ -1222,10 +1251,11 @@ CREATE TABLE IF NOT EXISTS `pmsmst` (
   PRIMARY KEY  (`PmsUsrCod`,`PmsDepCod`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Permission master';
 
--- Dumping data for table fcms.pmsmst: 1 rows
+-- Dumping data for table fcms.pmsmst: 2 rows
 /*!40000 ALTER TABLE `pmsmst` DISABLE KEYS */;
 INSERT INTO `pmsmst` (`PmsUsrCod`, `PmsDepCod`, `PmsRea`, `PmsWrt`, `PmsEdt`, `PmsDel`) VALUES
-	('test', 'COA', 1, 0, 0, 0);
+	('test', 'COA', 1, 0, 0, 0),
+	('test1', 'COA', 1, 1, 0, 0);
 /*!40000 ALTER TABLE `pmsmst` ENABLE KEYS */;
 
 
@@ -1328,10 +1358,11 @@ CREATE TABLE IF NOT EXISTS `usrmst` (
   PRIMARY KEY  (`UsrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.usrmst: ~1 rows (approximately)
+-- Dumping data for table fcms.usrmst: ~2 rows (approximately)
 /*!40000 ALTER TABLE `usrmst` DISABLE KEYS */;
 INSERT INTO `usrmst` (`UsrCod`, `UsrFstNam`, `UsrMidNam`, `UsrFamNam`, `UsrFstEng`, `UsrMidEng`, `UsrFamEng`, `UsrLogPwd`, `UsrEmpCod`, `UsrDepCod`, `UsrCreDte`, `UsrExpDte`, `UsrUpdUid`, `UsrUpdDts`) VALUES
-	('test', NULL, NULL, NULL, NULL, NULL, NULL, 'welcome', NULL, NULL, NULL, NULL, NULL, NULL);
+	('test', NULL, NULL, NULL, NULL, NULL, NULL, 'welcome', NULL, NULL, NULL, NULL, NULL, NULL),
+	('test1', NULL, NULL, NULL, NULL, NULL, NULL, 'welcome', NULL, NULL, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `usrmst` ENABLE KEYS */;
 
 

@@ -67,4 +67,14 @@ class worklist_model extends CI_Model {
         
         $query->row();
     }
+    
+    function getPlayerScheduleDates($playerCode, $year, $month) {
+        $yearMonth = $year . $month . "%";
+        
+        $data = array($playerCode, $yearMonth);
+        
+        $query = $this->db->query("CALL fn_getPlayerScheduleDates(?, ?)", $data);
+        
+        return $query->result();
+    }
 }

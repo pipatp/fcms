@@ -71,4 +71,14 @@ class coach_model extends CI_Model {
         
         return $query->result();
     }
+    
+    function getCoachViewScheduleDates($year, $month, $category) {
+        $yearMonth = $year . $month . "%";
+        
+        $data = array($yearMonth, $category);
+        
+        $query = $this->db->query("CALL fn_getCoachViewScheduleDates(?, ?)", $data);
+        
+        return $query->result();
+    }
 }

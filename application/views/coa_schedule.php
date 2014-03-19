@@ -60,15 +60,6 @@
 .line-space-nm {
     margin-bottom: 10px;
 }
-
-.has-schedule {
-    background-color: red !important;
-}
-
-.has-schedule a {
-    background-color: greenyellow !important;
-    background-image: none !important;
-}
 </style>
 <div class="coach-schedule-panel">
     <div class="content">
@@ -142,8 +133,11 @@
 <script>
     var scheduleDates = undefined;
     var permission = <?php echo json_encode($permission) ?>;
+    
+    var currentComment = "";
+    var editMode = false;
+    
     $(function() {
-        console.info(permission);
         $(".schedule-calendar").datepicker({
             onSelect: function() {
                 loadCoachSchedule($(this));
@@ -176,18 +170,50 @@
         
         loadCoachSchedule($(".schedule-calendar"));
         
-        $("#addDialog").modal({ show: false, keyboard: false });
-        
-        $("#appointment-detail .stretch").tooltip();
-        
-        initialHourSelection();
-        
-        $(".coach-worklist-add").click(showAddDialog);
-        
-        $("#saveWorklistButton").click(addWorklistItem);
-        
         var currentDate = new Date();
         getCoachAppointmentDates($.datepicker.formatDate("yy", currentDate), $.datepicker.formatDate("mm", currentDate));
+        
+        if (permission.write) {
+            $("#appointment-detail").dblclick(function() {
+                if (editMode) {
+                    return false;
+                }
+                convertToTextArea($(this));
+            });
+            $("#appointment-detail").focusout(function() {
+                var $section = $(this);
+
+                var $commentBox = $section.children(".stretch");
+
+                if ($commentBox.val() === currentComment) {
+                    convertToDiv($section);
+                } 
+                else {
+                    var updateRequest = {};
+                    updateRequest.date = getDateFromDatePicker($(".schedule-calendar"), "yymmdd");
+                    updateRequest.detail = $commentBox.val();
+
+                    $.post("updateCoachScheduleDetail", JSON.stringify(updateRequest)).done(function() {
+                        convertToDiv($section);
+                    }).fail(function() {
+                        alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+                    });
+                }
+            });
+            
+            $("#appointment-detail .stretch").tooltip();
+            
+            initialHourSelection();
+        
+            $("#addDialog").modal({ show: false, keyboard: false });
+            
+            $(".coach-worklist-add").click(showAddDialog);
+
+            $("#saveWorklistButton").click(addWorklistItem);
+        } 
+        else {
+            $(".coach-worklist-add").addClass("hidden");
+        }
     });
     
     function getCoachAppointmentDates(year, month) {
@@ -230,7 +256,11 @@
         $deleteButton.attr("data-appointment-seq", item.CwlCapSeq);
         $deleteButton.attr("data-item-seq", item.CwlSeqNum);
         
-        $deleteButton.click(deleteWorklistRow);
+        if (!permission.delete) {
+            $deleteButton.addClass("hidden");
+            
+            $deleteButton.click(deleteWorklistRow);
+        }
         
         $("<td>", { "class": "fit-content" }).append($deleteButton).appendTo($row);
         
@@ -307,9 +337,6 @@
         });
     }
     
-    var currentComment = "";
-    var editMode = false;
-    
     function convertToTextArea($section) {       
         var $commentDiv = $section.children(".stretch");
         $commentDiv.tooltip('hide');
@@ -348,33 +375,6 @@
         
         editMode = false;
     }
-    
-    $("#appointment-detail").dblclick(function() {
-        if (editMode) {
-            return false;
-        }
-        convertToTextArea($(this));
-    });
-    $("#appointment-detail").focusout(function() {
-        var $section = $(this);
-        
-        var $commentBox = $section.children(".stretch");
-        
-        if ($commentBox.val() === currentComment) {
-            convertToDiv($section);
-        } 
-        else {
-            var updateRequest = {};
-            updateRequest.date = getDateFromDatePicker($(".schedule-calendar"), "yymmdd");
-            updateRequest.detail = $commentBox.val();
-            
-            $.post("updateCoachScheduleDetail", JSON.stringify(updateRequest)).done(function() {
-                convertToDiv($section);
-            }).fail(function() {
-                alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-            });
-        }
-    });
     
     // Utility Functions
     function getDateFromDatePicker($datePicker, formatDate) {
