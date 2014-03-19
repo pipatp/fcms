@@ -1,12 +1,24 @@
 <?php
 
 class coach extends CI_Controller {
+    public $permission;
+    
     function coach() {
         parent::__construct();
         
+        $this->load->library('permission');
+        
         if (!$this->session->userdata('user_login')) {
-                redirect('../main/login');
+            redirect('../main/login');
         }
+        
+        if (!$this->session->userdata('user_permission')) {
+            redirect('../main/menu');
+        }
+        
+        $perms = $this->session->userdata('user_permission');
+        
+        $this->permission = $perms["COA"];
     }
     
     protected function getQueryStringParams() {
@@ -29,7 +41,9 @@ class coach extends CI_Controller {
     // Coach Schedule
     //----------------------------------------------
     function viewCoachSchedule() {
-        $this->load->view('coa_schedule');
+        $data["permission"] = $this->permission;
+                
+        $this->load->view('coa_schedule', $data);
     }
     
     function getCoachSchedule($date) {

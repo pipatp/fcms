@@ -4,8 +4,12 @@ class main extends CI_Controller {
     function main() {
         parent::__construct();
         
+        $this->load->library('permission');
+        
         if (uri_string() != "main/login" && uri_string() != 'main/authenticate') {
+            log_message('error', "url " . uri_string());
             if (!$this->session->userdata('user_login')) {
+                log_message('error', "no login");
                 redirect('main/login');
             }
         }
@@ -30,7 +34,12 @@ class main extends CI_Controller {
         if ($this->user_model->authenticate($username, $password)) {
             $loginSession = array('username' => $username);
             
+            $permissionList = $this->user_model->getPermission($username);
+            
+            $permissions = permission::parsePermissions($permissionList);
+                    
             $this->session->set_userdata('user_login', $loginSession);
+            $this->session->set_userdata('user_permission', $permissions);
             
             $authSession["content"] = array('isAuth' => true);
             
@@ -56,6 +65,7 @@ class main extends CI_Controller {
     
     function logout() {
         $this->session->unset_userdata('user_login');
+        $this->session->unset_userdata('user_permission');
     }
 }
 

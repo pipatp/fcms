@@ -556,6 +556,17 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_getPermissions
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPermissions`(IN `p_user` VARCHAR(20))
+BEGIN
+	SELECT *
+	FROM pmsmst pm
+	WHERE pm.PmsUsrCod = p_user;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getPlayerComment
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPlayerComment`(IN `p_playerCode` VARCHAR(20), IN `p_category` VARCHAR(20))
@@ -1198,6 +1209,24 @@ INSERT INTO `plyinf` (`PlyCod`, `PlyTitCod`, `PlyFstNam`, `PlyMidNam`, `PlyFamNa
 	('P00001', NULL, 'สมชาย', NULL, 'เข็มกลัด', 'Somchai', NULL, 'Khemglad', 'ไทย', NULL, NULL, '19800401', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'M', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	('P00002', NULL, 'จิรายุ', NULL, 'ไม่รู้', 'Jirayu', NULL, 'Mairu', 'ไทย', NULL, NULL, '19850125', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'M', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 /*!40000 ALTER TABLE `plyinf` ENABLE KEYS */;
+
+
+-- Dumping structure for table fcms.pmsmst
+CREATE TABLE IF NOT EXISTS `pmsmst` (
+  `PmsUsrCod` char(20) NOT NULL,
+  `PmsDepCod` char(20) NOT NULL,
+  `PmsRea` tinyint(3) unsigned default '0',
+  `PmsWrt` tinyint(3) unsigned default '0',
+  `PmsEdt` tinyint(3) unsigned default '0',
+  `PmsDel` tinyint(3) unsigned default '0',
+  PRIMARY KEY  (`PmsUsrCod`,`PmsDepCod`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Permission master';
+
+-- Dumping data for table fcms.pmsmst: 1 rows
+/*!40000 ALTER TABLE `pmsmst` DISABLE KEYS */;
+INSERT INTO `pmsmst` (`PmsUsrCod`, `PmsDepCod`, `PmsRea`, `PmsWrt`, `PmsEdt`, `PmsDel`) VALUES
+	('test', 'COA', 1, 0, 0, 0);
+/*!40000 ALTER TABLE `pmsmst` ENABLE KEYS */;
 
 
 -- Dumping structure for table fcms.podinf

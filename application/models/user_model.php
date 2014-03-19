@@ -14,4 +14,16 @@ class user_model extends CI_Model {
         $rowCount = $this->db->count_all_results();
         return $rowCount > 0;
     }
+    
+    function getPermission($username) {
+        $data = array($username);
+        
+        $query = $this->db->query("CALL fn_getPermissions(?)", $data);
+        
+        $result = $query->result();
+        
+        $query->free_result();
+        
+        return $result;
+    }
 }

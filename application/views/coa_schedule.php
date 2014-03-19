@@ -141,7 +141,9 @@
 </div>
 <script>
     var scheduleDates = undefined;
+    var permission = <?php echo json_encode($permission) ?>;
     $(function() {
+        console.info(permission);
         $(".schedule-calendar").datepicker({
             onSelect: function() {
                 loadCoachSchedule($(this));
