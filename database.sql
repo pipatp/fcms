@@ -1121,7 +1121,7 @@ CREATE TABLE IF NOT EXISTS `plcinf` (
 INSERT INTO `plcinf` (`PlcCod`, `PlcCatTyp`, `PlcCmt`, `PlcUpdUid`, `PlcUpdDts`) VALUES
 	('P00001', 'COA', 'Hello test', 'test', '20140308175604'),
 	('P00001', 'FIT', 'Normal', 'test', '20140308170515'),
-	('P00001', 'PHY', 'test', 'test', '20140302111930');
+	('P00001', 'PHY', 'test2', 'test1', '20140320161505');
 /*!40000 ALTER TABLE `plcinf` ENABLE KEYS */;
 
 
@@ -1251,11 +1251,13 @@ CREATE TABLE IF NOT EXISTS `pmsmst` (
   PRIMARY KEY  (`PmsUsrCod`,`PmsDepCod`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Permission master';
 
--- Dumping data for table fcms.pmsmst: 2 rows
+-- Dumping data for table fcms.pmsmst: 3 rows
 /*!40000 ALTER TABLE `pmsmst` DISABLE KEYS */;
 INSERT INTO `pmsmst` (`PmsUsrCod`, `PmsDepCod`, `PmsRea`, `PmsWrt`, `PmsEdt`, `PmsDel`) VALUES
 	('test', 'COA', 1, 0, 0, 0),
-	('test1', 'COA', 1, 1, 0, 0);
+	('test1', 'COA', 1, 1, 0, 0),
+	('test', 'PHY', 1, 0, 0, 1),
+	('test1', 'PHY', 1, 1, 0, 0);
 /*!40000 ALTER TABLE `pmsmst` ENABLE KEYS */;
 
 

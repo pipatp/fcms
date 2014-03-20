@@ -1,12 +1,28 @@
 <?php
 
 class physical extends CI_Controller {
+    public $permission;
+    
     function physical() {
         parent::__construct();
         
+        $this->load->library('permission');
+        
         if (!$this->session->userdata('user_login')) {
-                redirect('../main/login');
+            redirect('main/login');
         }
+        
+        if (!$this->session->userdata('user_permission')) {
+            redirect('main/menu');
+        }
+        
+        $perms = $this->session->userdata('user_permission');
+        
+        if (!array_key_exists('PHY', $perms)) {
+            redirect('main/menu');
+        }
+        
+        $this->permission = $perms["PHY"];
     }
     
     protected function getQueryStringParams() {
@@ -53,7 +69,9 @@ class physical extends CI_Controller {
     // Physical Therapy Modification
     //----------------------------------------------
     function viewModification() {
-        $this->load->view('phy_modification');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('phy_modification', $data);
     }
     
     function getPhysicalWorklist($playerCode, $date) {
@@ -133,11 +151,21 @@ class physical extends CI_Controller {
         $this->load->view('json_result', $data);
     }
     
+    function getPlayerScheduleDates($playerCode, $year, $month) {
+        $this->load->model('worklist_model');
+        
+        $data["content"] = $this->worklist_model->getPlayerScheduleDates($playerCode, $year, $month);
+        
+        return $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Physical Therapy Record Result
     //----------------------------------------------
     function viewRecordResult() {
-        $this->load->view('phy_record_result');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('phy_record_result', $data);
     }
     
     function getPhysicalResult($playerCode, $date) {
