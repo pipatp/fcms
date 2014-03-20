@@ -89,6 +89,8 @@ function viewMealStore() {
 }
 
 function selectTab(selectedTab) {
+    clearAllIntervalTimer();
+    
     $(".sub-menu ul li ").removeClass("selected");
     $(selectedTab).parent().addClass("selected");
 }

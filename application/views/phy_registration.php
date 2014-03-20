@@ -68,7 +68,7 @@
     </div>
 </div>
 <script>
-    var timeoutVar;
+    var phyRegistrationTimeout;
     var pollingTime = 30000;
     
     var tableHtml = "<table class='table table-striped table-condensed'>";
@@ -91,7 +91,7 @@
     }
     
     function getRegistrationWaitingList() {
-        clearTimeout(timeoutVar);
+        clearTimeout(phyRegistrationTimeout);
         
         $.ajax("getPhysicalWaitingList/" + getCurrentDate()).done(function(result) {
             var $waitingList = $("#waiting-list-player");
@@ -116,14 +116,14 @@
             }
 
             $waitingList.append("<div class='last-update-row'><b>ปรับปรุ่งล่าสุด:</b> " + new Date() + "</div>");
-            timeoutVar = setTimeout(function() { getRegistrationWaitingList(); }, pollingTime);
+            phyRegistrationTimeout = setTimeout(function() { getRegistrationWaitingList(); }, pollingTime);
         }).fail(function(jqXHR, textStatus) {
             // Do nothing
         });
     }
     
     function getRegistrationReceiveList(mealVal) {
-        clearTimeout(timeoutVar);
+        clearTimeout(phyRegistrationTimeout);
         
         $.ajax("getPhysicalRegisteredList/" + getCurrentDate()).done(function(result) {
             var $receiveList = $("#receive-list-player");
@@ -148,7 +148,7 @@
             }
 
             $receiveList.append("<div class='last-update-row'><b>ปรับปรุ่งล่าสุด:</b> " + new Date() + "</div>");
-            timeoutVar = setTimeout(function() { getRegistrationReceiveList(); }, pollingTime);
+            phyRegistrationTimeout = setTimeout(function() { getRegistrationReceiveList(); }, pollingTime);
         }).fail(function(jqXHR, textStatus) {
             // Do nothing
         });

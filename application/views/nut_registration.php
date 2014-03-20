@@ -80,7 +80,7 @@
     </div>
 </div>
 <script>
-    var timeoutVar;
+    var nutRegistrationTimeout;
     var pollingTime = 5000;
     
     var tableHtml = "<table class='table table-striped table-condensed'>";
@@ -98,7 +98,7 @@
     var $tableTemplate = $(tableHtml);
     
     function getRegistrationWaitingList(mealVal) {
-        clearTimeout(timeoutVar);
+        clearTimeout(nutRegistrationTimeout);
         
         if (mealVal !== "") {
             $.ajax("getRegistrationWaitingList/" + mealVal).done(function(result) {
@@ -124,7 +124,7 @@
                 }
                 
                 $waitingList.append("<div class='last-update-row'><b>ปรับปรุ่งล่าสุด:</b> " + new Date() + "</div>");
-                timeoutVar = setTimeout(function() { getRegistrationWaitingList(mealVal); }, pollingTime);
+                nutRegistrationTimeout = setTimeout(function() { getRegistrationWaitingList(mealVal); }, pollingTime);
             }).fail(function(jqXHR, textStatus) {
                 // Do nothing
             });
@@ -132,7 +132,7 @@
     }
     
     function getRegistrationReceiveList(mealVal) {
-        clearTimeout(timeoutVar);
+        clearTimeout(nutRegistrationTimeout);
         
         if (mealVal !== "") {
             $.ajax("getRegistrationReceiveList/" + mealVal).done(function(result) {
@@ -158,7 +158,7 @@
                 }
                 
                 $receiveList.append("<div class='last-update-row'><b>ปรับปรุ่งล่าสุด:</b> " + new Date() + "</div>");
-                timeoutVar = setTimeout(function() { getRegistrationReceiveList(mealVal); }, pollingTime);
+                nutRegistrationTimeout = setTimeout(function() { getRegistrationReceiveList(mealVal); }, pollingTime);
             }).fail(function(jqXHR, textStatus) {
                 // Do nothing
             });
