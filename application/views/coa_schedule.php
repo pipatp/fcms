@@ -305,6 +305,18 @@
         });
     }
     
+    function hasScheduleDate(findDate) {
+        if (scheduleDates) {
+            for (var index=0; index<scheduleDates.length; index++) {
+                if (scheduleDates[index] === findDate) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
     function addWorklistItem() {
         var addRequest = {};
     
@@ -332,6 +344,12 @@
             $("#addDialog").modal("hide");
             
             loadCoachSchedule($(".schedule-calendar"));
+            
+            if (!hasScheduleDate(addRequest.date)) {
+                var selectedDate = $(".schedule-calendar").datepicker("getDate");
+                getCoachAppointmentDates($.datepicker.formatDate("yy", selectedDate), $.datepicker.formatDate("mm", selectedDate));
+            }
+            
         }).fail(function() {
             alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
         });

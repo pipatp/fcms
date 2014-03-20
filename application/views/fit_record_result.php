@@ -128,6 +128,8 @@
     var playerCode = "";
     var currentDate = $.datepicker.formatDate("yymmdd", new Date());
     
+    var permission = <?php echo json_encode($permission) ?>;
+    
     $("#fitness-addition-tab").tabs({heightStyle: "fill"});
     
     function addDetail($detailDiv, key, val) {
@@ -263,48 +265,52 @@
     var currentComment = "";
     var editMode = false;
     
-    $("#report-tab").dblclick(function() {
-        if (editMode) {
-            return false;
-        }
-        convertToTextArea($(this));
-    });
-    $("#report-tab").focusout(function() {
-        var $section = $(this);
-        var $comment = $section.children(".stretch");
-        
-        if ($comment.val() === currentComment) {
-            convertToDiv($section);
-        } 
-        else {
-            addPlayerResult($comment.val(), "RST", function() {
-                convertToDiv($section);
-            }); 
-        }
-    });
-    
-    $("#suggestion-tab").dblclick(function() {
-        if (editMode) {
-            return false;
-        }
-        convertToTextArea($(this));
-    });
-    $("#suggestion-tab").focusout(function() {
-        var $section = $(this);
-        var $comment = $section.children(".stretch");
-        
-        if ($comment.val() === currentComment) {
-            convertToDiv($section);
-        } 
-        else {
-            addPlayerResult($comment.val(), "SGT", function() {
-                convertToDiv($section);
-            }); 
-        }   
-    });
-    
-    $("#report-tab .stretch").tooltip();
-    $("#suggestion-tab .stretch").tooltip();
-    $(".fitness-record-detail").hide();
+    $(function() {
+        if (permission.write) {
+            $("#report-tab").dblclick(function() {
+                if (editMode) {
+                    return false;
+                }
+                convertToTextArea($(this));
+            });
+            $("#report-tab").focusout(function() {
+                var $section = $(this);
+                var $comment = $section.children(".stretch");
 
+                if ($comment.val() === currentComment) {
+                    convertToDiv($section);
+                } 
+                else {
+                    addPlayerResult($comment.val(), "RST", function() {
+                        convertToDiv($section);
+                    }); 
+                }
+            });
+
+            $("#suggestion-tab").dblclick(function() {
+                if (editMode) {
+                    return false;
+                }
+                convertToTextArea($(this));
+            });
+            $("#suggestion-tab").focusout(function() {
+                var $section = $(this);
+                var $comment = $section.children(".stretch");
+
+                if ($comment.val() === currentComment) {
+                    convertToDiv($section);
+                } 
+                else {
+                    addPlayerResult($comment.val(), "SGT", function() {
+                        convertToDiv($section);
+                    }); 
+                }   
+            });
+            
+            $("#report-tab .stretch").tooltip();
+            $("#suggestion-tab .stretch").tooltip();
+        }
+        
+        $(".fitness-record-detail").hide();
+    });
 </script>

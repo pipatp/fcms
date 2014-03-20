@@ -696,6 +696,18 @@
             $("<option>", { value: zeroPadding(time) }).text(time).appendTo($option);
         }
     }
+    
+    function hasScheduleDate(findDate) {
+        if (scheduleDates) {
+            for (var index=0; index<scheduleDates.length; index++) {
+                if (scheduleDates[index] === findDate) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
 
     $(function() {          
         var $timeTable = $(".time-hour");
@@ -790,6 +802,13 @@
                     $("#addDialog").modal("hide");
 
                     loadPhysicalWorklist();
+                    
+                    if (!hasScheduleDate(date)) {
+                        var selectedDate = $("#modify-date-selection").datepicker("getDate");
+                        var year = $.datepicker.formatDate("yy", selectedDate);
+                        var month = $.datepicker.formatDate("mm", selectedDate);
+                        getPhysicalScheduleDates(year, month);
+                    }
                 }).fail(function() {
                    alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
                 });

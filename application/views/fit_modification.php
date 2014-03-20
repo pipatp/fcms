@@ -299,6 +299,9 @@
     var selectedWorklist;
     var $selectedRow;
     
+    var scheduleDates = undefined;
+    var permission = <?php echo json_encode($permission) ?>;
+    
     function addDetail($detailDiv, key, val) {
         $detailDiv.append("<tr><td style='padding-left: 5px;font-weight: bold; text-align:right'>" + key + "</td><td style='padding-left: 10px;'>" + val + "</td></tr>");
     }
@@ -358,6 +361,11 @@
             
             loadFitnessWorklist();
             
+            var selectedDate = $("#modify-date-selection").datepicker("getDate");
+            var year = $.datepicker.formatDate("yy", selectedDate);
+            var month = $.datepicker.formatDate("mm", selectedDate);
+            getFitnessScheduleDates(year, month);
+            
             $("#player-modification-detail").show();
             
             return false;
@@ -393,16 +401,22 @@
         var $row = $("<tr>", { "data-worklist-seq": item.WklPwlSeq, "data-item-seq": item.WklSeqNum,
             "data-item-code": item.WklOdrCod });
         
-        var $deleteItem = $("<img>", { src: "../../images/delete.png" });
-        $deleteItem.click(function() {
-            var dialog = $("#confirmDialog");
-             
-            $selectedRow = $row;
-            
-            dialog.modal("show");
-        });
+        var $deleteCol = $("<td>", { class: "fix-content" });
         
-        $("<td>", { class: "fix-content" }).append($deleteItem).appendTo($row);
+        if (permission.delete) {
+            var $deleteItem = $("<img>", { src: "../../images/delete.png" });
+            $deleteItem.click(function() {
+                var dialog = $("#confirmDialog");
+
+                $selectedRow = $row;
+
+                dialog.modal("show");
+            });
+            
+            $deleteCol.append($deleteItem);
+        }
+        
+        $deleteCol.appendTo($row);
         $("<td>", { class: "fit-content" }).text(formatTime(item.WklStrDtm)).appendTo($row);
         $("<td>", { class: "fit-content" }).text(formatTime(item.WklEndDtm)).appendTo($row);
         $("<td>", { class: "content" }).text(item.OdrLocNam).appendTo($row);
@@ -438,9 +452,49 @@
     $("#modify-date-selection").datepicker({
         onSelect: function(dateText, inst) {
             loadFitnessWorklist();
+        },
+        beforeShowDay: function(date) {
+            if (scheduleDates) {
+                var showDate = $.datepicker.formatDate("yymmdd", date);
+
+                for (var index=0; index<scheduleDates.length; index++) {
+                    if (showDate === scheduleDates[index]) {
+                        return [true, "has-schedule", "Busy"];
+                    } else if (showDate < scheduleDates[index]) {
+                        break;
+                    }
+                }
+            }
+
+            return [true, ""];
+        },
+        onChangeMonthYear: function(year, month) {
+            var paddingMonth = month;
+            if (paddingMonth < 10) {
+                paddingMonth = "0" + paddingMonth;
+            }
+            getFitnessScheduleDates(year, paddingMonth);
         }
     });
     $("#modify-date-selection").datepicker("setDate", new Date());
+    
+    function getFitnessScheduleDates(year, month) {
+        scheduleDates = undefined;
+        
+        if (playerCode.length <= 0) {
+            return;
+        }
+        
+        $.get("getPlayerScheduleDates/" + playerCode + "/" + year + "/" + month).done(function(result) {
+            var appointmentDates = jQuery.parseJSON(result);
+
+            scheduleDates = [];
+            for (var index=0; index<appointmentDates.length; index++) {
+                scheduleDates.push(appointmentDates[index].PwlAppDte);
+            }
+            $("#modify-date-selection").datepicker("refresh");
+        });
+    }
     
     function addPlayerComment(comment, success) {
         var result = {};
@@ -497,107 +551,9 @@
     var currentComment = "";
     var editMode = false;
     
-    $(".player-comment-section").dblclick(function() {
-        if (editMode) {
-            return false;
-        }
-        convertToTextArea($(this));
-    });
-    $(".player-comment-section").focusout(function() {
-        var $section = $(this);
-        
-        var $commentBox = $section.children(".stretch");
-        
-        if ($commentBox.val() === currentComment) {
-            convertToDiv($section);
-        } 
-        else {
-            addPlayerComment($commentBox.val(), function() {
-                convertToDiv($section);
-            });
-        }
-    });
-    
-    $(".player-comment-section .stretch").tooltip();
-    
     $("#confirmDialog").modal({ show: false });
     $("#addDialog").modal({ show: false });
     $("#errorDialog").modal({ show: false });
-    
-    $("#deleteConfirmButton").click(function() {
-        var dialog = $("#confirmDialog");
-        
-        dialog.attr("data-item-seq");
-        
-        dialog.modal("hide");
-        
-        var deleteItem = {};
-        deleteItem.worklistSeq = $selectedRow.attr("data-worklist-seq");
-        deleteItem.seqNum = $selectedRow.attr("data-item-seq");
-        deleteItem.itemCode = $selectedRow.attr("data-item-code");
-
-        $.post("deleteFitnessWorklist", JSON.stringify(deleteItem)).done(function() {
-            $selectedRow.detach();
-        }).fail(function() {
-           alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-        });
-    });
-    
-    $("#saveWorklistButton").click(function() {
-        var $addError = $("#add-error");
-        $addError.addClass("hidden");
-        
-        var $orderBox = $("#order-search-box");
-        
-        var orderCode = $orderBox.attr("data-order-code");
-
-        if (!orderCode) {
-            $addError.text("ข้อมูลไม่ครบถ้วน โปรดเลือกรายการฟิตเนส");
-            $addError.removeClass("hidden");
-            return;
-        }
-        
-        var start = $(".hour-selection")[0].value + $(".minute-selection")[0].value;
-        var end = $(".hour-selection")[1].value + $(".minute-selection")[1].value;
-
-        if (start >= end) {
-            $addError.text("ข้อมูลผิดพลาด เวลาเริ่มต้นไม่สามารถมากกว่าหรือเท่ากับเวลาสิ้นสุด");
-            $addError.removeClass("hidden");
-            return;
-        }
-
-        if (selectedWorklist) {
-            for (var index=0; index<selectedWorklist.length; index++) {
-                var item = selectedWorklist[index];
-                
-                if ((start >= item.WklStrDtm && start < item.WklEndDtm) ||
-                    (end > item.WklStrDtm && end <= item.WklEndDtm)) {
-                    $addError.text("มีรายการอยู่แล้วในช่วงเวลาที่เลือก โปรดเลือกช่วงเวลาใหม่");
-                    $addError.removeClass("hidden");
-                    return;
-                }
-            }
-        }
-
-        var selectedDate = $("#modify-date-selection").datepicker("getDate");
-        var date = $.datepicker.formatDate("yymmdd", selectedDate);
-        
-        var addItem = {};
-        addItem.playerCode = playerCode;
-        addItem.date = date;
-        addItem.orderCode = $("#order-search-box").attr("data-order-code");
-        addItem.start = start;
-        addItem.end = end;
-        addItem.duration = calculateDuration(start, end);
-
-        $.post("addFitnessWorklist", JSON.stringify(addItem)).done(function() {
-            $("#addDialog").modal("hide");
-            
-            loadFitnessWorklist();
-        }).fail(function() {
-           alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-        });
-    });
     
     function calculateDuration(start, end) {
         var h1 = parseInt(start.substr(0, 2));
@@ -668,8 +624,6 @@
         });      
     });
     
-    $("#player-modification-detail").hide();
-    
     var startTimeDay = 5;
     var endTimeDay = 21;
 
@@ -738,6 +692,18 @@
             $("<option>", { value: zeroPadding(time) }).text(time).appendTo($option);
         }
     }
+    
+    function hasScheduleDate(findDate) {
+        if (scheduleDates) {
+            for (var index=0; index<scheduleDates.length; index++) {
+                if (scheduleDates[index] === findDate) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
 
     $(function() {          
         var $timeTable = $(".time-hour");
@@ -751,5 +717,119 @@
         }
         
         initializeTimeSelectOption();
+        
+        if (!permission.write) {
+            $(".fitness-worklist-add").addClass("hidden");
+        }
+        else {
+            $(".player-comment-section").dblclick(function() {
+                if (editMode) {
+                    return false;
+                }
+                convertToTextArea($(this));
+            });
+            $(".player-comment-section").focusout(function() {
+                var $section = $(this);
+
+                var $commentBox = $section.children(".stretch");
+
+                if ($commentBox.val() === currentComment) {
+                    convertToDiv($section);
+                } 
+                else {
+                    addPlayerComment($commentBox.val(), function() {
+                        convertToDiv($section);
+                    });
+                }
+            });
+
+            $(".player-comment-section .stretch").tooltip();
+            
+            $("#saveWorklistButton").click(function() {
+                var $addError = $("#add-error");
+                $addError.addClass("hidden");
+
+                var $orderBox = $("#order-search-box");
+
+                var orderCode = $orderBox.attr("data-order-code");
+
+                if (!orderCode) {
+                    $addError.text("ข้อมูลไม่ครบถ้วน โปรดเลือกรายการฟิตเนส");
+                    $addError.removeClass("hidden");
+                    return;
+                }
+
+                var start = $(".hour-selection")[0].value + $(".minute-selection")[0].value;
+                var end = $(".hour-selection")[1].value + $(".minute-selection")[1].value;
+
+                if (start >= end) {
+                    $addError.text("ข้อมูลผิดพลาด เวลาเริ่มต้นไม่สามารถมากกว่าหรือเท่ากับเวลาสิ้นสุด");
+                    $addError.removeClass("hidden");
+                    return;
+                }
+
+                if (selectedWorklist) {
+                    for (var index=0; index<selectedWorklist.length; index++) {
+                        var item = selectedWorklist[index];
+
+                        if ((start >= item.WklStrDtm && start < item.WklEndDtm) ||
+                            (end > item.WklStrDtm && end <= item.WklEndDtm)) {
+                            $addError.text("มีรายการอยู่แล้วในช่วงเวลาที่เลือก โปรดเลือกช่วงเวลาใหม่");
+                            $addError.removeClass("hidden");
+                            return;
+                        }
+                    }
+                }
+
+                var selectedDate = $("#modify-date-selection").datepicker("getDate");
+                var date = $.datepicker.formatDate("yymmdd", selectedDate);
+
+                var addItem = {};
+                addItem.playerCode = playerCode;
+                addItem.date = date;
+                addItem.orderCode = $("#order-search-box").attr("data-order-code");
+                addItem.start = start;
+                addItem.end = end;
+                addItem.duration = calculateDuration(start, end);
+
+                $.post("addFitnessWorklist", JSON.stringify(addItem)).done(function() {
+                    $("#addDialog").modal("hide");
+
+                    loadFitnessWorklist();
+                    
+                    if (!hasScheduleDate(date)) {
+                        var selectedDate = $("#modify-date-selection").datepicker("getDate");
+                        var year = $.datepicker.formatDate("yy", selectedDate);
+                        var month = $.datepicker.formatDate("mm", selectedDate);
+                        getFitnessScheduleDates(year, month);
+                    }
+                }).fail(function() {
+                   alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+                });
+            });
+        }
+        
+        if (permission.delete) {
+            $("#deleteConfirmButton").click(function() {
+                var dialog = $("#confirmDialog");
+
+                dialog.attr("data-item-seq");
+
+                dialog.modal("hide");
+
+                var deleteItem = {};
+                deleteItem.worklistSeq = $selectedRow.attr("data-worklist-seq");
+                deleteItem.seqNum = $selectedRow.attr("data-item-seq");
+                deleteItem.itemCode = $selectedRow.attr("data-item-code");
+
+                $.post("deleteFitnessWorklist", JSON.stringify(deleteItem)).done(function() {
+                    $selectedRow.detach();
+                }).fail(function() {
+                   alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+                });
+            });
+        }
+        
+        $("#player-modification-detail").hide();
     });
 </script>

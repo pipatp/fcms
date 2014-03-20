@@ -1,12 +1,28 @@
 <?php
 
 class fitness extends CI_Controller {
+    public $permission;
+    
     function fitness() {
         parent::__construct();
         
+        $this->load->library('permission');
+        
         if (!$this->session->userdata('user_login')) {
-                redirect('../main/login');
+                redirect('main/login');
         }
+        
+        if (!$this->session->userdata('user_permission')) {
+            redirect('main/menu');
+        }
+        
+        $perms = $this->session->userdata('user_permission');
+        
+        if (!array_key_exists('FIT', $perms)) {
+            redirect('main/menu');
+        }
+        
+        $this->permission = $perms["FIT"];
     }
     
     protected function getQueryStringParams() {
@@ -52,7 +68,9 @@ class fitness extends CI_Controller {
     // Fitness Modification
     //----------------------------------------------
     function viewModification() {
-        $this->load->view('fit_modification');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('fit_modification', $data);
     }
     
     function getFitnessWorklist($playerCode, $date) {
@@ -132,11 +150,21 @@ class fitness extends CI_Controller {
         }
     }
     
+    function getPlayerScheduleDates($playerCode, $year, $month) {
+        $this->load->model('worklist_model');
+        
+        $data["content"] = $this->worklist_model->getPlayerScheduleDates($playerCode, $year, $month);
+        
+        return $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Fitness Record Result
     //----------------------------------------------
     function viewRecordResult() {
-        $this->load->view('fit_record_result');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('fit_record_result', $data);
     }
     
     function getFitnessResult($playerCode, $date) {
