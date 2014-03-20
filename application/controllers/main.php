@@ -60,6 +60,8 @@ class main extends CI_Controller {
         
         $data["loginSession"] = $loginSession;
         
+        $data["permissions"] = $this->session->userdata('user_permission');
+        
         $this->load->view('mnu_main', $data);
     }
     

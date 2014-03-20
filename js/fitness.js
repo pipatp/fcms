@@ -40,7 +40,7 @@ function viewPlayerInfo() {
 function selectTab(selectedTab) {
     clearAllIntervalTimer();
     
-    $(".sub-menu ul li ").removeClass("selected");
+    $(".sub-menu ul li").removeClass("selected");
     $(selectedTab).parent().addClass("selected");
 }
 
@@ -52,7 +52,7 @@ $(function() {
     });
                 
     // Set fitness tab selected
-    $(".top-menu ul li:eq(6)").addClass("selected");
+    $(".top-menu ul li.menu-fitness").addClass("selected");
     
     $("#fitness-register-tab").click(viewRegistration);
     $("#fitness-modification-tab").click(viewModification);

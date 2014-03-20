@@ -52,7 +52,7 @@ $(function() {
     });
                 
     // Set fitness tab selected
-    $(".top-menu ul li:eq(4)").addClass("selected");
+    $(".top-menu ul li.menu-physical").addClass("selected");
     
     $("#physical-register-tab").click(viewRegistration);
     $("#physical-modification-tab").click(viewModification);

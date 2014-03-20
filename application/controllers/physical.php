@@ -38,6 +38,8 @@ class physical extends CI_Controller {
         $data["showSubMenu"] = true;
         $data["subMenuView"] = "phy_navigation";
         
+        $data["permissions"] = $this->session->userdata('user_permission');
+        
         $this->load->view('phy_main', $data);
     }
     

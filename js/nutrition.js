@@ -103,7 +103,7 @@ $(function() {
     });
                 
     // Set nutrition tab selected
-    $(".top-menu ul li:eq(5)").addClass("selected");
+    $(".top-menu ul li.menu-nutrition").addClass("selected");
 //    $(".sub-menu ul li:eq(0)").addClass("selected");
     
     $("#register-tab").click(viewRegistration);

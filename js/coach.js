@@ -6,7 +6,7 @@ $(function() {
     });
                 
     // Set coach tab selected
-    $(".top-menu ul li:eq(7)").addClass("selected");
+    $(".top-menu ul li.menu-coach").addClass("selected");
     
     $("#coach-schedule-tab").click(viewSchedule);
     $("#coach-fitness-tab").click(viewFitness);

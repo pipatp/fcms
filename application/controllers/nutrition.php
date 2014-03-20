@@ -22,6 +22,8 @@ class nutrition extends CI_Controller {
         $data["showSubMenu"] = true;
         $data["subMenuView"] = "nut_navigation";
         
+        $data["permissions"] = $this->session->userdata('user_permission');
+        
         $this->load->view('nut_main', $data);
     }
     

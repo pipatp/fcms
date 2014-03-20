@@ -38,6 +38,8 @@ class fitness extends CI_Controller {
         $data["showSubMenu"] = true;
         $data["subMenuView"] = "fit_navigation";
         
+        $data["permissions"] = $this->session->userdata('user_permission');
+        
         $this->load->view('fit_main', $data);
     }
     

@@ -38,6 +38,8 @@ class coach extends CI_Controller {
         $data["showSubMenu"] = true;
         $data["subMenuView"] = "coa_navigation";
         
+        $data["permissions"] = $this->session->userdata('user_permission');
+        
         $this->load->view('coa_main', $data);
     }
     

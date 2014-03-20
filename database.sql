@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `capinf` (
   `CapUpdDts` char(14) default NULL,
   PRIMARY KEY  (`CapSeqNum`),
   KEY `CapUsrCod_CapWklDte` (`CapUsrCod`,`CapWklDte`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.capinf: ~5 rows (approximately)
 /*!40000 ALTER TABLE `capinf` DISABLE KEYS */;
@@ -34,7 +34,11 @@ INSERT INTO `capinf` (`CapSeqNum`, `CapUsrCod`, `CapWklDte`, `CapAppDtl`, `CapUp
 	(2, 'test', '20140307', NULL, 'test', '20140307233643'),
 	(3, 'test', '20140305', NULL, 'test', '20140307235905'),
 	(4, 'test', '20140304', '123', 'test', '2014030804851'),
-	(5, 'test1', '20140307', 'comment', 'test1', '20140319231908');
+	(5, 'test1', '20140307', 'comment', 'test1', '20140319231908'),
+	(6, 'test1', '20140306', 'test test', 'test1', '20140321001138'),
+	(7, 'test1', '20140310', NULL, 'test1', '20140321000932'),
+	(8, 'test1', '20140318', NULL, 'test1', '20140321001112'),
+	(9, 'test1', '20140319', 'test', 'test1', '20140321001146');
 /*!40000 ALTER TABLE `capinf` ENABLE KEYS */;
 
 
@@ -72,7 +76,10 @@ CREATE TABLE IF NOT EXISTS `cwlinf` (
 /*!40000 ALTER TABLE `cwlinf` DISABLE KEYS */;
 INSERT INTO `cwlinf` (`CwlCapSeq`, `CwlSeqNum`, `CwlStrDtm`, `CwlEndDtm`, `CwlSchDtl`, `CwlUpdUid`, `CwlUpdDts`) VALUES
 	(2, 1, '0100', '0400', 'test', 'test', '2014030800101'),
-	(5, 1, '0200', '0300', 'Go home', 'test1', '20140319231926');
+	(5, 1, '0200', '0300', 'Go home', 'test1', '20140319231926'),
+	(6, 1, '0000', '0030', 'Sleeping', 'test1', '20140321000908'),
+	(7, 1, '0000', '0030', 'Calling Home', 'test1', '20140321000932'),
+	(8, 1, '0700', '0800', 'Have breakfast', 'test1', '20140321001112');
 /*!40000 ALTER TABLE `cwlinf` ENABLE KEYS */;
 
 
@@ -1251,13 +1258,18 @@ CREATE TABLE IF NOT EXISTS `pmsmst` (
   PRIMARY KEY  (`PmsUsrCod`,`PmsDepCod`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Permission master';
 
--- Dumping data for table fcms.pmsmst: 3 rows
+-- Dumping data for table fcms.pmsmst: 4 rows
 /*!40000 ALTER TABLE `pmsmst` DISABLE KEYS */;
 INSERT INTO `pmsmst` (`PmsUsrCod`, `PmsDepCod`, `PmsRea`, `PmsWrt`, `PmsEdt`, `PmsDel`) VALUES
 	('test', 'COA', 1, 0, 0, 0),
 	('test1', 'COA', 1, 1, 0, 0),
 	('test', 'PHY', 1, 0, 0, 1),
-	('test1', 'PHY', 1, 1, 0, 0);
+	('test1', 'PHY', 1, 1, 0, 0),
+	('test', 'FIT', 1, 0, 0, 1),
+	('test1', 'FIT', 1, 1, 0, 0),
+	('test1', 'NUT', 1, 1, 0, 0),
+	('test', 'NUT', 1, 0, 0, 1),
+	('test', 'WKL', 1, 0, 0, 1);
 /*!40000 ALTER TABLE `pmsmst` ENABLE KEYS */;
 
 
@@ -1327,7 +1339,7 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
   `PwlUpdUid` char(20) default NULL,
   `PwlUpdDts` char(14) default NULL,
   PRIMARY KEY  (`PwlSeqNum`,`PwlPlyCod`,`PwlAppDte`,`PwlAppTim`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.pwlinf: ~6 rows (approximately)
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
@@ -1337,7 +1349,9 @@ INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCu
 	(3, 'P00002', '20140308', '0530', 'A', NULL, NULL, NULL, NULL),
 	(4, 'P00002', '20140125', '0530', 'A', NULL, NULL, NULL, NULL),
 	(13, 'P00001', '20140316', '0530', 'N', NULL, NULL, 'test', '20140313010408'),
-	(14, 'P00001', '20140317', '0530', 'N', NULL, NULL, 'test', '20140313010903');
+	(14, 'P00001', '20140317', '0530', 'N', NULL, NULL, 'test', '20140313010903'),
+	(15, 'P00001', '20140320', '0530', 'N', NULL, NULL, 'test1', '20140321000110'),
+	(16, 'P00001', '20140311', '0530', 'N', NULL, NULL, 'test1', '20140321000332');
 /*!40000 ALTER TABLE `pwlinf` ENABLE KEYS */;
 
 
@@ -1407,7 +1421,15 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(3, 4, 'FIT000002', '0700', '0730', 30, 'N', NULL, NULL, NULL, NULL),
 	(13, 1, 'FIT000001', '0500', '0600', 60, 'N', NULL, NULL, 'test', '20140313010441'),
 	(13, 2, 'PHY000001', '0600', '0700', 60, 'N', NULL, NULL, 'test', '20140313010840'),
-	(14, 1, 'PHY000001', '1200', '1300', 60, 'N', NULL, NULL, 'test', '20140313010903');
+	(13, 3, 'FIT000002', '0700', '0800', 60, 'N', NULL, NULL, 'test1', '20140321000046'),
+	(14, 1, 'PHY000001', '1200', '1300', 60, 'N', NULL, NULL, 'test', '20140313010903'),
+	(14, 2, 'FIT000001', '0900', '1000', 60, 'N', NULL, NULL, 'test1', '20140320234307'),
+	(14, 3, 'FIT000003', '0500', '0600', 60, 'N', NULL, NULL, 'test1', '20140320234429'),
+	(14, 4, 'FIT000002', '0600', '0700', 60, 'N', NULL, NULL, 'test1', '20140320234621'),
+	(14, 5, 'FIT000004', '1000', '1030', 30, 'N', NULL, NULL, 'test1', '20140320234707'),
+	(15, 1, 'FIT000003', '0500', '0600', 60, 'N', NULL, NULL, 'test1', '20140321000110'),
+	(15, 2, 'PHY000001', '0600', '0700', 60, 'N', NULL, NULL, 'test1', '20140321000315'),
+	(16, 1, 'PHY000001', '0500', '0530', 30, 'N', NULL, NULL, 'test1', '20140321000332');
 /*!40000 ALTER TABLE `wklinf` ENABLE KEYS */;
 
 
