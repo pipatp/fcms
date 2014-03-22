@@ -74,9 +74,13 @@
     var tableHtml = "<table class='table table-striped table-condensed'>";
     tableHtml += "<thead>";
     tableHtml += "<th>#</th>";
+    tableHtml += "<th>เวลาเริ่ม</th>";
+    tableHtml += "<th>เวลาสิ้นสุด</th>";
+    tableHtml += "<th>ชื่อรายการ</th>";
     tableHtml += "<th>รูป</th>";
     tableHtml += "<th>ชื่อ</th>";
     tableHtml += "<th>นามสกุล</th>";
+    tableHtml += "<th></th>";
     tableHtml += "</tr>";
     tableHtml += "</thead>";
     tableHtml += "<tbody>";
@@ -85,9 +89,48 @@
     
     var $tableTemplate = $(tableHtml);
     
+    var permission = <?php echo json_encode($permission) ?>;
+    
     function getCurrentDate() {
         var currentDate = $.datepicker.formatDate("yymmdd", new Date());
         return currentDate;
+    }
+    
+    function createRegistrationWaitingListRow(rowNum, player) {
+        var $row = $("<tr>");
+        
+        $("<td>", { "class":"cell-normal" }).text(rowNum).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(formatDbTime(player.WklStrDtm)).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(formatDbTime(player.WklEndDtm)).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.OdrLocNam).appendTo($row);
+        
+        var $playerImage = $("<img>", { "class":"thumbnail-image", "src":"../player/thumbnail/" + player.PlyCod });
+        $("<td>", { "class":"cell-normal" }).append($playerImage).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.PlyFstNam).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.PlyFamNam).appendTo($row);
+        
+        if (permission.write) {
+            var $registerButton = $("<div>", { "class":"btn btn-info" });
+            $registerButton.text("ลงทะเบียน");
+            $registerButton.click(function() {
+                var registerInfo = {
+                    worklistSeq: player.WklPwlSeq,
+                    itemSeq: player.WklSeqNum,
+                    department: "PHY"
+                }
+                $.post("../worklist_item/registerWorklist", JSON.stringify(registerInfo)).done(function() {
+                    $row.detach();
+                }).fail(function() {
+                   alert("ไม่สามารถลงทะเบียนได้ โปรดลองอีกครั้งหนึ่ง");
+                });
+            });
+            $("<td>", { "class":"cell-normal" }).append($registerButton).appendTo($row);
+        }
+        else {
+            $("<td>", { "class":"cell-normal" }).appendTo($row);
+        }
+        
+        return $row;
     }
     
     function getRegistrationWaitingList() {
@@ -103,10 +146,7 @@
                 $table = $tableTemplate.clone();
                 $tableBody = $($table.find("tbody"));
                 for (var index=0; index<players.length; index++) {
-                    $tableBody.append("<tr><td class='cell-normal'>" + (index+1) + 
-                        "</td><td class='cell-normal'><img class=\"thumbnail-image\" src=\"../player/thumbnail/" + 
-                        players[index].PlyCod + "\" /></td><td class='cell-normal'>" + players[index].PlyFstNam + 
-                        "</td><td class='cell-normal'>" + players[index].PlyFamNam + "</td></tr>");
+                    createRegistrationWaitingListRow(index+1, players[index]).appendTo($tableBody);
                 }
 
                 $waitingList.append($table);
@@ -115,11 +155,28 @@
                 $waitingList.append("<div>** ไม่มีข้อมูลการลงทะเบียนของวันปัจจุบัน</div>");
             }
 
-            $waitingList.append("<div class='last-update-row'><b>ปรับปรุ่งล่าสุด:</b> " + new Date() + "</div>");
+            $waitingList.append("<div class='last-update-row'><b>ปรับปรุงล่าสุด:</b> " + new Date() + "</div>");
             phyRegistrationTimeout = setTimeout(function() { getRegistrationWaitingList(); }, pollingTime);
         }).fail(function(jqXHR, textStatus) {
             // Do nothing
         });
+    }
+    
+    function createRegistrationDoneListRow(rowNum, player) {
+        var $row = $("<tr>");
+        
+        $("<td>", { "class":"cell-normal" }).text(rowNum).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(formatDbTime(player.WklStrDtm)).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(formatDbTime(player.WklEndDtm)).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.OdrLocNam).appendTo($row);
+        
+        var $playerImage = $("<img>", { "class":"thumbnail-image", "src":"../player/thumbnail/" + player.PlyCod });
+        $("<td>", { "class":"cell-normal" }).append($playerImage).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.PlyFstNam).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.PlyFamNam).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).appendTo($row);
+        
+        return $row;
     }
     
     function getRegistrationReceiveList(mealVal) {
@@ -135,10 +192,7 @@
                 $table = $tableTemplate.clone();
                 $tableBody = $($table.find("tbody"));
                 for (var index=0; index<players.length; index++) {
-                    $tableBody.append("<tr><td class='cell-normal'>" + (index+1) + 
-                        "</td><td class='cell-normal'><img class=\"thumbnail-image\" src=\"../player/thumbnail/" + 
-                        players[index].PlyCod + "\" /></td><td class='cell-normal'>" + players[index].PlyFstNam + 
-                        "</td><td class='cell-normal'>" + players[index].PlyFamNam + "</td></tr>");
+                    createRegistrationDoneListRow(index+1, players[index]).appendTo($tableBody);
                 }
 
                 $receiveList.append($table);
@@ -147,7 +201,7 @@
                 $receiveList.append("<div>** ไม่มีข้อมูลการลงทะเบียนของวันปัจจุบัน</div>");
             }
 
-            $receiveList.append("<div class='last-update-row'><b>ปรับปรุ่งล่าสุด:</b> " + new Date() + "</div>");
+            $receiveList.append("<div class='last-update-row'><b>ปรับปรุงล่าสุด:</b> " + new Date() + "</div>");
             phyRegistrationTimeout = setTimeout(function() { getRegistrationReceiveList(); }, pollingTime);
         }).fail(function(jqXHR, textStatus) {
             // Do nothing

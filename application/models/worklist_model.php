@@ -15,6 +15,14 @@ class worklist_model extends CI_Model {
         return $query->result();
     }
     
+    function registerWorklist($worklistSeq, $itemSeq, $department) {
+        $data = array($worklistSeq, $itemSeq, $department);
+        
+        $this->db->query("CALL fn_registerWorklist(?, ?, ?)", $data);
+        
+        return $this->db->affected_rows() > 0;
+    }
+    
     function getPlayerWorklistSeq($playerCode, $date) {
         $data = array($playerCode, $date);
         

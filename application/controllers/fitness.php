@@ -47,7 +47,9 @@ class fitness extends CI_Controller {
     // Fitness Registration
     //----------------------------------------------
     function viewRegistration() {
-        $this->load->view('fit_registration');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('fit_registration', $data);
     }
     
     function getFitnessWaitingList($date) {

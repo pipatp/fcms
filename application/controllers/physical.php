@@ -48,7 +48,9 @@ class physical extends CI_Controller {
     // Physical Therapy Registration
     //----------------------------------------------
     function viewRegistration() {
-        $this->load->view('phy_registration');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('phy_registration', $data);
     }
     
     function getPhysicalWaitingList($date) {

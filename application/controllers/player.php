@@ -3,10 +3,6 @@
 class player extends CI_Controller {
     function player() {
         parent::__construct();
-        
-//        if (!$this->session->userdata('user_login')) {
-//            redirect('main/login');
-//        }
     }
     
     protected function getQueryStringParams() {
