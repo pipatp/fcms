@@ -253,6 +253,9 @@
         "DES" : "NUTDES001",
         "DIN" : "NUTDIN001"
     };
+    
+    var scheduleDates = undefined;
+    var permission = <?php echo json_encode($permission) ?>;
 
     function getSelectionDate() {
         var selectedDate = $("#modify-date-selection").datepicker("getDate");
@@ -339,6 +342,11 @@
             $("#player-search-box").val("");
 
             displayPlayerInfo(ui.item);
+            
+            var selectedDate = $("#modify-date-selection").datepicker("getDate");
+            var year = $.datepicker.formatDate("yy", selectedDate);
+            var month = $.datepicker.formatDate("mm", selectedDate);
+            getNutritionScheduleDates(year, month);
             
             return false;
         }
@@ -510,10 +518,50 @@
 //                
 //                getPlayerMealSet(yearMonth, day);
 //            });
+        },
+        beforeShowDay: function(date) {
+            if (scheduleDates) {
+                var showDate = $.datepicker.formatDate("yymmdd", date);
+
+                for (var index=0; index<scheduleDates.length; index++) {
+                    if (showDate === scheduleDates[index]) {
+                        return [true, "has-schedule", "Busy"];
+                    } else if (showDate < scheduleDates[index]) {
+                        break;
+                    }
+                }
+            }
+
+            return [true, ""];
+        },
+        onChangeMonthYear: function(year, month) {
+            var paddingMonth = month;
+            if (paddingMonth < 10) {
+                paddingMonth = "0" + paddingMonth;
+            }
+            getNutritionScheduleDates(year, paddingMonth);
         }
      });
     
     $("#modify-date-selection").datepicker("setDate", new Date());
+    
+    function getNutritionScheduleDates(year, month) {
+        scheduleDates = undefined;
+        
+        if (playerCode.length <= 0) {
+            return;
+        }
+        
+        $.get("getPlayerScheduleDates/" + playerCode + "/" + year + "/" + month).done(function(result) {
+            var appointmentDates = jQuery.parseJSON(result);
+
+            scheduleDates = [];
+            for (var index=0; index<appointmentDates.length; index++) {
+                scheduleDates.push(appointmentDates[index].PwlAppDte);
+            }
+            $("#modify-date-selection").datepicker("refresh");
+        });
+    }
     
     function addFoodItem() {
         var selectedTabIndex = $("#player-meal-modification-tab").tabs('option', 'active');

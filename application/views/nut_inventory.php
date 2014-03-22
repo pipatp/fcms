@@ -357,7 +357,7 @@
     </div>
 </div>
 <script>
-    var storeCategory = "NUT";
+    var storeCategory = "<?php echo $inventory_department ?>";
     
     $(function() {
         $("#inventory-section").tabs({
@@ -646,8 +646,8 @@
             
             var item = {};
             item.code = $row.attr("data-item-code");
-            item.amount = $row.children().eq(1).text();
-            item.price = $row.children().eq(3).text();
+            item.amount = parseInt($row.children().eq(1).text());
+            item.price = parseInt($row.children().eq(3).text());
             if ($row.children().eq(4).attr("data-expire")) {
                 item.expire = 0;
                 item.expireDate = null;
@@ -664,7 +664,7 @@
             storeInTrans.items.push(item);
         }
         
-        $.post("storeInInventory", JSON.stringify(storeInTrans)).done(function() {
+        $.post("../nutrition/storeInInventory", JSON.stringify(storeInTrans)).done(function() {
             cleaStoreInTransaction();
         }).fail(function() {
            alert("ไม่สามารถเพิ่มข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
@@ -706,7 +706,7 @@
             deliverTrans.items.push(item);
         }
         
-        $.post("deliverInventory", JSON.stringify(deliverTrans)).done(function() {
+        $.post("../nutrition/deliverInventory", JSON.stringify(deliverTrans)).done(function() {
             clearDeliverTransaction();
         }).fail(function(jqXHR) {
             if (jqXHR.status === 403) {
@@ -735,7 +735,7 @@
     }
     
     function refreshStockItems() {
-        $.get("getInvetoryStock/" + storeCategory).done(function(result) {
+        $.get("../nutrition/getInvetoryStock/" + storeCategory).done(function(result) {
             var items = jQuery.parseJSON(result);
             
             var $tableBody = $("#stock-table tbody");
@@ -763,7 +763,7 @@
     }
     
     function getExpireInventoryItems() {
-        $.get("getExpireInventoryItems/" + storeCategory).done(function(result) {
+        $.get("../nutrition/getExpireInventoryItems/" + storeCategory).done(function(result) {
             var items = jQuery.parseJSON(result);
             
             var $tableBody = $("#expire-table tbody");
@@ -804,7 +804,7 @@
             deliverTrans.itemSeq = item.InvSdtSeq;
             deliverTrans.itemAmount = item.InvOdrRem;
             
-            $.post("deliverExpireInventoryItem", JSON.stringify(deliverTrans)).done(function() {
+            $.post("../nutrition/deliverExpireInventoryItem", JSON.stringify(deliverTrans)).done(function() {
                 $row.detach();
             }).fail(function() {
                 alert("ไม่สามารถจ่ายออกได้ โปรดลองใหม่อีกครั้ง");

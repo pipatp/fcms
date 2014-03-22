@@ -197,4 +197,16 @@ class physical extends CI_Controller {
         
         $this->load->view('json_result', $data);
     }
+    
+    //----------------------------------------------
+    // Physical Therapy Inventory
+    //--
+    function viewInventory() {
+        $this->load->model('inventory_model');
+        
+        $data["inventory_items"] = $this->inventory_model->getAllInventoryItems();
+        $data["inventory_department"] = "PHY";
+        
+        $this->load->view('nut_inventory', $data);
+    }
 }

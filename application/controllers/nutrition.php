@@ -1,12 +1,28 @@
 <?php
 
 class nutrition extends CI_Controller {
+    public $permission;
+    
     function nutrition() {
         parent::__construct();
+        
+        $this->load->library('permission');
         
         if (!$this->session->userdata('user_login')) {
                 redirect('main/login');
         }
+        
+        if (!$this->session->userdata('user_permission')) {
+            redirect('main/menu');
+        }
+        
+        $perms = $this->session->userdata('user_permission');
+        
+        if (!array_key_exists('NUT', $perms)) {
+            redirect('main/menu');
+        }
+        
+        $this->permission = $perms["NUT"];
    }
     
     protected function getQueryStringParams() {
@@ -58,7 +74,9 @@ class nutrition extends CI_Controller {
     // Food Preparation
     //----------------------------------------------
     function viewPreparation() {
-        $this->load->view('nut_preparation');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('nut_preparation', $data);
     }
     
     function getFoodMealSet($yearMonth, $day) {
@@ -115,13 +133,21 @@ class nutrition extends CI_Controller {
         $this->load->view('json_result', $data);
     }
     
+    function getPlayerScheduleDates($playerCode, $year, $month) {
+        $this->load->model('worklist_model');
+        
+        $data["content"] = $this->worklist_model->getPlayerScheduleDates($playerCode, $year, $month);
+        
+        return $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Meal Modification
     //----------------------------------------------
     function viewMealModification() {
-        $this->load->model('nutrition_model');
-             
-        $this->load->view('nut_modification');
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('nut_modification', $data);
     }
     
     function findPlayer() {
@@ -197,6 +223,7 @@ class nutrition extends CI_Controller {
         $this->load->model('inventory_model');
         
         $data["inventory_items"] = $this->inventory_model->getAllInventoryItems();
+        $data["inventory_department"] = "NUT";
         
         $this->load->view('nut_inventory', $data);
     }

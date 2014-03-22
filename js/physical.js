@@ -37,6 +37,17 @@ function viewPlayerInfo() {
         $content.html(result);
     });
 }
+
+function viewInventory() {
+    selectTab(this);
+
+    $.ajax("viewInventory").done(function(result) {
+        var $content = $(".content-body");
+
+        $content.html(result);
+    });
+}
+
 function selectTab(selectedTab) {
     clearAllIntervalTimer();
     
@@ -58,6 +69,7 @@ $(function() {
     $("#physical-modification-tab").click(viewModification);
     $("#physical-result-tab").click(viewRecordResult);
     $("#physical-info-tab").click(viewPlayerInfo);
+    $("#physical-stock-tab").click(viewInventory);
 });
 
 // Global function

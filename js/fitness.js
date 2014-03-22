@@ -37,6 +37,17 @@ function viewPlayerInfo() {
         $content.html(result);
     });
 }
+
+function viewInventory() {
+    selectTab(this);
+
+    $.ajax("viewInventory").done(function(result) {
+        var $content = $(".content-body");
+
+        $content.html(result);
+    });
+}
+
 function selectTab(selectedTab) {
     clearAllIntervalTimer();
     
@@ -58,6 +69,7 @@ $(function() {
     $("#fitness-modification-tab").click(viewModification);
     $("#fitness-result-tab").click(viewRecordResult);
     $("#fitness-info-tab").click(viewPlayerInfo);
+    $("#fitness-stock-tab").click(viewInventory);
 });
 
 // Global function
