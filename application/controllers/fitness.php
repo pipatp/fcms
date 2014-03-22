@@ -72,6 +72,9 @@ class fitness extends CI_Controller {
     // Fitness Modification
     //----------------------------------------------
     function viewModification() {
+        $this->load->model('player_model');
+        
+        $data["players"] = $this->player_model->getAllPlayers();
         $data["permission"] = $this->permission;
         
         $this->load->view('fit_modification', $data);
@@ -166,6 +169,9 @@ class fitness extends CI_Controller {
     // Fitness Record Result
     //----------------------------------------------
     function viewRecordResult() {
+        $this->load->model('player_model');
+        
+        $data["players"] = $this->player_model->getAllPlayers();
         $data["permission"] = $this->permission;
         
         $this->load->view('fit_record_result', $data);
@@ -204,7 +210,10 @@ class fitness extends CI_Controller {
     // Fitness Player Info
     //----------------------------------------------
     function viewPlayerInfo() {
-        $this->load->view('fit_player_info');
+        $this->load->model('player_model');
+        
+        $data["players"] = $this->player_model->getAllPlayers();
+        $this->load->view('fit_player_info', $data);
     }
     
     function getPlayerInfo($playerCode, $date) {

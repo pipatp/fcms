@@ -73,6 +73,9 @@ class physical extends CI_Controller {
     // Physical Therapy Modification
     //----------------------------------------------
     function viewModification() {
+        $this->load->model('player_model');
+        
+        $data["players"] = $this->player_model->getAllPlayers();
         $data["permission"] = $this->permission;
         
         $this->load->view('phy_modification', $data);
@@ -167,6 +170,10 @@ class physical extends CI_Controller {
     // Physical Therapy Record Result
     //----------------------------------------------
     function viewRecordResult() {
+        $this->load->model('player_model');
+        
+        $data["players"] = $this->player_model->getAllPlayers();
+        
         $data["permission"] = $this->permission;
         
         $this->load->view('phy_record_result', $data);
@@ -187,7 +194,11 @@ class physical extends CI_Controller {
     // Physical Therapy Player Info
     //----------------------------------------------
     function viewPlayerInfo() {
-        $this->load->view('fit_player_info');
+        $this->load->model('player_model');
+        
+        $data["players"] = $this->player_model->getAllPlayers();
+        
+        $this->load->view('fit_player_info', $data);
     }
     
     function getPlayerInfo($playerCode, $date) {

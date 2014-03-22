@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `capinf` (
   KEY `CapUsrCod_CapWklDte` (`CapUsrCod`,`CapWklDte`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.capinf: ~5 rows (approximately)
+-- Dumping data for table fcms.capinf: ~9 rows (approximately)
 /*!40000 ALTER TABLE `capinf` DISABLE KEYS */;
 INSERT INTO `capinf` (`CapSeqNum`, `CapUsrCod`, `CapWklDte`, `CapAppDtl`, `CapUpdUid`, `CapUpdDts`) VALUES
 	(1, 'test', '20140306', '333', 'test', '2014030804909'),
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `cwlinf` (
   PRIMARY KEY  (`CwlCapSeq`,`CwlSeqNum`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.cwlinf: ~2 rows (approximately)
+-- Dumping data for table fcms.cwlinf: ~5 rows (approximately)
 /*!40000 ALTER TABLE `cwlinf` DISABLE KEYS */;
 INSERT INTO `cwlinf` (`CwlCapSeq`, `CwlSeqNum`, `CwlStrDtm`, `CwlEndDtm`, `CwlSchDtl`, `CwlUpdUid`, `CwlUpdDts`) VALUES
 	(2, 1, '0100', '0400', 'test', 'test', '2014030800101'),
@@ -194,28 +194,73 @@ DELIMITER ;
 
 -- Dumping structure for procedure fcms.fn_addPlayerMealItem
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addPlayerMealItem`(IN `p_worklistSeq` INT, IN `p_orderCode` VARCHAR(20), IN `p_mealCode` VARCHAR(20), IN `p_mealWeight` INT, IN `p_mealCalorie` INT, IN `p_yearMonth` VARCHAR(6), IN `p_date` VARCHAR(2))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addPlayerMealItem`(IN `p_playerCode` VARCHAR(20), IN `p_yearMonth` VARCHAR(6), IN `p_day` VARCHAR(2), IN `p_orderCode` VARCHAR(20), IN `p_mealCode` VARCHAR(20), IN `p_mealWeight` INT, IN `p_mealCalorie` INT, IN `p_user` VARCHAR(20))
 BEGIN
+	DECLARE l_playerWorklist INTEGER;
+	DECLARE l_worklistSeq INTEGER;
+	DECLARE l_date CHAR(8);
+	DECLARE l_start CHAR(12);
+	DECLARE l_end CHAR(12);
+	DECLARE l_duration SMALLINT;
 	DECLARE l_seq INTEGER;
+	DECLARE l_timestamp CHAR(14);
 	
-	DECLARE l_exists INTEGER;
-	SET l_exists = 0;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+	END;
 	
-	SELECT 1 INTO l_exists FROM wklinf wl WHERE wl.WklPwlSeq = p_worklistSeq AND wl.WklOdrCod = p_orderCode;
+	START TRANSACTION;
 	
-	IF l_exists = 0 THEN
-		CALL pRaiseError("this is a sample error message");
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	SET l_date = CONCAT(p_yearMonth, p_day);
+	
+	SELECT PwlSeqNum INTO l_playerWorklist FROM pwlinf pw WHERE pw.PwlPlyCod = p_playerCode AND pw.PwlAppDte = l_date;
+
+	IF l_playerWorklist IS NULL THEN
+		INSERT INTO pwlinf(PwlPlyCod, PwlAppDte, PwlAppTim, PwlCurStt, PwlUpdUid, PwlUpdDts) 
+		VALUES (p_playerCode, p_date, '0530', 'N', p_user, l_timestamp);
+		
+		SET l_playerWorklist = LAST_INSERT_ID();
+	END IF;
+
+	SELECT WklSeqNum INTO l_worklistSeq FROM wklinf wi WHERE WklPwlSeq = l_playerWorklist AND WklOdrCod = p_orderCode;
+	
+	IF l_worklistSeq IS NULL THEN
+		SELECT IFNULL(MAX(wi.WklSeqNum), 0) + 1 INTO l_worklistSeq FROM wklInf wi WHERE wi.WklPwlSeq = l_playerWorklist;
+		
+		SET l_duration = 60;
+		
+		IF p_orderCode = "NUTBRK001" THEN
+			SET l_start = "0800";
+			SET l_end = "0900";
+		ELSEIF p_orderCode = "NUTLNH001" THEN
+			SET l_start = "1200";
+			SET l_end = "1300";
+		ELSEIF p_orderCode = "NUTDES001" THEN
+			SET l_start = "1500";
+			SET l_end = "1530";
+			SET l_duration = 30;
+		ELSE
+			SET l_start = "1800";
+			SET l_end = "1900";
+		END IF;
+
+		INSERT INTO wklinf(WklPwlSeq, WklSeqNum, WklOdrCod, WklStrDtm, WklEndDtm, WklActDur, WklCurStt, WklUpdUid, WklUpdDts)
+		VALUES (l_playerWorklist, l_worklistSeq, p_orderCode, l_start, l_end, l_duration, 'N', p_user, l_timestamp);
 	END IF;
 	
-	SELECT IFNULL(MAX(wm.WkmMelSeq), 0) + 1 INTO l_seq FROM wkmInf wm WHERE wm.WkmPwlSeq = p_worklistSeq AND wm.WkmOdrCod = p_orderCode;
+	SELECT IFNULL(MAX(wm.WkmMelSeq), 0) + 1 INTO l_seq FROM wkmInf wm WHERE wm.WkmPwlSeq = l_playerWorklist AND wm.WkmOdrCod = p_orderCode;
 	
-	INSERT INTO wkminf(WkmPwlSeq, WkmOdrCod, WkmMelSeq, WkmMelCod, WkmMelWeg, WkmMelCal, WkmEdtYon, WkmMelYrm, WkmMelDay, WkmOdrStt)
-	VALUES (p_worklistSeq, p_orderCode, l_seq, p_mealCode, p_mealWeight, p_mealCalorie, 'N', p_yearMonth, p_date, 'N');
+	INSERT INTO wkminf(WkmPwlSeq, WkmOdrCod, WkmMelSeq, WkmMelCod, WkmMelWeg, WkmMelCal, WkmEdtYon, WkmMelYrm, WkmMelDay, WkmOdrStt, WkmUpdUid, WkmUpdDts)
+	VALUES (l_playerWorklist, p_orderCode, l_seq, p_mealCode, p_mealWeight, p_mealCalorie, 'N', p_yearMonth, p_day, 'N', p_user, l_timestamp);
 	
 	SELECT wm.WkmPwlSeq, wm.WkmMelSeq, wm.WkmOdrCod, wm.WkmMelCod, wm.WkmMelWeg, wm.WkmMelCal, om.OdrLocNam, om2.OdrSubTyp
 	FROM wkminf wm, odrmst om, odrmst om2
 	WHERE wm.WkmMelCod = om.OdrCod AND wm.WkmOdrCod = om2.OdrCod AND
-		wm.WkmPwlSeq = p_worklistSeq AND wm.WkmOdrCod = p_orderCode AND wm.WkmMelSeq = l_seq;
+		wm.WkmPwlSeq = l_playerWorklist AND wm.WkmOdrCod = p_orderCode AND wm.WkmMelSeq = l_seq;
+	
+	COMMIT;
 END//
 DELIMITER ;
 
@@ -303,7 +348,7 @@ BEGIN
 	
 	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
 	
-	INSERT INTO invsdt
+	INSERT INTO invsdt(InvSitSeq, InvOdrCod, InvOdrAmt, InvOdrRem, InvOdrPrc, InvExpTyp, InvExpDte, InvCatTyp, InvUpdUid, InvUpdDte)
 	VALUES (p_storeInSeq, p_code, p_amount, p_amount, p_price, p_expire, p_expireDate, p_category, p_user, l_timestamp);
 END//
 DELIMITER ;
@@ -345,15 +390,9 @@ DELIMITER ;
 
 -- Dumping structure for procedure fcms.fn_deleteFoodMeal
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_deleteFoodMeal`(IN `p_yearMonth` VARCHAR(6), IN `p_day` VARCHAR(2), IN `p_weekDay` SMALLINT, IN `p_type` VARCHAR(3), IN `p_code` VARCHAR(20))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_deleteFoodMeal`(IN `p_mealSeq` INT, IN `p_itemSeq` INT)
 BEGIN
-	DECLARE l_ommNum INTEGER;
-	
-	SELECT o.OmmNum INTO l_ommNum FROM ommmst o WHERE o.OmmYrm = p_yearMonth AND o.OmmDay = p_day AND o.OmmTyp = p_type;
-
-	IF l_ommNum IS NOT NULL THEN
-		DELETE FROM omdmst WHERE OmdNum = l_ommNum AND OmdOdrCod = p_code;
-	END IF;
+	DELETE FROM omdmst WHERE OmdNum = p_mealSeq AND OmdSeq = p_itemSeq;
 END//
 DELIMITER ;
 
@@ -445,6 +484,18 @@ BEGIN
 	FROM plyinf p
 	WHERE p.PlyFstNam LIKE CONCAT('%', p_term, '%') OR p.PlyFamNam LIKE CONCAT('%', p_term, '%') OR
 		p.PlyFstEng LIKE CONCAT('%', p_term, '%') OR p.PlyFamEng LIKE CONCAT('%', p_term, '%');
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getAllFoodMeal
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getAllFoodMeal`()
+BEGIN
+	SELECT * 
+	FROM odrmst om 
+	WHERE om.OdrCatTyp = 'NUT' AND om.OdrSubTyp = 'DTL'
+	ORDER BY OdrLocNam;
 END//
 DELIMITER ;
 
@@ -557,7 +608,7 @@ DELIMITER ;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getFoodMealSet`(IN `p_yearMonth` VARCHAR(6), IN `p_day` VARCHAR(2))
 BEGIN
-	SELECT od.OmdMelWeg, od.OmdMelCal, mm.OdrCod, mm.OdrLocNam, om.OmmTyp 
+	SELECT * 
 	FROM ommmst om, omdmst od, odrmst mm 
 	WHERE om.OmmNum = od.OmdNum AND od.OmdOdrCod = mm.OdrCod AND om.OmmYrm = p_yearMonth AND
 		om.OmmDay = p_day
@@ -661,6 +712,19 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_getPreparationScheduleDates
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPreparationScheduleDates`(IN `p_yearMonth` VARCHAR(6))
+BEGIN
+	SELECT CONCAT(OmmYrm, OmmDay) AS OmmDte
+	FROM ommmst
+	WHERE OmmYrm = p_yearMonth
+	GROUP BY OmmYrm, OmmDay
+	ORDER BY OmmYrm, OmmDay;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getRegistrationReceiveList
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getRegistrationReceiveList`(IN `p_meal` VARCHAR(10), IN `p_date` VARCHAR(8))
@@ -745,50 +809,64 @@ DELIMITER ;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getWorklistRegistration`(IN `p_date` VARCHAR(8), IN `p_category` VARCHAR(20), IN `p_worklistState` VARCHAR(1))
 BEGIN
-	SELECT * FROM plyinf pi WHERE pi.PlyCod IN 
-		(
-			SELECT p.PwlPlyCod FROM pwlinf p, wklinf w, odrmst o WHERE 
-			p.PwlSeqNum = w.WklPwlSeq AND w.WklOdrCod = o.OdrCod AND p.PwlAppDte = p_date AND
-			o.OdrCatTyp = p_category AND w.WklCurStt = p_worklistState
-		);
+	SELECT * FROM pwlinf p, wklinf w, odrmst o, plyinf pi WHERE 
+	p.PwlSeqNum = w.WklPwlSeq AND p.PwlPlyCod = pi.PlyCod AND w.WklOdrCod = o.OdrCod AND 
+	p.PwlAppDte = p_date AND o.OdrCatTyp = p_category AND w.WklCurStt = p_worklistState
+	ORDER BY w.WklStrDtm;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_registerWorklist
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_registerWorklist`(IN `p_worklistSeq` INT, IN `p_itemSeq` INT, IN `p_department` VARCHAR(20))
+BEGIN
+	DECLARE l_exists INT;
+	
+	SELECT 1 INTO l_exists
+	FROM wklinf wi, odrmst om
+	WHERE wi.WklOdrCod = om.OdrCod AND wi.WklPwlSeq = p_worklistSeq AND 
+		wi.WklSeqNum = p_itemSeq AND om.OdrCatTyp = p_department;
+	
+	IF l_exists = 1 THEN
+		UPDATE wklinf SET WklCurStt = 'Y' 
+		WHERE WklPwlSeq = p_worklistSeq AND WklSeqNum = p_itemSeq;
+	END IF;
 END//
 DELIMITER ;
 
 
 -- Dumping structure for procedure fcms.fn_saveFoodMeal
 DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_saveFoodMeal`(IN `p_yearMonth` VARCHAR(6), IN `p_day` VARCHAR(2), IN `p_weekDay` SMALLINT, IN `p_type` VARCHAR(3), IN `p_code` VARCHAR(20), IN `p_weight` INT, IN `p_calorie` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_saveFoodMeal`(IN `p_yearMonth` VARCHAR(6), IN `p_day` VARCHAR(2), IN `p_weekDay` SMALLINT, IN `p_type` VARCHAR(3), IN `p_code` VARCHAR(20), IN `p_user` VARCHAR(20))
 BEGIN
 	DECLARE l_ommNum INTEGER DEFAULT -1;
 	DECLARE l_omdSeq INTEGER DEFAULT 0;
-	
+	DECLARE l_timestamp CHAR(14);
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	
 	BEGIN
 		ROLLBACK;
 	END;
 	
 	START TRANSACTION;
 	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
 	SELECT o.OmmNum INTO l_ommNum FROM ommmst o WHERE o.OmmYrm = p_yearMonth AND o.OmmDay = p_day AND o.OmmTyp = p_type;
 
 	IF l_ommNum = -1 THEN
-		INSERT INTO ommmst(ommYrm, OmmDay, OmmWkd, OmmTyp) VALUES (p_yearMonth, p_day, p_weekDay, p_type);
+		INSERT INTO ommmst(ommYrm, OmmDay, OmmWkd, OmmTyp, OmmUpdUid, OmmUpdDts) VALUES (p_yearMonth, p_day, p_weekDay, p_type, p_user, l_timestamp);
 		SET l_ommNum = LAST_INSERT_ID();
 	END IF;
 	
-	SELECT MAX(d.OmdSeq) INTO l_omdSeq FROM omdmst d WHERE d.OmdNum = l_ommNum;
+	SELECT IFNULL(MAX(d.OmdSeq), 0) + 1 INTO l_omdSeq FROM omdmst d WHERE d.OmdNum = l_ommNum;
 	
-	IF l_omdSeq IS NULL THEN
-		SET l_omdSeq = 1;
-	ELSE
-		SET l_omdSeq = l_omdSeq + 1;
-	END IF;
-	
-	INSERT INTO omdmst(OmdNum, OmdSeq, OmdOdrCod, OmdMelWeg, OmdMelCal) VALUES (l_ommNum, l_omdSeq, p_code, p_weight, p_calorie);
+	INSERT INTO omdmst(OmdNum, OmdSeq, OmdOdrCod, OmdMelWeg, OmdMelCal, OmdUpdUid, OmdUpdDts) VALUES (l_ommNum, l_omdSeq, p_code, NULL, NULL, p_user, l_timestamp);
 	
 	COMMIT;
 	
-	SELECT od.OdrLocNam FROM odrmst od WHERE od.OdrCod = p_code;
+	SELECT * FROM omdmst md, odrmst om WHERE md.OmdOdrCod = om.OdrCod AND md.OmdNum = l_ommNum AND md.OmdSeq = l_omdSeq;
 END//
 DELIMITER ;
 
@@ -839,7 +917,7 @@ CREATE TABLE IF NOT EXISTS `invddt` (
   KEY `InvOdrCod` (`InvOdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='deliver detail';
 
--- Dumping data for table fcms.invddt: ~11 rows (approximately)
+-- Dumping data for table fcms.invddt: ~15 rows (approximately)
 /*!40000 ALTER TABLE `invddt` DISABLE KEYS */;
 INSERT INTO `invddt` (`InvDltSeq`, `InvOdrCod`, `InvOdrAmt`, `InvCatTyp`, `InvUpdUid`, `InvUpdDte`) VALUES
 	(106, 'INV000002', 4, 'NUT', 'test', '20140315233422'),
@@ -852,7 +930,11 @@ INSERT INTO `invddt` (`InvDltSeq`, `InvOdrCod`, `InvOdrAmt`, `InvCatTyp`, `InvUp
 	(116, 'INV000003', 3, 'NUT', 'test', '20140318000949'),
 	(133, 'INV000003', 2, 'NUT', 'test', '20140319005256'),
 	(135, 'INV000003', 3, 'NUT', 'test', '20140319005353'),
-	(136, 'INV000003', 2, 'NUT', 'test', '20140319005614');
+	(136, 'INV000003', 2, 'NUT', 'test', '20140319005614'),
+	(137, 'INV000002', 1, 'NUT', 'test', '20140322001725'),
+	(138, 'INV000003', 2, 'NUT', 'test', '20140322001815'),
+	(139, 'INV000002', 1, 'PHY', 'test', '20140322002007'),
+	(140, 'INV000001', 1, 'FIT', 'test', '20140322002429');
 /*!40000 ALTER TABLE `invddt` ENABLE KEYS */;
 
 
@@ -869,9 +951,9 @@ CREATE TABLE IF NOT EXISTS `invdlt` (
   PRIMARY KEY  (`InvDltSeq`),
   KEY `InvDltDep` (`InvCatTyp`),
   KEY `InvDltDte` (`InvDltDte`)
-) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.invdlt: ~11 rows (approximately)
+-- Dumping data for table fcms.invdlt: ~15 rows (approximately)
 /*!40000 ALTER TABLE `invdlt` DISABLE KEYS */;
 INSERT INTO `invdlt` (`InvDltSeq`, `InvDltDte`, `InvCatTyp`, `InvDltTyp`, `InvTypDep`, `InvDltRmk`, `InvUpdUid`, `InvUpdDte`) VALUES
 	(106, '20140315', 'NUT', 0, NULL, 'test', 'test', '20140315233422'),
@@ -884,7 +966,11 @@ INSERT INTO `invdlt` (`InvDltSeq`, `InvDltDte`, `InvCatTyp`, `InvDltTyp`, `InvTy
 	(130, '20140319', 'NUT', 2, NULL, '', 'test', '20140319004844'),
 	(133, '20140319', 'NUT', 2, NULL, '', 'test', '20140319005256'),
 	(135, '20140319', 'NUT', 2, NULL, '', 'test', '20140319005353'),
-	(136, '20140319', 'NUT', 2, NULL, '', 'test', '20140319005614');
+	(136, '20140319', 'NUT', 2, NULL, '', 'test', '20140319005614'),
+	(137, '20140322', 'NUT', 0, NULL, 'test', 'test', '20140322001725'),
+	(138, '20140322', 'NUT', 2, NULL, '', 'test', '20140322001815'),
+	(139, '20140322', 'PHY', 0, NULL, 'gg', 'test', '20140322002007'),
+	(140, '20140322', 'FIT', 0, NULL, 'aa', 'test', '20140322002429');
 /*!40000 ALTER TABLE `invdlt` ENABLE KEYS */;
 
 
@@ -906,15 +992,18 @@ CREATE TABLE IF NOT EXISTS `invsdt` (
   KEY `InvOdrCod` (`InvOdrCod`),
   KEY `InvCatTyp` (`InvCatTyp`),
   KEY `InvOdrRem` (`InvOdrRem`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='store in detail';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='store in detail';
 
--- Dumping data for table fcms.invsdt: ~4 rows (approximately)
+-- Dumping data for table fcms.invsdt: ~7 rows (approximately)
 /*!40000 ALTER TABLE `invsdt` DISABLE KEYS */;
 INSERT INTO `invsdt` (`InvSdtSeq`, `InvSitSeq`, `InvOdrCod`, `InvOdrAmt`, `InvOdrRem`, `InvOdrPrc`, `InvExpTyp`, `InvExpDte`, `InvCatTyp`, `InvUpdUid`, `InvUpdDte`) VALUES
 	(1, 99, 'INV000001', 1, 1, 25, 0, NULL, 'NUT', 'test', '20140315202256'),
 	(2, 99, 'INV000003', 2, 2, 60, 1, '20140424', 'NUT', 'test', '20140315202256'),
 	(3, 102, 'INV000003', 2, 2, 45, 1, '20140312', 'NUT', 'test', '20140315203742'),
-	(4, 105, 'INV000001', 3, 3, 3, 0, NULL, 'NUT', 'test', '20140315233948');
+	(4, 105, 'INV000001', 3, 3, 3, 0, NULL, 'NUT', 'test', '20140315233948'),
+	(5, 113, 'INV000002', 1, 1, 22, 1, '20140323', 'NUT', 'test', '20140322001636'),
+	(6, 114, 'INV000002', 5, 4, 5, 0, NULL, 'PHY', 'test', '20140322001931'),
+	(7, 115, 'INV000001', 4, 3, 40, 0, NULL, 'FIT', 'test', '20140322002328');
 /*!40000 ALTER TABLE `invsdt` ENABLE KEYS */;
 
 
@@ -931,16 +1020,19 @@ CREATE TABLE IF NOT EXISTS `invsit` (
   PRIMARY KEY  (`InvSitSeq`),
   KEY `InvSitDep` (`InvCatTyp`),
   KEY `InvSitDte` (`InvSitDte`)
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.invsit: ~5 rows (approximately)
+-- Dumping data for table fcms.invsit: ~8 rows (approximately)
 /*!40000 ALTER TABLE `invsit` DISABLE KEYS */;
 INSERT INTO `invsit` (`InvSitSeq`, `InvSitDte`, `InvCatTyp`, `InvSitTyp`, `InvTypDep`, `InvSitRmk`, `InvUpdUid`, `InvUpdDte`) VALUES
 	(99, '20140315', 'NUT', 1, 'FIT', 'test', 'test', '20140315202256'),
 	(100, '20140315', 'NUT', 1, 'FIT', 'test', 'test', '20140315202355'),
 	(101, '20140315', 'NUT', 0, NULL, 'test', 'test', '20140315202407'),
 	(102, '20140315', 'NUT', 0, NULL, '', 'test', '20140315203742'),
-	(105, '20140324', 'NUT', 1, 'FIT', 'eeeee', 'test', '20140315233948');
+	(105, '20140324', 'NUT', 1, 'FIT', 'eeeee', 'test', '20140315233948'),
+	(113, '20140322', 'NUT', 0, NULL, '', 'test', '20140322001636'),
+	(114, '20140322', 'PHY', 0, NULL, 'ttt', 'test', '20140322001931'),
+	(115, '20140322', 'FIT', 0, NULL, 'cc', 'test', '20140322002328');
 /*!40000 ALTER TABLE `invsit` ENABLE KEYS */;
 
 
@@ -957,7 +1049,8 @@ CREATE TABLE IF NOT EXISTS `odrmst` (
   `OdrExpDte` char(8) default NULL,
   `OdrUpdUid` char(20) default NULL,
   `OdrUpdDts` char(14) default NULL,
-  PRIMARY KEY  (`OdrCod`)
+  PRIMARY KEY  (`OdrCod`),
+  KEY `OdrLocNam` (`OdrLocNam`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.odrmst: ~24 rows (approximately)
@@ -1002,7 +1095,7 @@ CREATE TABLE IF NOT EXISTS `omdmst` (
   PRIMARY KEY  (`OmdNum`,`OmdSeq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.omdmst: ~21 rows (approximately)
+-- Dumping data for table fcms.omdmst: ~30 rows (approximately)
 /*!40000 ALTER TABLE `omdmst` DISABLE KEYS */;
 INSERT INTO `omdmst` (`OmdNum`, `OmdSeq`, `OmdOdrCod`, `OmdMelWeg`, `OmdMelCal`, `OmdUpdUid`, `OmdUpdDts`) VALUES
 	(1, 1, 'NUT000001', 300, 350, NULL, NULL),
@@ -1025,7 +1118,16 @@ INSERT INTO `omdmst` (`OmdNum`, `OmdSeq`, `OmdOdrCod`, `OmdMelWeg`, `OmdMelCal`,
 	(16, 3, 'NUT000007', 10, 10, NULL, NULL),
 	(17, 1, 'NUT000007', 100, 100, NULL, NULL),
 	(18, 1, 'NUT000006', 10, 10, NULL, NULL),
-	(20, 1, 'NUT000001', 100, 250, NULL, NULL);
+	(20, 1, 'NUT000001', 100, 250, NULL, NULL),
+	(21, 3, 'NUT000001', NULL, NULL, 'test', '20140322181404'),
+	(21, 4, 'NUT000008', NULL, NULL, 'test', '20140322181416'),
+	(23, 1, 'NUT000004', NULL, NULL, 'test', '20140322181550'),
+	(24, 1, 'NUT000002', NULL, NULL, 'test', '20140322182347'),
+	(25, 1, 'NUT000006', NULL, NULL, 'test', '20140322182641'),
+	(26, 1, 'NUT000003', NULL, NULL, 'test', '20140322182701'),
+	(27, 1, 'NUT000008', NULL, NULL, 'test', '20140322183222'),
+	(28, 1, 'NUT000002', NULL, NULL, 'test', '20140322183304'),
+	(29, 1, 'NUT000006', NULL, NULL, 'test', '20140322183235');
 /*!40000 ALTER TABLE `omdmst` ENABLE KEYS */;
 
 
@@ -1039,9 +1141,9 @@ CREATE TABLE IF NOT EXISTS `ommmst` (
   `OmmUpdUid` char(20) default NULL,
   `OmmUpdDts` char(14) default NULL,
   PRIMARY KEY  (`OmmNum`,`OmmYrm`,`OmmDay`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.ommmst: ~18 rows (approximately)
+-- Dumping data for table fcms.ommmst: ~27 rows (approximately)
 /*!40000 ALTER TABLE `ommmst` DISABLE KEYS */;
 INSERT INTO `ommmst` (`OmmNum`, `OmmYrm`, `OmmDay`, `OmmWkd`, `OmmTyp`, `OmmUpdUid`, `OmmUpdDts`) VALUES
 	(1, '201401', '24', 5, 'BRK', NULL, NULL),
@@ -1061,7 +1163,16 @@ INSERT INTO `ommmst` (`OmmNum`, `OmmYrm`, `OmmDay`, `OmmWkd`, `OmmTyp`, `OmmUpdU
 	(17, '201401', '26', 7, 'DES', NULL, NULL),
 	(18, '201401', '26', 7, 'DIN', NULL, NULL),
 	(19, '201401', '27', 1, 'DES', NULL, NULL),
-	(20, '201402', '19', 3, 'BRK', NULL, NULL);
+	(20, '201402', '19', 3, 'BRK', NULL, NULL),
+	(21, '201403', '13', 4, 'BRK', NULL, NULL),
+	(22, '201403', '13', 4, 'LNH', NULL, NULL),
+	(23, '201403', '22', 6, 'BRK', 'test', '20140322181550'),
+	(24, '201403', '10', 1, 'BRK', 'test', '20140322182347'),
+	(25, '201403', '11', 2, 'BRK', 'test', '20140322182641'),
+	(26, '201403', '04', 2, 'BRK', 'test', '20140322182701'),
+	(27, '201403', '04', 2, 'LNH', 'test', '20140322183222'),
+	(28, '201403', '04', 2, 'DES', 'test', '20140322183230'),
+	(29, '201403', '04', 2, 'DIN', 'test', '20140322183235');
 /*!40000 ALTER TABLE `ommmst` ENABLE KEYS */;
 
 
@@ -1128,7 +1239,9 @@ CREATE TABLE IF NOT EXISTS `plcinf` (
 INSERT INTO `plcinf` (`PlcCod`, `PlcCatTyp`, `PlcCmt`, `PlcUpdUid`, `PlcUpdDts`) VALUES
 	('P00001', 'COA', 'Hello test', 'test', '20140308175604'),
 	('P00001', 'FIT', 'Normal', 'test', '20140308170515'),
-	('P00001', 'PHY', 'test2', 'test1', '20140320161505');
+	('P00001', 'NUT', 'test bnutrition\nsevsv\n', 'test', '20140323005437'),
+	('P00001', 'PHY', 'test2', 'test1', '20140320161505'),
+	('P00002', 'PHY', 'physical jame', 'test', '20140323015236');
 /*!40000 ALTER TABLE `plcinf` ENABLE KEYS */;
 
 
@@ -1177,7 +1290,8 @@ INSERT INTO `plrinf` (`PlrPlyCod`, `PlrRstDte`, `PlrCatTyp`, `PlrSubTyp`, `PlrRs
 	('P00001', '20140302', 'FIT', 'RST', 'Normal test', 'user', '2014030205507'),
 	('P00001', '20140302', 'FIT', 'SGT', 'hello', 'user', '20140302120122'),
 	('P00001', '20140302', 'PHY', 'RST', 'sdvsvdtttt', 'user', '20140302120836'),
-	('P00001', '20140302', 'PHY', 'SGT', 'test 2', 'user', '20140302120855');
+	('P00001', '20140302', 'PHY', 'SGT', 'test 2', 'user', '20140302120855'),
+	('P00001', '20140323', 'PHY', 'RST', 'ทดสอบรายงานผล', 'test', '20140323021005');
 /*!40000 ALTER TABLE `plrinf` ENABLE KEYS */;
 
 
@@ -1258,12 +1372,12 @@ CREATE TABLE IF NOT EXISTS `pmsmst` (
   PRIMARY KEY  (`PmsUsrCod`,`PmsDepCod`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Permission master';
 
--- Dumping data for table fcms.pmsmst: 4 rows
+-- Dumping data for table fcms.pmsmst: 9 rows
 /*!40000 ALTER TABLE `pmsmst` DISABLE KEYS */;
 INSERT INTO `pmsmst` (`PmsUsrCod`, `PmsDepCod`, `PmsRea`, `PmsWrt`, `PmsEdt`, `PmsDel`) VALUES
 	('test', 'COA', 1, 0, 0, 0),
 	('test1', 'COA', 1, 1, 0, 0),
-	('test', 'PHY', 1, 0, 0, 1),
+	('test', 'PHY', 1, 1, 0, 1),
 	('test1', 'PHY', 1, 1, 0, 0),
 	('test', 'FIT', 1, 0, 0, 1),
 	('test1', 'FIT', 1, 1, 0, 0),
@@ -1339,9 +1453,9 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
   `PwlUpdUid` char(20) default NULL,
   `PwlUpdDts` char(14) default NULL,
   PRIMARY KEY  (`PwlSeqNum`,`PwlPlyCod`,`PwlAppDte`,`PwlAppTim`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.pwlinf: ~6 rows (approximately)
+-- Dumping data for table fcms.pwlinf: ~9 rows (approximately)
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
 INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCurStt`, `PwlRegUid`, `PwlVstDtm`, `PwlUpdUid`, `PwlUpdDts`) VALUES
 	(1, 'P00001', '20140308', '0530', 'A', NULL, NULL, NULL, NULL),
@@ -1351,7 +1465,8 @@ INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCu
 	(13, 'P00001', '20140316', '0530', 'N', NULL, NULL, 'test', '20140313010408'),
 	(14, 'P00001', '20140317', '0530', 'N', NULL, NULL, 'test', '20140313010903'),
 	(15, 'P00001', '20140320', '0530', 'N', NULL, NULL, 'test1', '20140321000110'),
-	(16, 'P00001', '20140311', '0530', 'N', NULL, NULL, 'test1', '20140321000332');
+	(16, 'P00001', '20140311', '0530', 'N', NULL, NULL, 'test1', '20140321000332'),
+	(17, 'P00001', '20140322', '0530', 'N', NULL, NULL, 'test', '20140322112153');
 /*!40000 ALTER TABLE `pwlinf` ENABLE KEYS */;
 
 
@@ -1398,7 +1513,7 @@ CREATE TABLE IF NOT EXISTS `wklinf` (
   PRIMARY KEY  (`WklPwlSeq`,`WklSeqNum`,`WklOdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wklinf: ~21 rows (approximately)
+-- Dumping data for table fcms.wklinf: ~37 rows (approximately)
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
 INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),
@@ -1415,6 +1530,7 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(2, 1, 'FIT000001', '0530', '0600', 30, 'N', NULL, NULL, 'test', '2014030124809'),
 	(2, 2, 'PHY000001', '0700', '0800', 30, 'Y', NULL, NULL, 'test', '2014030124809'),
 	(2, 3, 'PHY000001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140302113539'),
+	(2, 4, 'NUTBRK001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140322194849'),
 	(3, 1, 'NUTBRK001', '0700', '0800', 60, 'N', NULL, NULL, NULL, NULL),
 	(3, 2, 'NUTLNH001', '1200', '1300', 60, 'Y', NULL, NULL, NULL, NULL),
 	(3, 3, 'FIT000002', '0800', '1300', 60, 'Y', NULL, NULL, NULL, NULL),
@@ -1422,6 +1538,8 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(13, 1, 'FIT000001', '0500', '0600', 60, 'N', NULL, NULL, 'test', '20140313010441'),
 	(13, 2, 'PHY000001', '0600', '0700', 60, 'N', NULL, NULL, 'test', '20140313010840'),
 	(13, 3, 'FIT000002', '0700', '0800', 60, 'N', NULL, NULL, 'test1', '20140321000046'),
+	(13, 4, 'NUTBRK001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140322194510'),
+	(13, 5, 'NUTLNH001', '1200', '1300', 60, 'N', NULL, NULL, 'test', '20140322194954'),
 	(14, 1, 'PHY000001', '1200', '1300', 60, 'N', NULL, NULL, 'test', '20140313010903'),
 	(14, 2, 'FIT000001', '0900', '1000', 60, 'N', NULL, NULL, 'test1', '20140320234307'),
 	(14, 3, 'FIT000003', '0500', '0600', 60, 'N', NULL, NULL, 'test1', '20140320234429'),
@@ -1429,7 +1547,12 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(14, 5, 'FIT000004', '1000', '1030', 30, 'N', NULL, NULL, 'test1', '20140320234707'),
 	(15, 1, 'FIT000003', '0500', '0600', 60, 'N', NULL, NULL, 'test1', '20140321000110'),
 	(15, 2, 'PHY000001', '0600', '0700', 60, 'N', NULL, NULL, 'test1', '20140321000315'),
-	(16, 1, 'PHY000001', '0500', '0530', 30, 'N', NULL, NULL, 'test1', '20140321000332');
+	(16, 1, 'PHY000001', '0500', '0530', 30, 'N', NULL, NULL, 'test1', '20140321000332'),
+	(17, 1, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140322112153'),
+	(17, 3, 'FIT000001', '1000', '1100', 60, 'N', NULL, NULL, 'test', '20140322143056'),
+	(17, 4, 'FIT000002', '1500', '1600', 60, 'N', NULL, NULL, 'test', '20140322143109'),
+	(17, 5, 'NUTBRK001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140322195037'),
+	(17, 6, 'PHY000001', '1100', '1130', 30, 'N', NULL, NULL, 'test', '20140323015853');
 /*!40000 ALTER TABLE `wklinf` ENABLE KEYS */;
 
 
@@ -1479,7 +1602,7 @@ CREATE TABLE IF NOT EXISTS `wkminf` (
   PRIMARY KEY  (`WkmPwlSeq`,`WkmOdrCod`,`WkmMelSeq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wkminf: ~9 rows (approximately)
+-- Dumping data for table fcms.wkminf: ~13 rows (approximately)
 /*!40000 ALTER TABLE `wkminf` DISABLE KEYS */;
 INSERT INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMelWeg`, `WkmMelCal`, `WkmEdtYon`, `WkmMelYrm`, `WkmMelDay`, `WkmOdrStt`, `WkmUpdUid`, `WkmUpdDts`) VALUES
 	(1, 'NUTBRK001', 2, 'NUT000006', 100, 250, 'N', '201401', '24', 'N', NULL, NULL),
@@ -1490,7 +1613,12 @@ INSERT INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMe
 	(1, 'NUTLNH001', 1, 'NUT000005', 300, 350, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTLNH001', 2, 'NUT000006', 100, 200, 'N', '201401', '24', 'N', NULL, NULL),
 	(1, 'NUTLNH001', 3, 'NUT000007', 150, 100, 'N', '201401', '24', 'N', NULL, NULL),
-	(1, 'NUTLNH001', 4, 'NUT000008', 50, 100, 'N', '201401', '24', 'N', NULL, NULL);
+	(1, 'NUTLNH001', 4, 'NUT000008', 50, 100, 'N', '201401', '24', 'N', NULL, NULL),
+	(2, 'NUTBRK001', 1, 'NUT000001', 9, 9, 'N', '201403', '02', 'N', 'test', '20140322194849'),
+	(3, 'NUTBRK001', 1, 'NUT000005', 2, 2, 'N', '201403', '08', 'N', 'test', '20140323012347'),
+	(13, 'NUTLNH001', 1, 'NUT000008', 2, 20, 'N', '201403', '16', 'N', 'test', '20140322194954'),
+	(17, 'NUTBRK001', 1, 'NUT000005', 33, 33, 'N', '201403', '22', 'N', 'test', '20140322195037'),
+	(17, 'NUTBRK001', 2, 'NUT000004', 400, 40, 'N', '201403', '22', 'N', 'test', '20140322195133');
 /*!40000 ALTER TABLE `wkminf` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;

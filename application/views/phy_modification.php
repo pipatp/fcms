@@ -18,7 +18,7 @@
     font-size: 13px;
 }
 
-#player-search-box {
+#player-select-input {
     padding-left: 22px;
     background: url("../../images/search-magnify.png") no-repeat;
     background-position: 3px center;
@@ -184,7 +184,33 @@
 </style>
 <div id="physical-modification">
     <div class="search-box-section">
-        <input id="player-search-box" class="form-control input-sm" type="text" placeholder="ค้นหานักกีฬา" />
+        <select id="player-select-input" class="form-control input-sm" style="width:300px;">
+            <option value=""></option>
+            <?php 
+            foreach ($players as $player) {
+            ?>
+            <option value="<? echo $player->PlyCod ?>">
+                <?php
+                    $fullName = "";
+                    if (strlen($player->PlyFstNam) > 0) {
+                        $fullName = $player->PlyFstNam . " " . $player->PlyFamNam;
+                    }
+                    
+                    if (strlen($player->PlyFstEng) > 0) {
+                        if (strlen($fullName) > 0) {
+                            $fullName = $fullName . " (" . $player->PlyFstEng . " " . $player->PlyFamEng . ")";
+                        }
+                        else {
+                            $fullName = $player->PlyFstEng . " " . $player->PlyFamEng;
+                        }
+                    }
+                    echo $fullName;
+                ?>
+            </option>
+            <?php
+            }
+            ?>
+        </select>
     </div>
     <div id="player-modification-detail">
         <div class="left-col">
@@ -311,8 +337,6 @@
     }
  
     function displayPlayerInfo(item) {
-        playerCode = item.PlyCod;
-        
         $(".player-picture").attr("src", "../player/thumbnail/" + playerCode + "?width=150&height=150");
         
         var $playerDetail = $(".player-detail");
@@ -350,34 +374,35 @@
         });
     }
  
-    $("#player-search-box").autocomplete({
-        source: "../player/search",
-        minLength: 2,
-        focus: function(event, ui) {            
-            return false;
-        },
-        select: function(event, ui) {
-            $("#player-search-box").val("");
+    function getPlayerInfo(playerCode) {
+        $.get("../player/info/" + playerCode).done(function(result) {
+            var info = jQuery.parseJSON(result);
 
-            displayPlayerInfo(ui.item);
-            
-            getPlayerComment(ui.item.PlyCod);
-            
-            loadPhysicalWorklist();
-            
-            var selectedDate = $("#modify-date-selection").datepicker("getDate");
-            var year = $.datepicker.formatDate("yy", selectedDate);
-            var month = $.datepicker.formatDate("mm", selectedDate);
-            getPhysicalScheduleDates(year, month);
-            
-            $("#player-modification-detail").show();
-            
-            return false;
+            displayPlayerInfo(info);
+        });
+    }
+    
+    $("#player-select-input").change(function() {
+        var $combo = $(this);
+        playerCode = $combo.find(":selected").val();
+        
+        if (playerCode.length <= 0) {
+            return;
         }
-    }).data("ui-autocomplete")._renderItem = function(ul, item) {
-        var displayName = getDisplayNameWithEng(item.PlyFstNam, item.PlyFamNam, item.PlyFstEng, item.PlyFamEng);
-        return $("<li class='list-auto-item'>").append("<a>" + displayName + "</a>" ).appendTo(ul);
-    };
+        
+        getPlayerInfo(playerCode);
+
+        getPlayerComment(playerCode);
+
+        loadPhysicalWorklist();
+
+        var selectedDate = $("#modify-date-selection").datepicker("getDate");
+        var year = $.datepicker.formatDate("yy", selectedDate);
+        var month = $.datepicker.formatDate("mm", selectedDate);
+        getPhysicalScheduleDates(year, month);
+
+        $("#player-modification-detail").show();
+    });
 
     $("#order-search-box").autocomplete({
         source: "searchPhysicalOrder",
@@ -396,7 +421,7 @@
     }).data("ui-autocomplete")._renderItem = function(ul, item) {
         return $("<li class='list-auto-item'>").append("<a>" + item.OdrLocNam + "</a>" ).appendTo(ul);
     };
-
+    
     function formatTime(timeText) {
         return timeText.substr(0, 2) + ":" + timeText.substr(2, 2);
     }

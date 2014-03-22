@@ -74,6 +74,9 @@ class nutrition extends CI_Controller {
     // Food Preparation
     //----------------------------------------------
     function viewPreparation() {
+        $this->load->model('nutrition_model');
+        
+        $data["food_items"] = $this->nutrition_model->getAllFoodMeal();
         $data["permission"] = $this->permission;
         
         $this->load->view('nut_preparation', $data);
@@ -103,10 +106,13 @@ class nutrition extends CI_Controller {
         $postData = json_decode(trim(file_get_contents('php://input')), true);
         
         $this->load->model('nutrition_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
 
         $data["content"] = $this->nutrition_model->saveFoodMealItem($postData["yearMonth"],
              $postData["day"], $postData["weekDay"], $postData["type"],
-             $postData["code"], $postData["weight"], $postData["calorie"]);
+             $postData["code"], $user);
         
         $this->load->view('json_result', $data);
     }
@@ -117,9 +123,8 @@ class nutrition extends CI_Controller {
         $this->load->model('nutrition_model');
 
         try {
-            $this->nutrition_model->deleteFoodMealItem($postData["yearMonth"],
-                 $postData["day"], $postData["weekDay"], $postData["type"],
-                 $postData["code"]);
+            $this->nutrition_model->deleteFoodMealItem($postData["mealSeq"],
+                 $postData["itemSeq"]);
         } catch (Exception $e) {
             $this->output->set_status_header('500', 'Delete item failed.');
         }
@@ -141,11 +146,23 @@ class nutrition extends CI_Controller {
         return $this->load->view('json_result', $data);
     }
     
+    function getPreparationScheduleDates($year, $month) {
+        $this->load->model('nutrition_model');
+        
+        $data["content"] = $this->nutrition_model->getPreparationScheduleDates($year, $month);
+        
+        return $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Meal Modification
     //----------------------------------------------
     function viewMealModification() {
         $data["permission"] = $this->permission;
+        
+        $this->load->model('player_model');
+        
+        $data["players"] = $this->player_model->getAllPlayers();
         
         $this->load->view('nut_modification', $data);
     }

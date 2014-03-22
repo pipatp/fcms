@@ -174,6 +174,9 @@ class coach extends CI_Controller {
     // Coach Player Info
     //----------------------------------------------
     function viewPlayerInfo() {
+        $this->load->model('player_model');
+        
+        $data["players"] = $this->player_model->getAllPlayers();
         $data["permission"] = $this->permission;
         
         $this->load->view('coa_player_info', $data);

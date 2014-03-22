@@ -74,4 +74,14 @@ class player_model extends CI_Model {
         
         return $row;
     }
+    
+    function getAllPlayers() {
+        $query = $this->db->query("SELECT * FROM plyinf ORDER BY PlyFstNam");
+        
+        $result = $query->result();
+               
+        $query->free_result();
+        
+        return $result;
+    }
 }

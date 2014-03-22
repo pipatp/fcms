@@ -169,3 +169,7 @@ body {
     background-color: greenyellow !important;
     background-image: none !important;
 }
+
+.ui-datepicker-calendar .ui-state-active {
+    border-color: red !important;
+}

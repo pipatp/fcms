@@ -21,7 +21,7 @@
     font-size: 14px;
 }
 
-#player-search {
+#player-select-input {
     padding-left: 22px;
     background: url("../../images/search-magnify.png") no-repeat;
     background-position: 3px center;
@@ -146,6 +146,33 @@
         <div class="form-inline">
             <input id="date-selection" type="text" class="form-control input-sm pull-left"></input>
             <input id="player-search" type="text" class="form-control input-sm pull-right"></input>
+            <select id="player-select-input" class="form-control input-sm pull-right" style="width:300px;">
+                <option value=""></option>
+                <?php 
+                foreach ($players as $player) {
+                ?>
+                <option value="<? echo $player->PlyCod ?>">
+                    <?php
+                        $fullName = "";
+                        if (strlen($player->PlyFstNam) > 0) {
+                            $fullName = $player->PlyFstNam . " " . $player->PlyFamNam;
+                        }
+
+                        if (strlen($player->PlyFstEng) > 0) {
+                            if (strlen($fullName) > 0) {
+                                $fullName = $fullName . " (" . $player->PlyFstEng . " " . $player->PlyFamEng . ")";
+                            }
+                            else {
+                                $fullName = $player->PlyFstEng . " " . $player->PlyFamEng;
+                            }
+                        }
+                        echo $fullName;
+                    ?>
+                </option>
+                <?php
+                }
+                ?>
+            </select>
         </div>
     </div>
     <div class="player-info-section">
@@ -255,6 +282,27 @@
             var displayName = getDisplayNameWithEng(item.PlyFstNam, item.PlyFamNam, item.PlyFstEng, item.PlyFamEng);
             return $("<li class='list-auto-item'>").append("<a>" + displayName + "</a>" ).appendTo(ul);
         };
+        
+        $("#player-select-input").change(function() {
+            var $combo = $(this);
+            var playerCode = $combo.find(":selected").val();
+            
+            if (playerCode.length <= 0) {
+                return;
+            }
+            
+            $("#coach-player-info").attr("data-player-code", playerCode);
+            
+            getPlayerInfo(playerCode);
+            
+            getPlayerSchedule();
+
+            var selectedDate = $("#date-selection").datepicker("getDate");           
+            var year = $.datepicker.formatDate("yy", selectedDate);
+            var month = $.datepicker.formatDate("mm", selectedDate);
+
+            getPlayerScheduleDates(year, month);
+        });
         
         if (permission.write) {
             $("#coach-comment .stretch").tooltip();

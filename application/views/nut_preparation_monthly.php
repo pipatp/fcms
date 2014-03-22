@@ -3,8 +3,6 @@
     font-size: 13px;
     margin-left: 10px;
     margin-right: 10px;
-    
-    
 }
 
 .ui-datepicker {
@@ -18,6 +16,8 @@
     padding: 0px; 
     background: none; 
     border-width: 0px;
+    
+    font-size: 14px;
 }
 
 #monthly-preparation-tab .ui-tabs-nav { 
@@ -40,6 +40,8 @@
 #monthly-preparation-tab .ui-tabs-panel {
     padding-top: 20px;
     border-width: 0px 1px 1px 1px;
+    
+    font-size: 14px;
 }
 
 .food-table-cell-header {
@@ -82,6 +84,15 @@
 #delete-food-item {
     cursor: pointer;
 }
+
+.padding-h-sm {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.col-valign-center {
+    vertical-align: middle !important;
+}
 </style>
 <table width="100%" height="100%">
     <tr>
@@ -95,82 +106,103 @@
                     <li><a href="#tabs-dinner">มื้อเย็น</a></li>
                 </ul>
                 <div id="tabs-breakfast">
-                    <table id="table-breakfast">
-                        <tr>
-                            <th width="16px">&nbsp;</th>
-                            <th class="food-table-cell-header">อาหาร</th>
-                            <th class="food-table-cell-header">น้ำหนัก</th>
-                            <th class="food-table-cell-header">แคลอรี่</th>
-                        </tr>
+                    <div id="add-breakfast-button" class="btn btn-info add-food-item" style="margin-bottom: 10px;">เพิ่มรายการอาหาร</div>
+                    <table id="table-breakfast" class="table table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>อาหาร</th>
+                                <th width="16px">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                     </table>
-                    <br/>
-                    <div id="add-breakfast-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                 </div>
                 <div id="tabs-lunch">
-                    <table id="table-lunch">
-                        <tr>
-                            <th width="16px">&nbsp;</th>
-                            <th class="food-table-cell-header">อาหาร</th>
-                            <th class="food-table-cell-header">น้ำหนัก</th>
-                            <th class="food-table-cell-header">แคลอรี่</th>
-                        </tr>
+                    <div id="add-breakfast-button" class="btn btn-info add-food-item" style="margin-bottom: 10px;">เพิ่มรายการอาหาร</div>
+                    <table id="table-lunch" class="table table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>อาหาร</th>
+                                <th width="16px">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                     </table>
-                    <br/>
-                    <div id="add-lunch-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                 </div>
                 <div id="tabs-dessert">
-                    <table id="table-dessert">
-                        <tr>
-                            <th width="16px">&nbsp;</th>
-                            <th class="food-table-cell-header">อาหาร</th>
-                            <th class="food-table-cell-header">น้ำหนัก</th>
-                            <th class="food-table-cell-header">แคลอรี่</th>
-                        </tr>
+                    <div id="add-breakfast-button" class="btn btn-info add-food-item" style="margin-bottom: 10px;">เพิ่มรายการอาหาร</div>
+                    <table id="table-dessert" class="table table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>อาหาร</th>
+                                <th width="16px">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                     </table>
-                    <br/>
-                    <div id="add-dessert-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                 </div>
                 <div id="tabs-dinner">
-                    <table id="table-dinner">
-                        <tr>
-                            <th width="16px">&nbsp;</th>
-                            <th class="food-table-cell-header">อาหาร</th>
-                            <th class="food-table-cell-header">น้ำหนัก</th>
-                            <th class="food-table-cell-header">แคลอรี่</th>
-                        </tr>
+                    <div id="add-breakfast-button" class="btn btn-info add-food-item" style="margin-bottom: 10px;">เพิ่มรายการอาหาร</div>
+                    <table id="table-dinner" class="table table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>อาหาร</th>
+                                <th width="16px">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                     </table>
-                    <br/>
-                    <div id="add-dinner-item" class="add-food-item"><img src="../../images/add.png" /><span style="margin-left: 5px;">เพิ่มรายการใหม่</span></div>
                 </div>
             </div>
         </td>
     </tr>
 </table>
+<div id="addItemDialog" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header ">
+                เพิ่มรายการ
+            </div>
+            <div class="modal-body">
+                <div class="form form-horizontal">
+                    <div class="row">
+                        <div id="add-warning" class="alert alert-danger hidden"></div>
+                        <div class="col-lg-5 col-md-5">
+                            <div class="form-group padding-h-sm">
+                                <label>รายการ</label>
+                                <select id="order-select" class="form-control input-sm">
+                                    <option value=""></option>
+                                    <?php 
+                                    foreach ($food_items as $item) {
+                                    ?>
+                                    <option value="<? echo $item->OdrCod ?>"><? echo $item->OdrLocNam ?></option>
+                                    <?php
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="addItemButton" type="button" class="btn btn-primary">ตกลง</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
-    var foodItemTemplateHtml = '<tr class="food-table-row">';
-    foodItemTemplateHtml += '<td><div id="delete-food-item"><img src="../../images/delete.png" /></div></td>';
-    foodItemTemplateHtml += '<td class="food-table-cell"><div id="food-code" class="food-item-code"></div><div id="food-name"></div></td>';
-    foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-weight"></span></td>';
-    foodItemTemplateHtml += '<td class="food-table-cell"><span id="food-calorie"></span> แคลอรี่</td>';
-    foodItemTemplateHtml += '</tr>';
-    
-    var $foodItemTemplate = $(foodItemTemplateHtml);
-    
-    var foodItemTemplateHtml = '<tr class="food-table-row add-item-row">';
-    foodItemTemplateHtml += '<td>&nbsp;</td>';
-    foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-code" type="text" class="food-item-code" /><input id="add-food-name" type="text" /></div></td>';
-    foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-weight" type="text" /></td>';
-    foodItemTemplateHtml += '<td class="food-table-cell"><input id="add-food-calorie" type="text" /></td>';
-    foodItemTemplateHtml += '<td class="food-table-cell"><a id="save-food-item" href="javascript:" class="food-item-button"><img src="../../images/save-icon.png" /></a><a id="cancel-food-item" href="javascript:" class="food-item-button"><img src="../../images/Close-icon.png" /></a></div></td>';
-    foodItemTemplateHtml += '</tr>';
-    
-    var $addFoodItemTemplate = $(foodItemTemplateHtml);
+    var scheduleDates = undefined;
+    var permission = <?php echo json_encode($permission) ?>;
     
     function getSelectionDate() {
         var selectedDate = $("#date-selection").datepicker("getDate");
             
         var yearMonth = $.datepicker.formatDate("yymm", selectedDate);
         var day = $.datepicker.formatDate("dd", selectedDate);
+        var year = $.datepicker.formatDate("yy", selectedDate);
+        var month = $.datepicker.formatDate("mm", selectedDate);
 
         var weekDay = selectedDate.getDay();
         if (weekDay === 0) {
@@ -180,22 +212,24 @@
         return {
             yearMonth: yearMonth,
             day: day,
-            weekDay: weekDay
+            weekDay: weekDay,
+            year: year,
+            month: month
         };
     }
     
     function getFoodMealSet(yearMonth, day) {
         $.ajax("getFoodMealSet/" + yearMonth + "/" + day).done(function(result) {
-            var $breakfastTable = $("#table-breakfast");
-            var $lunchTable = $("#table-lunch");
-            var $dessertTable = $("#table-dessert");
-            var $dinnerTable = $("#table-dinner");
+            var $breakfastTable = $("#table-breakfast tbody");
+            var $lunchTable = $("#table-lunch tbody");
+            var $dessertTable = $("#table-dessert tbody");
+            var $dinnerTable = $("#table-dinner tbody");
             
             // Clear table except header row
-            $breakfastTable.find("tr:gt(0)").remove();
-            $lunchTable.find("tr:gt(0)").remove();
-            $dessertTable.find("tr:gt(0)").remove();
-            $dinnerTable.find("tr:gt(0)").remove();
+            $breakfastTable.empty();
+            $lunchTable.empty();
+            $dessertTable.empty();
+            $dinnerTable.empty();
 
             var foodItems = jQuery.parseJSON(result);
 
@@ -209,41 +243,7 @@
                              (foodType === "LNH") ? $lunchTable :
                              (foodType === "DES") ? $dessertTable : $dinnerTable;
                 
-                var $row = $foodItemTemplate.clone(true, true);
-
-                var $foodCode = $($row.find("#food-code"));
-                var $foodName = $($row.find("#food-name"));
-                var $foodWeight = $($row.find("#food-weight"));
-                var $foodCalorie = $($row.find("#food-calorie"));
-
-                $foodCode.text(foodItem.OdrCod);
-                $foodName.text(foodItem.OdrLocNam);
-                $foodWeight.text(foodItem.OmdMelWeg);
-                $foodCalorie.text(foodItem.OmdMelCal);
-
-                var $deleteItemButton = $($row.find("#delete-food-item"));
-                $deleteItemButton.click({foodCode: $foodCode.text(), foodType: foodType}, function(event) {
-                    var selectionDate = getSelectionDate();
-                    
-                    var $button = $(this);
-                    
-                    var foodItem = new Object();
-                    foodItem.code = event.data.foodCode;
-                    foodItem.yearMonth = selectionDate.yearMonth;
-                    foodItem.day = selectionDate.day;
-                    foodItem.weekDay = selectionDate.weekDay;
-                    foodItem.type = event.data.foodType;                  
-                    
-                    // Send save request to server
-                    $.post("deleteFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
-                        $button.closest('tr').detach();
-                    }).fail(function() {
-                       alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-                    });
-                   
-                });
-
-                $table.append($row);
+                createMealItemRow(foodItem).appendTo($table);
             }
          
         }).fail(function(jqXHR, textStatus) {
@@ -251,127 +251,108 @@
         });
     }
      
-    function addFoodItem() {
-        var selectedTabIndex = $("#monthly-preparation-tab").tabs('option', 'active');
+    $(".add-food-item").click(function() {
+        showAddWarning(false);
+        $("select#order-select").prop('selectedIndex', 0);
         
-        var $table = (selectedTabIndex === 0) ? $("#table-breakfast") :
-                     (selectedTabIndex === 1) ? $("#table-lunch") :
-                     (selectedTabIndex === 2) ? $("#table-dessert") : $("#table-dinner");
-
-        // Prevent adding multiple input row at the same time
-        if ($table.find("tr.add-item-row ").length) {
+        $("#addItemDialog").modal("show");
+    });
+    
+    function showAddWarning(isShow, message) {
+        var $addWarning = $("#add-warning");
+        if (isShow) {
+            $addWarning.removeClass("hidden");
+            $addWarning.text(message);
+        }
+        else {
+            $addWarning.addClass("hidden");
+        }
+    }
+    
+    function hasScheduleDate(findDate) {
+        if (scheduleDates) {
+            for (var index=0; index<scheduleDates.length; index++) {
+                if (scheduleDates[index] === findDate) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    function addFoodItem() {
+        var $orderSelect = $("#order-select :selected");
+        
+        if (!$orderSelect.val()) {
+            showAddWarning(true, "โปรดเลือกรายการ");
             return;
         }
         
+        showAddWarning(false);
+        
+        var selectedTabIndex = $("#monthly-preparation-tab").tabs('option', 'active');
+        
+        var $tableBody = (selectedTabIndex === 0) ? $("#table-breakfast tbody") :
+                     (selectedTabIndex === 1) ? $("#table-lunch tbody") :
+                     (selectedTabIndex === 2) ? $("#table-dessert tbody") : $("#table-dinner tbody");
+
         var type = (selectedTabIndex === 0) ? "BRK" :
                    (selectedTabIndex === 1) ? "LNH" :
                    (selectedTabIndex === 2) ? "DES" : "DIN";
         
-        var $addRow = $addFoodItemTemplate.clone(true, true);
-
-        $table.append($addRow);
+        var selectionDate = getSelectionDate();
         
-        var $addFoodCode = $($addRow.find("#add-food-code"));
-        
-        var $addFoodName = $($addRow.find("#add-food-name"));
-        $addFoodName.focus();
-        
-        var $addFoodWeight = $($addRow.find("#add-food-weight"));
-        var $addFoodCalorie = $($addRow.find("#add-food-calorie"));
-        
-        $addFoodName.autocomplete({
-            source: "findFoodMealItem",
-            minLength: 2,
-            focus: function(event, ui) {
-                $addFoodName.val(ui.item.OdrLocNam);
-                return false;
-            },
-            select: function(event, ui) {
-                $addFoodCode.val(ui.item.OdrCod);
-                
-                $addFoodWeight.focus();
-                
-                return false;
+        var foodItem = new Object();
+        foodItem.code = $orderSelect.val();
+        foodItem.yearMonth = selectionDate.yearMonth;
+        foodItem.day = selectionDate.day;
+        foodItem.weekDay = selectionDate.weekDay;
+        foodItem.type = type;
+           
+        // Send save request to server
+        $.post("addFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
+            var item = jQuery.parseJSON(result);
+            
+            createMealItemRow(item, type).appendTo($tableBody);
+            
+            $("#addItemDialog").modal("hide");
+            
+            if (!hasScheduleDate(selectionDate.yearMonth + selectionDate.day)) {
+                getNutritionPreparationScheduleDates(selectionDate.year, selectionDate.month);
             }
-        }).data("ui-autocomplete")._renderItem = function(ul, item) {
-            return $("<li>").append("<a>" + item.OdrLocNam + "</a>" ).appendTo(ul);
-        };;
+        }).fail(function() {
+            alert("ไม่สามารถเซฟข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    }
+    
+    function createMealItemRow(mealItem) {
+        var $row = $("<tr>");
         
-        // Register click event for save food item
-        var $saveFoodItem = $($addRow.find("#save-food-item"));       
-        $saveFoodItem.click(function() {
-           if (!$addFoodCode.val() || !$addFoodWeight.val() || !$addFoodCalorie.val()) {
-               alert("กรอกข้อมูลไม่ครบ โปรดเช็คข้อมูลที่กรอกให้ครบถ้วนทุกช่อง");
-               
-               return;
-           }
-           
-           var selectionDate = getSelectionDate();
-           
-           var foodItem = new Object();
-           foodItem.code = $addFoodCode.val();
-           foodItem.weight = $addFoodWeight.val();
-           foodItem.calorie = $addFoodCalorie.val();        
-           foodItem.yearMonth = selectionDate.yearMonth;
-           foodItem.day = selectionDate.day;
-           foodItem.weekDay = selectionDate.weekDay;
-           foodItem.type = type;
-           
-           // Send save request to server
-           $.post("addFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
-                $addRow.detach();
-               
-                var $row = $foodItemTemplate.clone(true, true);
+        $("<td>", { "class":"col-valign-center" }).text(mealItem.OdrLocNam).appendTo($row);
+        
+        var $deleteButton = $("<div>", { "class":"btn btn-danger" });
+        $deleteButton.text("ลบ");
+        
+        $deleteButton.click(function() {
+            var foodItem = new Object();
+            foodItem.mealSeq = mealItem.OmdNum;
+            foodItem.itemSeq = mealItem.OmdSeq;
 
-                var $foodCode = $($row.find("#food-code"));
-                var $foodName = $($row.find("#food-name"));
-                var $foodWeight = $($row.find("#food-weight"));
-                var $foodCalorie = $($row.find("#food-calorie"));
-
-                var item = jQuery.parseJSON(result);
-                
-                $foodCode.text($addFoodCode.val());
-                $foodName.text(item.OdrLocNam);
-                $foodWeight.text($addFoodWeight.val());
-                $foodCalorie.text($addFoodCalorie.val());
-
-                var $deleteItemButton = $($row.find("#delete-food-item"));
-                $deleteItemButton.click(function() {
-                    var foodItem = new Object();
-                    foodItem.code = $foodCode.text();
-                    foodItem.yearMonth = selectionDate.yearMonth;
-                    foodItem.day = selectionDate.day;
-                    foodItem.weekDay = selectionDate.weekDay;
-                    foodItem.type = type;
-                    
-                    // Send save request to server
-                    $.post("deleteFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
-                        $deleteItemButton.closest('tr').detach();
-                    }).fail(function() {
-                       alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-                    });
-                   
-                });
-
-                $table.append($row);
-           }).fail(function() {
-               alert("ไม่สามารถเซฟข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-           });
+            // Send save request to server
+            $.post("deleteFoodMealItem", JSON.stringify(foodItem)).done(function(result) {
+                $row.detach();
+            }).fail(function() {
+               alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+            });
         });
         
-        var $cancelFoodItem = $($addRow.find("#cancel-food-item"));  
-        $cancelFoodItem.click(function() {
-           if (!$addFoodCode.val() && !$addFoodWeight.val() && !$addFoodCalorie.val()) {
-               $addRow.detach();
-           } 
-           else {
-               var selected = confirm("คุณต้องการยกเลิกข้อมูลที่กรอกใช่หรือไม่ (ข้อมูลที่กรอกจะถูกยกเลิกและไม่ถูกเซฟในระบบ)");
-               if (selected) {
-                   $addRow.detach();
-               }
-           }
-        });
-   }
+        $("<td>").append($deleteButton).appendTo($row);
+        
+        return $row;
+    }
+    
+    $("#addItemButton").click(addFoodItem);
     
     $("#preparation-tab").tabs({heightStyle: "fill"});
     $("#monthly-preparation-tab").tabs({heightStyle: "fill"});
@@ -384,8 +365,60 @@
             var day = $.datepicker.formatDate("dd", selectedDate);
             
             getFoodMealSet(yearMonth, day);
+        },
+        beforeShowDay: function(date) {
+            if (scheduleDates) {
+                var showDate = $.datepicker.formatDate("yymmdd", date);
+
+                for (var index=0; index<scheduleDates.length; index++) {
+                    if (showDate === scheduleDates[index]) {
+                        return [true, "has-schedule", "Busy"];
+                    } else if (showDate < scheduleDates[index]) {
+                        break;
+                    }
+                }
+            }
+
+            return [true, ""];
+        },
+        onChangeMonthYear: function(year, month) {
+            var paddingMonth = month;
+            if (paddingMonth < 10) {
+                paddingMonth = "0" + paddingMonth;
+            }
+            getNutritionPreparationScheduleDates(year, paddingMonth);
         }
     });
     
-    $(".add-food-item").click(addFoodItem);    
+    function getNutritionPreparationScheduleDates(year, month) {
+        scheduleDates = undefined;
+        
+        $.get("getPreparationScheduleDates/" + year + "/" + month).done(function(result) {
+            var appointmentDates = jQuery.parseJSON(result);
+
+            scheduleDates = [];
+            for (var index=0; index<appointmentDates.length; index++) {
+                scheduleDates.push(appointmentDates[index].OmmDte);
+            }
+            $("#date-selection").datepicker("refresh");
+        });
+    }
+    
+    $("#addItemDialog").modal({ show: false, keyboard: false });
+    
+    function initialize() {
+        var currentDate = new Date();
+        $("#date-selection").datepicker("setDate", currentDate);
+
+        var year = $.datepicker.formatDate("yy", currentDate);
+        var month = $.datepicker.formatDate("mm", currentDate);
+        getNutritionPreparationScheduleDates(year, month);
+
+        var yearMonth = $.datepicker.formatDate("yymm", currentDate);
+        var day = $.datepicker.formatDate("dd", currentDate);
+
+        getFoodMealSet(yearMonth, day);
+    }
+    
+    initialize();
 </script>

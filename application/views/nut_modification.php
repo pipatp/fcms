@@ -39,16 +39,18 @@
 }
 
 #modification-tab .ui-tabs-panel {
-    padding-top: 20px;
+    padding-top: 10px;
     border-width: 0px 1px 1px 1px;
     
     font-size: 13px;
 }
 
-#player-search-box {
+#player-select-input {
     padding-left: 22px;
     background: url("../../images/search-magnify.png") no-repeat;
     background-position: 3px center;
+    
+    margin-bottom: 10px;
 }
 
 #modify-date-selection .ui-datepicker {
@@ -110,17 +112,25 @@
 }
 
 .nutritionist-comment {
-    margin-top: 15px;
+    margin-top: 5px;
     margin-right: 15px;
-    padding: 8px;
-    
     min-height: 100px;
     height: 60%;
+}
+
+.nutritionist-comment .stretch {
+    width: 100%;
+    height: 100%;
+
+    min-height: 300px;
+    font-family: Helvetica,tahoma, sans-serif;
+}
+
+.nutritionist-comment .comment {
+    border: #AAA solid 1px;
+    padding: 2px;
     
-    border-width: 1px;
-    border-color: #AAA;
-    border-style: solid;
-    border-radius: 5px;
+    white-space: pre;
 }
 
 .hidden-field {
@@ -141,7 +151,33 @@
         <li><a href="#tabs-1">เพิ่มหรือแก้ไขรายการอาหาร</a></li>
     </ul>
     <div id="tabs-1">
-        <input id="player-search-box" type="text" placeholder="ค้นหานักกีฬา" />
+        <select id="player-select-input" class="form-control input-sm" style="width:300px;">
+            <option value=""></option>
+            <?php 
+            foreach ($players as $player) {
+            ?>
+            <option value="<? echo $player->PlyCod ?>">
+                <?php
+                    $fullName = "";
+                    if (strlen($player->PlyFstNam) > 0) {
+                        $fullName = $player->PlyFstNam . " " . $player->PlyFamNam;
+                    }
+                    
+                    if (strlen($player->PlyFstEng) > 0) {
+                        if (strlen($fullName) > 0) {
+                            $fullName = $fullName . " (" . $player->PlyFstEng . " " . $player->PlyFamEng . ")";
+                        }
+                        else {
+                            $fullName = $player->PlyFstEng . " " . $player->PlyFamEng;
+                        }
+                    }
+                    echo $fullName;
+                ?>
+            </option>
+            <?php
+            }
+            ?>
+        </select>
         <table id="player-add-meal-table" width="100%" height="98%">
             <tr height="100%">
                 <td width="50%" valign="top">
@@ -150,8 +186,9 @@
                         <div class="player-detail">
                         </div>
                     </div>
+                    <div style="font-weight: bold; margin-top: 15px;">ข้อมูลเพิ่มเติมของนักโภชนาการ</div>
                     <div class="nutritionist-comment">
-                        <div style="font-weight: bold">ข้อมูลเพิ่มเติมของนักโภชนาการ</div>                        
+                        <div class="stretch comment" title="ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข"></div>
                     </div>
                 </td>
                 <td width="50%" valign="top">
@@ -241,7 +278,7 @@
     foodItemTemplateHtml += '</tr>';
     
     var $addFoodItemTemplate = $(foodItemTemplateHtml);
-
+    
     $("#modification-tab").tabs({heightStyle: "fill"});
     $("#player-meal-modification-tab").tabs({heightStyle: "content"});
     
@@ -256,6 +293,106 @@
     
     var scheduleDates = undefined;
     var permission = <?php echo json_encode($permission) ?>;
+    
+    var currentComment = "";
+    var editMode = false;
+    
+    $(function() {
+        var currentDate = new Date();
+        $("#modify-date-selection").datepicker("setDate", currentDate);
+        var yearMonth = $.datepicker.formatDate("yymm", currentDate);
+        var day = $.datepicker.formatDate("dd", currentDate);
+
+        getPlayerMealSet(yearMonth, day);
+        
+        $(".nutritionist-comment").dblclick(function() {
+            if (editMode) {
+                return false;
+            }
+            convertToTextArea($(this));
+        });
+        $(".nutritionist-comment").focusout(function() {
+            var $section = $(this);
+
+            var $commentBox = $section.children(".stretch");
+
+            if ($commentBox.val() === currentComment) {
+                convertToDiv($section);
+            } 
+            else {
+                addPlayerComment($commentBox.val(), function() {
+                    convertToDiv($section);
+                });
+            }
+        });
+
+        $(".nutritionist-comment .stretch").tooltip();
+    });
+    
+    function addPlayerComment(comment, success) {
+        var result = {};
+        result.playerCode = playerCode;
+        result.comment = comment;
+        result.category = "NUT";
+
+        $.post("../player/updateComment", JSON.stringify(result)).done(function() {
+            success();
+        }).fail(function() {
+           alert("ไม่สามารถแก้ไขข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    }
+    
+    function convertToTextArea($section) {       
+        var $commentDiv = $section.children(".stretch");
+        $commentDiv.tooltip('hide');
+        $commentDiv.detach();
+        
+        currentComment = $commentDiv.text();
+        
+        var $commentBox = $("<textarea class='stretch'></textarea>");
+        $commentBox.val($commentDiv.text());
+        
+        $commentBox.keydown(function(e) {
+            if (e.keyCode === 27) {
+                $commentBox.val(currentComment);
+                
+                convertToDiv($section);
+            }
+        });
+        
+        $section.append($commentBox);
+        
+        $commentBox.focus();
+        
+        editMode = true;
+    }
+    
+    function convertToDiv($section) {
+        var $commentBox = $section.children(".stretch");
+        $commentBox.detach();
+        
+        var $commentDiv = $("<div class='stretch comment' title='ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข'></div>");
+        $commentDiv.text($commentBox.val());
+        
+        $commentDiv.tooltip();
+        
+        $section.append($commentDiv);
+        
+        editMode = false;
+    }
+    
+    function getPlayerComment(playerCode) {
+        $.get("../player/comment/" + playerCode + "?cat=NUT").done(function(result) {
+            var comment = jQuery.parseJSON(result);
+            
+            if (comment.PlcCmt) {
+                $(".nutritionist-comment .stretch").text(comment.PlcCmt);
+            }
+            else {
+                $(".nutritionist-comment .stretch").text("");
+            }
+        });
+    }
 
     function getSelectionDate() {
         var selectedDate = $("#modify-date-selection").datepicker("getDate");
@@ -306,8 +443,6 @@
     }
     
     function displayPlayerInfo(item) {
-        playerCode = item.PlyCod;
-        
         $(".player-picture").attr("src", "../player/image/" + playerCode);
         
         var $playerDetail = $(".player-detail");
@@ -332,27 +467,35 @@
         $("#player-add-meal-table").show();
     }
     
-    $("#player-search-box").autocomplete({
-        source: "findPlayer",
-        minLength: 2,
-        focus: function(event, ui) {            
-            return false;
-        },
-        select: function(event, ui) {
-            $("#player-search-box").val("");
+    $("#player-select-input").change(function() {
+        var $combo = $(this);
+        playerCode = $combo.find(":selected").val();
 
-            displayPlayerInfo(ui.item);
-            
-            var selectedDate = $("#modify-date-selection").datepicker("getDate");
-            var year = $.datepicker.formatDate("yy", selectedDate);
-            var month = $.datepicker.formatDate("mm", selectedDate);
-            getNutritionScheduleDates(year, month);
-            
-            return false;
+        if (playerCode.length <= 0) {
+            return;
         }
-    }).data("ui-autocomplete")._renderItem = function(ul, item) {
-        return $("<li class='list-auto-item'>").append("<a>" + getDisplayNameWithEng(item) + "</a>" ).appendTo(ul);
-    };
+        
+        getPlayerInfo(playerCode);
+        getPlayerComment(playerCode);
+        
+        var selectedDate = $("#modify-date-selection").datepicker("getDate");
+        var year = $.datepicker.formatDate("yy", selectedDate);
+        var month = $.datepicker.formatDate("mm", selectedDate);
+        getNutritionScheduleDates(year, month);
+        
+        var yearMonth = $.datepicker.formatDate("yymm", selectedDate);
+        var day = $.datepicker.formatDate("dd", selectedDate);
+
+        getPlayerMealSet(yearMonth, day);
+    });
+    
+    function getPlayerInfo(playerCode) {
+        $.get("../player/info/" + playerCode).done(function(result) {
+            var info = jQuery.parseJSON(result);
+
+            displayPlayerInfo(info);
+        });
+    }
     
     function addMealItemRow($table, foodItem, foodType) {
         var $row = $foodItemTemplate.clone(true, true);
@@ -542,8 +685,6 @@
             getNutritionScheduleDates(year, paddingMonth);
         }
      });
-    
-    $("#modify-date-selection").datepicker("setDate", new Date());
     
     function getNutritionScheduleDates(year, month) {
         scheduleDates = undefined;

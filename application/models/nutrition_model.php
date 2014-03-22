@@ -47,20 +47,36 @@ class nutrition_model extends CI_Model {
         return $query->result();
     }
     
-    function saveFoodMealItem($yearMonth, $day, $weekDay, $type, $itemCode, $itemWeight, $itemCalorie) {
-        $data = array($yearMonth, $day, $weekDay, $type, $itemCode, $itemWeight, $itemCalorie);
+    function saveFoodMealItem($yearMonth, $day, $weekDay, $type, $itemCode, $user) {
+        $data = array($yearMonth, $day, $weekDay, $type, $itemCode, $user);
         
-        $query = $this->db->query("CALL fn_saveFoodMeal(?, ?, ?, ?, ?, ?, ?)", $data);
+        $query = $this->db->query("CALL fn_saveFoodMeal(?, ?, ?, ?, ?, ?)", $data);
         
         return $query->row();
     }
     
-    function deleteFoodMealItem($yearMonth, $day, $weekDay, $type, $itemCode) {
-        $data = array($yearMonth, $day, $weekDay, $type, $itemCode);
+    function deleteFoodMealItem($mealSeq, $itemSeq) {
+        $data = array($mealSeq, $itemSeq);
         
-        $query = $this->db->query("CALL fn_deleteFoodMeal(?, ?, ?, ?, ?)", $data);
+        $query = $this->db->query("CALL fn_deleteFoodMeal(?, ?)", $data);
         
         $query->row();
+    }
+    
+    function getPreparationScheduleDates($year, $month) {
+        $yearMonth = $year . $month;
+        
+        $data = array($yearMonth);
+        
+        $query = $this->db->query("CALL fn_getPreparationScheduleDates(?)", $data);
+        
+        return $query->result();
+    }
+    
+    function getAllFoodMeal() {
+        $query = $this->db->query("CALL fn_getAllFoodMeal()");
+        
+        return $query->result();
     }
     
     // Today Tab
