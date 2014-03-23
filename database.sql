@@ -370,6 +370,24 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_addTeamWorklistItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_addTeamWorklistItem`(IN `p_date` VARCHAR(8), IN `p_orderCode` VARCHAR(20), IN `p_start` VARCHAR(12), IN `p_end` VARCHAR(12), IN `p_duration` SMALLINT, IN `p_user` VARCHAR(20))
+BEGIN
+	DECLARE l_id CHAR(36);
+	
+	SET l_id = UUID();
+	
+	INSERT INTO wmsmst VALUES (l_id, p_date, p_orderCode, p_start, p_end, p_duration, p_user, DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S'));
+	
+	SELECT *
+	FROM wmsmst wm, odrmst om
+	WHERE wm.WmsOdrCod = om.OdrCod AND wm.WmsDte = p_date
+	ORDER BY wm.WmsStrDtm;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_decrementInventoryItem
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_decrementInventoryItem`(IN `p_storeInItemSeq` BIGINT, IN `p_oldRemain` SMALLINT, IN `p_newRemain` SMALLINT)
@@ -508,6 +526,25 @@ BEGIN
 	FROM odrmst om
 	WHERE om.OdrCatTyp = "INV"
 	ORDER BY om.OdrLocNam;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getAllOrders
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getAllOrders`()
+BEGIN
+	SELECT *
+	FROM odrmst om
+	WHERE om.OdrCatTyp = "FIT"
+	UNION
+	SELECT *
+	FROM odrmst om
+	WHERE om.OdrCatTyp = "PHY"
+	UNION
+	SELECT *
+	FROM odrmst om
+	WHERE om.OdrCatTyp = "NUT" AND om.OdrSubTyp <> "DTL";
 END//
 DELIMITER ;
 
@@ -760,6 +797,18 @@ BEGIN
 	SELECT *
 	FROM invsdt sd
 	WHERE sd.InvOdrCod = p_code AND sd.InvCatTyp = p_category AND sd.InvOdrRem > 0;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getTeamWorklistSchedule
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getTeamWorklistSchedule`(IN `p_date` VARCHAR(8))
+BEGIN
+	SELECT *
+	FROM wmsmst wm, odrmst om
+	WHERE wm.WmsOdrCod = om.OdrCod AND wm.WmsDte = p_date
+	ORDER BY wm.WmsStrDtm;
 END//
 DELIMITER ;
 
@@ -1050,16 +1099,17 @@ CREATE TABLE IF NOT EXISTS `odrmst` (
   `OdrUpdUid` char(20) default NULL,
   `OdrUpdDts` char(14) default NULL,
   PRIMARY KEY  (`OdrCod`),
-  KEY `OdrLocNam` (`OdrLocNam`)
+  KEY `OdrLocNam` (`OdrLocNam`),
+  KEY `OdrCatTyp` (`OdrCatTyp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.odrmst: ~24 rows (approximately)
 /*!40000 ALTER TABLE `odrmst` DISABLE KEYS */;
 INSERT INTO `odrmst` (`OdrCod`, `OdrLocNam`, `OdrEngNam`, `OdrCatTyp`, `OdrSubTyp`, `OdrCurStt`, `OdrUnt`, `OdrCreDte`, `OdrExpDte`, `OdrUpdUid`, `OdrUpdDts`) VALUES
-	('FIT000001', 'วิ่งลู่', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
-	('FIT000002', 'ปั่นจักรยาน', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
-	('FIT000003', 'ยกเวท', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
-	('FIT000004', 'โยคะ', NULL, 'FIT', 'DTL', NULL, NULL, NULL, NULL, NULL, NULL),
+	('FIT000001', 'วิ่งลู่', NULL, 'FIT', '', NULL, NULL, NULL, NULL, NULL, NULL),
+	('FIT000002', 'ปั่นจักรยาน', NULL, 'FIT', '', NULL, NULL, NULL, NULL, NULL, NULL),
+	('FIT000003', 'ยกเวท', NULL, 'FIT', '', NULL, NULL, NULL, NULL, NULL, NULL),
+	('FIT000004', 'โยคะ', NULL, 'FIT', '', NULL, NULL, NULL, NULL, NULL, NULL),
 	('INV000001', 'ผ้าพันแผล', NULL, 'INV', NULL, NULL, 'อัน', NULL, NULL, NULL, NULL),
 	('INV000002', 'ดินสอ', NULL, 'INV', NULL, NULL, 'แท่ง', NULL, NULL, NULL, NULL),
 	('INV000003', 'ยาแก้ปวด', NULL, 'INV', NULL, NULL, 'เม็ด', NULL, NULL, NULL, NULL),
@@ -1234,7 +1284,7 @@ CREATE TABLE IF NOT EXISTS `plcinf` (
   PRIMARY KEY  (`PlcCod`,`PlcCatTyp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player additional comment infomation';
 
--- Dumping data for table fcms.plcinf: ~3 rows (approximately)
+-- Dumping data for table fcms.plcinf: ~5 rows (approximately)
 /*!40000 ALTER TABLE `plcinf` DISABLE KEYS */;
 INSERT INTO `plcinf` (`PlcCod`, `PlcCatTyp`, `PlcCmt`, `PlcUpdUid`, `PlcUpdDts`) VALUES
 	('P00001', 'COA', 'Hello test', 'test', '20140308175604'),
@@ -1284,7 +1334,7 @@ CREATE TABLE IF NOT EXISTS `plrinf` (
   PRIMARY KEY  (`PlrPlyCod`,`PlrRstDte`,`PlrCatTyp`,`PlrSubTyp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.plrinf: ~4 rows (approximately)
+-- Dumping data for table fcms.plrinf: ~5 rows (approximately)
 /*!40000 ALTER TABLE `plrinf` DISABLE KEYS */;
 INSERT INTO `plrinf` (`PlrPlyCod`, `PlrRstDte`, `PlrCatTyp`, `PlrSubTyp`, `PlrRstCmt`, `PlrUpdUid`, `PlrUpdDts`) VALUES
 	('P00001', '20140302', 'FIT', 'RST', 'Normal test', 'user', '2014030205507'),
@@ -1453,7 +1503,7 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
   `PwlUpdUid` char(20) default NULL,
   `PwlUpdDts` char(14) default NULL,
   PRIMARY KEY  (`PwlSeqNum`,`PwlPlyCod`,`PwlAppDte`,`PwlAppTim`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.pwlinf: ~9 rows (approximately)
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
@@ -1466,7 +1516,9 @@ INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCu
 	(14, 'P00001', '20140317', '0530', 'N', NULL, NULL, 'test', '20140313010903'),
 	(15, 'P00001', '20140320', '0530', 'N', NULL, NULL, 'test1', '20140321000110'),
 	(16, 'P00001', '20140311', '0530', 'N', NULL, NULL, 'test1', '20140321000332'),
-	(17, 'P00001', '20140322', '0530', 'N', NULL, NULL, 'test', '20140322112153');
+	(17, 'P00001', '20140322', '0530', 'N', NULL, NULL, 'test', '20140322112153'),
+	(22, 'P00001', '20140324', '0000', 'A', NULL, NULL, 'test', '20140324023735'),
+	(23, 'P00002', '20140324', '0000', 'A', NULL, NULL, 'test', '20140324023735');
 /*!40000 ALTER TABLE `pwlinf` ENABLE KEYS */;
 
 
@@ -1547,12 +1599,19 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(14, 5, 'FIT000004', '1000', '1030', 30, 'N', NULL, NULL, 'test1', '20140320234707'),
 	(15, 1, 'FIT000003', '0500', '0600', 60, 'N', NULL, NULL, 'test1', '20140321000110'),
 	(15, 2, 'PHY000001', '0600', '0700', 60, 'N', NULL, NULL, 'test1', '20140321000315'),
-	(16, 1, 'PHY000001', '0500', '0530', 30, 'N', NULL, NULL, 'test1', '20140321000332'),
 	(17, 1, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140322112153'),
 	(17, 3, 'FIT000001', '1000', '1100', 60, 'N', NULL, NULL, 'test', '20140322143056'),
 	(17, 4, 'FIT000002', '1500', '1600', 60, 'N', NULL, NULL, 'test', '20140322143109'),
 	(17, 5, 'NUTBRK001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140322195037'),
-	(17, 6, 'PHY000001', '1100', '1130', 30, 'N', NULL, NULL, 'test', '20140323015853');
+	(17, 6, 'PHY000001', '1100', '1130', 30, 'N', NULL, NULL, 'test', '20140323015853'),
+	(22, 1, 'FIT000001', '0000', '0100', 60, 'N', NULL, NULL, 'test', '20140324023735'),
+	(22, 2, 'FIT000004', '0100', '0200', 60, 'N', NULL, NULL, 'test', '20140324023735'),
+	(22, 3, 'FIT000003', '0200', '0300', 60, 'N', NULL, NULL, 'test', '20140324023735'),
+	(22, 4, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324023735'),
+	(23, 1, 'FIT000001', '0000', '0100', 60, 'N', NULL, NULL, 'test', '20140324023735'),
+	(23, 2, 'FIT000004', '0100', '0200', 60, 'N', NULL, NULL, 'test', '20140324023735'),
+	(23, 3, 'FIT000003', '0200', '0300', 60, 'N', NULL, NULL, 'test', '20140324023735'),
+	(23, 4, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324023735');
 /*!40000 ALTER TABLE `wklinf` ENABLE KEYS */;
 
 
@@ -1602,7 +1661,7 @@ CREATE TABLE IF NOT EXISTS `wkminf` (
   PRIMARY KEY  (`WkmPwlSeq`,`WkmOdrCod`,`WkmMelSeq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wkminf: ~13 rows (approximately)
+-- Dumping data for table fcms.wkminf: ~14 rows (approximately)
 /*!40000 ALTER TABLE `wkminf` DISABLE KEYS */;
 INSERT INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMelWeg`, `WkmMelCal`, `WkmEdtYon`, `WkmMelYrm`, `WkmMelDay`, `WkmOdrStt`, `WkmUpdUid`, `WkmUpdDts`) VALUES
 	(1, 'NUTBRK001', 2, 'NUT000006', 100, 250, 'N', '201401', '24', 'N', NULL, NULL),
@@ -1620,6 +1679,30 @@ INSERT INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMe
 	(17, 'NUTBRK001', 1, 'NUT000005', 33, 33, 'N', '201403', '22', 'N', 'test', '20140322195037'),
 	(17, 'NUTBRK001', 2, 'NUT000004', 400, 40, 'N', '201403', '22', 'N', 'test', '20140322195133');
 /*!40000 ALTER TABLE `wkminf` ENABLE KEYS */;
+
+
+-- Dumping structure for table fcms.wmsmst
+CREATE TABLE IF NOT EXISTS `wmsmst` (
+  `WmsUnq` char(36) NOT NULL,
+  `WmsDte` char(8) default NULL,
+  `WmsOdrCod` char(20) default NULL,
+  `WmsStrDtm` char(12) default NULL,
+  `WmsEndDtm` char(12) default NULL,
+  `WmsActDur` smallint(6) default NULL,
+  `WmsUpdUid` char(20) default NULL,
+  `WmsUpdDts` char(14) default NULL,
+  PRIMARY KEY  (`WmsUnq`),
+  KEY `WmsDte` (`WmsDte`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Worklist month schedule master';
+
+-- Dumping data for table fcms.wmsmst: 0 rows
+/*!40000 ALTER TABLE `wmsmst` DISABLE KEYS */;
+INSERT INTO `wmsmst` (`WmsUnq`, `WmsDte`, `WmsOdrCod`, `WmsStrDtm`, `WmsEndDtm`, `WmsActDur`, `WmsUpdUid`, `WmsUpdDts`) VALUES
+	('e2c58f36-040b-1032-aa74-f1bacedbe0cf', '20140324', 'FIT000001', '0000', '0100', 60, 'test', '20140324014820'),
+	('ed70f576-040c-1032-aa74-f1bacedbe0cf', '20140324', 'FIT000003', '0200', '0300', 60, 'test', '20140324015547'),
+	('1c7314e2-040d-1032-aa74-f1bacedbe0cf', '20140324', 'FIT000004', '0100', '0200', 60, 'test', '20140324015706'),
+	('99de18d4-0412-1032-aa74-f1bacedbe0cf', '20140324', 'PHY000001', '0900', '1000', 60, 'test', '20140324023624');
+/*!40000 ALTER TABLE `wmsmst` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

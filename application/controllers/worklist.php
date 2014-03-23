@@ -1,9 +1,9 @@
 <?php
 
-class Worklist extends CI_Controller {
+class worklist extends CI_Controller {
     public $permission;
     
-    function Worklist() {
+    function worklist() {
         parent::__construct();
         
         if (!$this->session->userdata('user_login')) {
@@ -40,11 +40,52 @@ class Worklist extends CI_Controller {
         $this->load->view('work_main', $data);
     }
     
-    function addWorklist() {
+    //----------------------------------------------
+    // Worklist Schedule
+    //----------------------------------------------
+    function viewWorklistSchedule() {
+        $this->load->model('order_model');
         
-        $data["permission"] = $this->permission;     
-        $this->load->view('work_addWorklist');
+        $data["orders"] = $this->order_model->getAllOrders();
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('work_schedule', $data);
     }
     
+    function getTeamWorklistSchedule($date) {
+        $this->load->model('worklist_model');
+        
+        $data["content"] = $this->worklist_model->getTeamWorklistSchedule($date);
+        
+        $this->load->view('json_result', $data);
+    }
     
+    function addTeamWorklistItem() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('worklist_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        $data["content"] = $this->worklist_model->addTeamWorklistItem($postData["date"], $postData["orderCode"], $postData["start"],
+                $postData["end"], $postData["duration"], $user);
+        
+        $this->load->view('json_result', $data);
+    }
+    
+    function generateWorklistToPlayers() {
+        try {
+            $postData = json_decode(trim(file_get_contents('php://input')), true);
+
+            $this->load->model('worklist_model');
+
+            $loginSession = $this->session->userdata('user_login');
+            $user = $loginSession["username"];
+
+            $this->worklist_model->generateWorklistToPlayers($postData["date"], $user);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Generate worklist failed.');
+        }
+    }
 }

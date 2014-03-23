@@ -14,4 +14,10 @@ class order_model extends CI_Model {
         
         return $query->result();
     }
+    
+    function getAllOrders() {
+        $query = $this->db->query("CALL fn_getAllOrders()");
+        
+        return $query->result();
+    }
 }

@@ -85,4 +85,26 @@ class worklist_model extends CI_Model {
         
         return $query->result();
     }
+    
+    function getTeamWorklistSchedule($date) {
+        $data = array($date);
+        
+        $query = $this->db->query("CALL fn_getTeamWorklistSchedule(?)", $data);
+        
+        return $query->result();
+    }
+    
+    function addTeamWorklistItem($date, $orderCode, $startDate, $endDate, $duration, $user) {
+        $data = array($date, $orderCode, $startDate, $endDate, $duration, $user);
+        
+        $query = $this->db->query("CALL fn_addTeamWorklistItem(?, ?, ?, ?, ?, ?)", $data);
+        
+        return $query->result();
+    }
+    
+    function generateWorklistToPlayers($date, $user) {
+        $data = array($date, $user);
+        
+        $this->db->query("CALL fn_generatePlayerWorklistFromTeamWorklist(?, ?)", $data);
+    }
 }

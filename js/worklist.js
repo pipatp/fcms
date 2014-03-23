@@ -1,23 +1,12 @@
-function viewStoreInTransactions() {
+function viewWorklistSchedule() {
     selectTab(this);
 
-    $.ajax("viewStoreInTransactions").done(function(result) {
+    $.ajax("viewWorklistSchedule").done(function(result) {
         var $content = $(".content-body");
 
         $content.html(result);
     });
 }
-
-function addWorklist() {
-    selectTab(this);
-    
-    $.ajax("addWorklist").done(function(result) {
-        var $content = $(".content-body");
-
-        $content.html(result);
-    });
-}
-
 
 function selectTab(selectedTab) {
     $(".sub-menu ul li ").removeClass("selected");
@@ -34,7 +23,7 @@ $(function() {
     // Set nutrition tab selected
     $(".top-menu ul li.menu-worklist").addClass("selected");
 
-    $("#worklist-team-tab").click(viewRegistration);
+    $("#worklist-team-tab").click(viewWorklistSchedule);
 
 });
 
