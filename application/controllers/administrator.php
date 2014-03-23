@@ -1,12 +1,28 @@
 <?php
 
 class Administrator extends CI_Controller {
+    public $permission;
+    
     function Administrator() {
         parent::__construct();
+        
+        $this->load->library('permission');
         
         if (!$this->session->userdata('user_login')) {
                 redirect('main/login');
         }
+        
+        if (!$this->session->userdata('user_permission')) {
+            redirect('main/menu');
+        }
+        
+        $perms = $this->session->userdata('user_permission');
+        
+        if (!array_key_exists('ADM', $perms)) {
+            redirect('main/menu');
+        }
+        
+        $this->permission = $perms["ADM"];
    }
     
     protected function getQueryStringParams() {
@@ -22,6 +38,8 @@ class Administrator extends CI_Controller {
         $data["showSubMenu"] = true;
         $data["subMenuView"] = "admin_navigation";
         
+        $data["permissions"] = $this->session->userdata('user_permission');
+        
         $this->load->view('admin_main', $data);
     }
     
@@ -32,7 +50,10 @@ class Administrator extends CI_Controller {
         $this->load->view('admin_playerlist');
     }
       function viewAddPlayer() {
-        $this->load->view('admin_addplayer');
+        
+        $data["permission"] = $this->permission;  
+          
+        $this->load->view('admin_addplayer',$data);
     }
     
         function viewPlayerInfo() {
@@ -59,8 +80,7 @@ class Administrator extends CI_Controller {
         
         $data["content"] = $this->administrator_model->addCategory($postData["department"],$postData["eDepartment"],
         $postData["job"], $postData["eJob"],$postData["medType"], $postData["eMedType"], $postData["fitTool"],$postData["eFitTool"],
-        $postData["physicType"], $postData["ePhysicType"],$postData["nutType"],$postData["eNutType"],
-        $postData["program"], $postData["eProgram"]);
+        $postData["physicType"], $postData["ePhysicType"],$postData["nutType"],$postData["eNutType"]);
         
 
         $this->load->view('json_result', $data);    
@@ -184,7 +204,17 @@ class Administrator extends CI_Controller {
             
 
         $this->load->view('json_result', $data);
-    }     
+    }
+    
+        function getUser() {
+        
+        $this->load->model('administrator_model');
+        
+        $data["content"] = $this->administrator_model->getUser();
+            
+
+        $this->load->view('json_result', $data);
+    }   
         
         
     function getUserID(){
@@ -648,6 +678,20 @@ class Administrator extends CI_Controller {
         }
     }
     
+    
+    function deleteUser() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('administrator_model');
+
+        try {
+            
+            $this->administrator_model->deleteUser($postData["worklistSeq"]);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Delete item failed.');
+        }
+    }
+    
     function deleteFoodMealItem() {
         $postData = json_decode(trim(file_get_contents('php://input')), true);
         
@@ -680,8 +724,8 @@ class Administrator extends CI_Controller {
     }
     function viewMasterData() {
 //        $this->load->model('nutrition_model');
-             
-        $this->load->view('mas_data');
+        $data["permission"] = $this->permission;     
+        $this->load->view('mas_data',$data);
     }
     
     
@@ -773,6 +817,20 @@ class Administrator extends CI_Controller {
                  $postData["date"], $postData["detail"]);
         } catch (Exception $e) {
             $this->output->set_status_header('500', 'Update Failed. ' . $e->getMessage());
+        }
+    }
+    
+    
+    function approveTeamWorklistItem() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('administrator_model');
+
+        try {
+            $this->administrator_model->approveTeamWorklistItem($postData["appointmentSeq"],
+                 $postData["itemSeq"]);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Delete failed. ' . $e->getMessage());
         }
     }
     

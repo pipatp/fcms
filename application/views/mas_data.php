@@ -100,19 +100,22 @@
 
 
 #data_user .fix-content {
-    padding-left: 10px;
+   /* padding-left: 10px;
     padding-right: 10px;
     
     width: 36px;
+   */
 }
 
 #data_user .fit-content {
-    width: 1px;
-    white-space: nowrap;
+    /*width: 1px;
+    
     
     padding-left: 10px;
-    padding-right: 10px;
+    padding-right: 10px; */
     
+    
+    white-space: nowrap;
     vertical-align: middle;
 }
 
@@ -145,19 +148,20 @@
 
 
 #user .fix-content {
-    padding-left: 10px;
-    padding-right: 10px;
+/*    padding-left: 10px;
+    padding-right: 10px; */
 /*    height:500px; */
 /*    width: 36px; */
 }
 
 #user .fit-content {
-    width: 1px;
-    white-space: nowrap;
+ /*   width: 1px;
     
     padding-left: 10px;
     padding-right: 10px;
-    
+ */
+    white-space: nowrap;
+ 
     vertical-align: middle;
 }
 
@@ -284,14 +288,16 @@
                 <div class="program col-md-3" >
                         <select  id="program" class="form-control">
                             <option value="0">เลือกโปรแกรม</option>
+<!--                            <option value="ADM">งานทะเบียน</option>
+                            <option value="MED">งานแพทย์</option>
+                            <option value="PHY">งานกายภาพบำบัด</option>
+                            <option value="NUT">งานโภชนาการ</option>
+                            <option value="FIT">งานฟิตเนส</option>
+                            <option value="COA">งานโค้ช</option>
+                            <option value="DIR">งานผู้บริหาร</option> -->
                         </select>
                 </div>
-                <div class="col-md-2">
-                    <input id="pro_start" name="pro_start" placeholder="เวลาเริ่ม" class="form-control input-md" required="" type="text">
-                </div>
-                <div class="col-md-2">
-                    <input id="pro_end" name="pro_end" placeholder="เวลาสิ้นสุด" class="form-control input-md" required="" type="text">
-                </div>
+
                 <div class="col-md-1">
                     <button class="btn btn-primary btn-sm"  id="save_pro" >
                     เพิ่มสิทธิ์
@@ -313,17 +319,33 @@
                     <thead>
                         <tr>
                             <th class="fix-content"></th>
-<!--                            <th class="fix-content">รหัส</th>  -->
-                            <th class="fit-content">ชื่อพนักงาน</th>
-                            <th class="content">แผนก</th>
-<!--                            <th class="content">รายการ</th>  -->
+                            <th class="fit-content">ชื่อเจ้าหน้าที่</th>
+                            <th class="content">นามสกุล</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
-</div>
-    <div id="data_dep">
+         
+                <div id="confirmDialogUser" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                ยืนยันการลบข้อมูล
+                            </div>
+                            <div class="modal-body">
+                                คุณต้องการที่จะลบรายการหรือไม่
+                            </div>
+                            <div class="modal-footer">
+                                <button id="deleteConfirmButtonUser" type="button" class="btn btn-danger">ตกลง</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    
+  <div id="data_dep">
        <div id="master-section">
             <ul>
                 <li><a href="#master_med">ยาและเวชภัณฑ์</a></li>
@@ -394,8 +416,24 @@
                     <tbody></tbody>
                 </table>
             </div>
-        
-     </div>
+         
+                <div id="confirmDialogMed" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                ยืนยันการลบข้อมูล
+                            </div>
+                            <div class="modal-body">
+                                คุณต้องการที่จะลบรายการหรือไม่
+                            </div>
+                            <div class="modal-footer">
+                                <button id="deleteConfirmButtonMed" type="button" class="btn btn-danger">ตกลง</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
 
         
         
@@ -486,6 +524,25 @@
                     <tbody></tbody>
                 </table>
             </div>
+            
+            <div id="confirmDialogFit" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            ยืนยันการลบข้อมูล
+                        </div>
+                        <div class="modal-body">
+                            คุณต้องการที่จะลบรายการหรือไม่
+                        </div>
+                        <div class="modal-footer">
+                            <button id="deleteConfirmButtonFit" type="button" class="btn btn-danger">ตกลง</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
+                        </div>
+                    </div>
+                </div>
+    </div>
+            
+            
     </div>
         
         <div id="master_phy">
@@ -829,7 +886,10 @@
 </script>
 
 <script>
-                                    
+                             
+    var $selectedRow;
+    var permission = <?php echo json_encode($permission) ?>; 
+    
                                      $('#save_fit').click(addFitness);
                                      $('#save_user_cate').click(addCategory);
                                      $('#save_player_cate').click(addPlayerPosition);
@@ -924,17 +984,15 @@
                                     var thai_medtyp =  $('#thai_medtyp').val();
                                     var thai_fit_tool =  $('#thai_fit_tool').val();
                                     var thai_phytyp =  $('#thai_phytyp').val();
-                                    var thai_program =  $('#thai_program').val();
                                     var thai_nuttyp =  $('#thai_nuttyp').val();
                                     var eng_department =  $('#eng_department').val();
                                     var eng_job =  $('#eng_job').val();
                                     var eng_medtyp =  $('#eng_medtyp').val();
                                     var eng_fit_tool =  $('#eng_fit_tool').val();
                                     var eng_phytyp =  $('#eng_phytyp').val();
-                                    var eng_program =  $('#eng_program').val();
                                     var eng_nuttyp =  $('#eng_nuttyp').val();
                                     
-                                   if (!thai_dep && !thai_job && !thai_medtyp && !thai_fit_tool && !thai_phytyp && !thai_program && !thai_nuttyp && !eng_department && !eng_job && !eng_medtyp && !eng_fit_tool && !eng_phytyp && !eng_program && !eng_nuttyp) {
+                                   if (!thai_dep && !thai_job && !thai_medtyp && !thai_fit_tool && !thai_phytyp && !thai_nuttyp && !eng_department && !eng_job && !eng_medtyp && !eng_fit_tool && !eng_phytyp && !eng_nuttyp) {
                                          alert("กรุณากรอกข้อมูลด้วยคราบ");
 
                                          return;
@@ -943,112 +1001,206 @@
                                     else{
                                         
                                         
-                                        var addCate= {};
-                                            
-                                            
-                                          
-                                            addCate.department = $("#thai_dep").val();
-                                            addCate.job = $("#thai_job").val();
-                                            addCate.medType = $("#thai_medtyp").val();
-                                            addCate.fitTool = $("#thai_fit_tool").val();
-                                            addCate.physicType = $("#thai_phytyp").val();
-                                            addCate.program = $("#thai_program").val();
-                                            addCate.nutType = $("#thai_nuttyp").val();
-                                            addCate.eJob = $("#eng_job").val();
-                                            addCate.eDepartment = $("#eng_department").val(); 
-                                            addCate.eMedType = $("#eng_medtyp").val();
-                                            addCate.eFitTool = $("#eng_fit_tool").val();
-                                            addCate.ePhysicType = $("#eng_phytyp").val();
-                                            addCate.eProgram = $("#eng_program").val();
-                                            addCate.eNutType = $("#eng_nuttyp").val(); 
-                                            
-                                            $.post("addCategory", JSON.stringify(addCate)).done(function() {
+                                    var addCate= {};
+
+
+
+                                        addCate.department = $("#thai_dep").val();
+                                        addCate.job = $("#thai_job").val();
+                                        addCate.medType = $("#thai_medtyp").val();
+                                        addCate.fitTool = $("#thai_fit_tool").val();
+                                        addCate.physicType = $("#thai_phytyp").val();
+                                        addCate.nutType = $("#thai_nuttyp").val();
+                                        addCate.eJob = $("#eng_job").val();
+                                        addCate.eDepartment = $("#eng_department").val(); 
+                                        addCate.eMedType = $("#eng_medtyp").val();
+                                        addCate.eFitTool = $("#eng_fit_tool").val();
+                                        addCate.ePhysicType = $("#eng_phytyp").val();
+                                        addCate.eNutType = $("#eng_nuttyp").val(); 
+
+                                        $.post("addCategory", JSON.stringify(addCate)).done(function() {
 //                                                $("#addDialog").modal("hide");
-                                            
+
 ////                                                loadCoachSchedule($(".schedule-calendar"));
-                                            }).fail(function() {
-                                                alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-                                            });
+                                        }).fail(function() {
+                                            alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+                                        });
 //                                        }     
 //                                        
 //             });         
                                     }
                                     }
-                                    
-                 function loadCategory(getCate,oderCate,oderGroup,tagDisplay,tag) {
 
+        function loadCategory(getCate,oderCate,oderGroup,tagDisplay,tag) {
+      
 
-                $.get(getCate + "/" + oderCate + "/" + oderGroup).done(function(content) {
-                    var ret = jQuery.parseJSON(content);
-//                    var worklist = ret.result;
+        $.get(getCate + "/" + oderCate + "/" + oderGroup).done(function(result) {
+            var ret = jQuery.parseJSON(result);
+    //        var worklist = ret.result;
 
-                    var $tableBody = tagDisplay;
+            var $tableBody = tagDisplay;
 
-                    $tableBody.empty();
+            $tableBody.empty();
 
-                    if (ret.length > 0) {
-                        for (var index=0; index<ret.length; index++) {
-                            var $row = createWorklistItemRow(ret[index],tag);
+            if (ret.length > 0) {
+                for (var index=0; index<ret.length; index++) {
+                    var $row = createWorklistItemRow(ret[index],tag);
 
-                            $tableBody.append($row);
-                        }
-                    } else {
-                        $("<tr><td class='content' colspan='4'>*** ไม่มีรายการ</td></tr>").appendTo($tableBody);
-                    }
-                });
+                    $tableBody.append($row);
+                }
+            } else {
+                $("<tr><td class='content' colspan='4'>*** ไม่มีรายการของวันที่เลือก</td></tr>").appendTo($tableBody);
             }
-            
-            
-            
-                function createWorklistItemRow(item,tag) {
-                var $row = $("<tr>", { "data-worklist-seq": item.OdrCod });
-
-        var $deleteItem = $("<img>", { src: "../../images/delete.png" });
-        $deleteItem.click(function() {
-            
-            var dialog = tag;
-       //     var dialog = $("#confirmDialog");
-             
-            $selectedRow = $row;
-            
-            dialog.modal("show");
         });
-                $("<td>", { class: "fix-content" }).append($deleteItem).appendTo($row);
-//                $("<td>", { class: "fit-content" }).text(item.OdrCod).appendTo($row);
-                $("<td>", { class: "fit-content" }).text(item.OdrLocNam).appendTo($row);
-//                $("<td>", { class: "fit-content" }).text(item.OdrCatTyp).appendTo($row);
-                $("<td>", { "class": "content" }).html(item.OdrLocAdp === "NULL" ? '': item.OdrLocAdp).appendTo($row);
-//                $("<td>", { "class": "content" }).html(item.OdrGrpTyp === "NULL" ? '': item.OdrGrpTyp).appendTo($row);
-//                $("<td>", { class: "content" }).text(item.OdrLocAdp).appendTo($row);
+    }
+ 
+    
+    
+        function createWorklistItemRow(item,tag) {
+        var $row = $("<tr>", { "data-worklist-seq": item.OdrCod });
+        
+        var $deleteCol = $("<td>", { class: "fix-content" });
+        
+        if (permission.delete) {
+            var $deleteItem = $("<img>", { src: "../../images/delete.png" });
+            $deleteItem.click(function() {
+                var dialog = tag;
 
-                return $row;
+                $selectedRow = $row;
+
+                dialog.modal("show");
+            });
+            
+            $deleteCol.append($deleteItem);
+        }
+        
+        $deleteCol.appendTo($row);
+        $("<td>", { class: "fit-content" }).text(item.OdrLocNam).appendTo($row);
+        $("<td>", { "class": "content" }).html(item.OdrLocAdp === "NULL" ? '': item.OdrLocAdp).appendTo($row);
+//        $("<td>", { class: "content" }).text(item.OdrLocNam).appendTo($row);
+        
+        return $row;
     }
     
     
-    $("#deleteConfirmButtonPhy").click(deleteMaster);
-    
-    
-                function deleteMaster(){
+function loadUser(tagDisplay,tagUser) {
+      
+
+        $.get("getUser").done(function(result) {
+            var ret = jQuery.parseJSON(result);
+    //        var worklist = ret.result;
+
+            var $tableBody = tagDisplay;
+
+            $tableBody.empty();
+
+            if (ret.length > 0) {
+                for (var index=0; index<ret.length; index++) {
+                    var $row = createUserItemRow(ret[index],tagUser);
+
+                    $tableBody.append($row);
+                }
+            } else {
+                $("<tr><td class='content' colspan='4'>*** ไม่มีรายการของวันที่เลือก</td></tr>").appendTo($tableBody);
+            }
+        });
+    }
+
+
+ function createUserItemRow(item,tagUser) {
+        var $row = $("<tr>", { "data-worklist-seq": item.UsrCod });
         
-                        var dialog = $("#confirmDialogPhy");
+        var $deleteCol = $("<td>", { class: "fix-content" });
+        
+        if (permission.delete) {
+            var $deleteItem = $("<img>", { src: "../../images/delete.png" });
+            $deleteItem.click(function() {
+                var dialog = tagUser;
 
-                        dialog.attr("data-item-seq");
+                $selectedRow = $row;
 
-                        dialog.modal("hide");
+                dialog.modal("show");
+            });
+            
+            $deleteCol.append($deleteItem);
+        }
+        
+        $deleteCol.appendTo($row);
+        $("<td>", { class: "fit-content" }).text(item.UsrFstNam).appendTo($row);
+        $("<td>", { "class": "content" }).text(item.UsrFamNam).appendTo($row);
+//        $("<td>", { class: "content" }).text(item.OdrLocNam).appendTo($row);
+        
+        return $row;
+    }
 
-                        var deleteItem = {};
-                        deleteItem.worklistSeq = $selectedRow.attr("data-worklist-seq");
+        $("#deleteConfirmButtonMed").click(function() {
+        var dialog = $("#confirmDialogMed");
+            
+        dialog.attr("data-item-seq");
+        
+        dialog.modal("hide");
+        
+        var deleteItem = {};
+        deleteItem.worklistSeq = $selectedRow.attr("data-worklist-seq");
+        $.post("deleteOrderMaster", JSON.stringify(deleteItem)).done(function() {
+            $selectedRow.detach();
+        }).fail(function() {
+           alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    }); 
+        
+        $("#deleteConfirmButtonFit").click(function() {
+        var dialog = $("#confirmDialogFit");
+        
+        dialog.attr("data-item-seq");
+        
+        dialog.modal("hide");
+        
+        var deleteItem = {};
+        deleteItem.worklistSeq = $selectedRow.attr("data-worklist-seq");
 
-                        $.post("deleteOrderMaster", JSON.stringify(deleteItem)).done(function() {
-                            $selectedRow.detach();
-                        }).fail(function() {
-                           alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-                        });
-                    }
-    
+        $.post("deleteOrderMaster", JSON.stringify(deleteItem)).done(function() {
+            $selectedRow.detach();
+        }).fail(function() {
+           alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    });
     
         $("#deleteConfirmButtonNut").click(function() {
         var dialog = $("#confirmDialogNut");
+        
+        dialog.attr("data-item-seq");
+        
+        dialog.modal("hide");
+        
+        var deleteItem = {};
+        deleteItem.worklistSeq = $selectedRow.attr("data-worklist-seq");
+
+        $.post("deleteOrderMaster", JSON.stringify(deleteItem)).done(function() {
+            $selectedRow.detach();
+        }).fail(function() {
+           alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    });
+    
+        $("#deleteConfirmButtonUser").click(function() {
+        var dialog = $("#confirmDialogUser");
+        
+        dialog.attr("data-item-seq");
+        
+        dialog.modal("hide");
+        
+        var deleteItem = {};
+        deleteItem.worklistSeq = $selectedRow.attr("data-worklist-seq");
+
+        $.post("deleteUser", JSON.stringify(deleteItem)).done(function() {
+            $selectedRow.detach();
+        }).fail(function() {
+           alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    });
+            $("#deleteConfirmButtonPhy").click(function() {
+        var dialog = $("#confirmDialogPhy");
         
         dialog.attr("data-item-seq");
         
@@ -1069,10 +1221,7 @@
                                     
                                     $('#save_med').click(addMedication);
                                     
-                                    
                                     function addMedication(){
-                                        
-                                        
                                         
                                     var med_thai = $('#med_thai').val();
                                     var med_eng = $('#med_eng').val();
@@ -1082,7 +1231,6 @@
                                     var med_unit = $('#med_unit').val();
                                     var med_typ =  $("#med_typ option:selected" ).val();
                                     
-                                    
                                     if (!med_thai && !med_eng && !med_thai_direct && !med_eng_direct && !med_order && !med_unit && med_typ !== 0) {
                                          alert("กรุณากรอกข้อมูลด้วยครับ");
 
@@ -1090,12 +1238,7 @@
                                      }
                                      else{
                                             
-                                            
-                                            
                                     var addMed= {};
-
-
-
 
                                     addMed.tMed = $("#med_thai").val();
                                     addMed.eMed = $("#med_eng").val();
@@ -1105,9 +1248,8 @@
                                     addMed.medUnit = $("#med_unit").val();
                                     addMed.medType = $("#med_typ").val();
 
-
                                     $.post("addMed", JSON.stringify(addMed)).done(function() {
-//                                                $("#addDialog").modal("hide");
+
                                     $('#med_thai').val('');
                                     $('#med_eng').val('');
                                     $('#med_thai_direct').val('');
@@ -1127,11 +1269,7 @@
                                     }
                                     }
                                  
-                                    
-                                    
                                     function addFitness(){
-                                        
-                                        
                                         
                                     var fit_thai_adapt = $('#fit_thai_adapt').val();
                                     var fit_eng_adapt = $('#fit_eng_adapt').val();
@@ -1150,12 +1288,7 @@
                                      }
                                      else{
                                             
-                                            
-                                            
                                     var addFitness= {};
-
-
-
 
                                     addFitness.tDirect = $("#fit_thai_direct").val();
                                     addFitness.eDirect = $("#fit_eng_direct").val();
@@ -1167,9 +1300,8 @@
                                     addFitness.fitTool = $("#fit_tool").val();
                                     addFitness.fitPart = $("#fit_part").val(); 
 
-
                                     $.post("addFit", JSON.stringify(addFitness)).done(function() {
-//                                                $("#addDialog").modal("hide");
+
                                     $("#fit_thai_direct").val('');
                                     $("#fit_eng_direct").val('');
                                     $("#fit_thai_adapt").val('');
@@ -1184,7 +1316,8 @@
                                     var oderCate = 'FIT';
                                     var oderGroup = 'MAIN' ;
                                     var tagDisplay = $(".fitness-category-section tbody");
-                                    loadCategory(fitGet,oderCate,oderGroup,tagDisplay);
+                                    var fitTag = $("#confirmDialogFit");
+                                    loadCategory(fitGet,oderCate,oderGroup,tagDisplay,fitTag);
                                     }).fail(function() {
                                         alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
                                     });
@@ -1211,38 +1344,38 @@
                                      else{
                                             
                                             
-                                           var addPhysical= {};
-                                            
-                                            addPhysical.tPhy = $("#physic_thai").val();
-                                            addPhysical.ePhy = $("#physic_eng").val();
-                                            addPhysical.tPhyDirecttion = $("#physic_thai_direct").val();
-                                            addPhysical.ePhyDirecttion = $("#physic_eng_direct").val();
-                                            addPhysical.phyOrder = $("#physic_order").val();
-                                            addPhysical.phyUnit = $("#physic_unit").val();
-                                            addPhysical.phyType = $("#phy_typ").val();
-                                           
-                                            
-                                            $.post("addPhy", JSON.stringify(addPhysical)).done(function() {
-                                                
-                                            $("#physic_thai").val('');
-                                            $("#physic_eng").val('');
-                                            $("#physic_thai_direct").val('');
-                                            $("#physic_eng_direct").val('');
-                                            $("#physic_order").val('');
-                                            $("#physic_unit").val('');
-                                            $("#phy_typ").val('0');
-                                            
-                                            var phyGet = 'getPhyCategory';
-                                            var oderCate = 'PHY';
-                                            var oderGroup = '';
-                                            var tagDisplay = $(".physical-category-section tbody");
-                                            var phyTag = $("#confirmDialogPhy");
-                                            loadCategory(phyGet,oderCate,oderGroup,tagDisplay,phyTag);
-                                            }).fail(function() {
-                                            alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-                                            });
-                                            }  
-                                            }
+                                    var addPhysical= {};
+
+                                     addPhysical.tPhy = $("#physic_thai").val();
+                                     addPhysical.ePhy = $("#physic_eng").val();
+                                     addPhysical.tPhyDirecttion = $("#physic_thai_direct").val();
+                                     addPhysical.ePhyDirecttion = $("#physic_eng_direct").val();
+                                     addPhysical.phyOrder = $("#physic_order").val();
+                                     addPhysical.phyUnit = $("#physic_unit").val();
+                                     addPhysical.phyType = $("#phy_typ").val();
+
+
+                                     $.post("addPhy", JSON.stringify(addPhysical)).done(function() {
+
+                                     $("#physic_thai").val('');
+                                     $("#physic_eng").val('');
+                                     $("#physic_thai_direct").val('');
+                                     $("#physic_eng_direct").val('');
+                                     $("#physic_order").val('');
+                                     $("#physic_unit").val('');
+                                     $("#phy_typ").val('0');
+
+                                     var phyGet = 'getPhyCategory';
+                                     var oderCate = 'PHY';
+                                     var oderGroup = '';
+                                     var tagDisplay = $(".physical-category-section tbody");
+                                     var phyTag = $("#confirmDialogPhy");
+                                     loadCategory(phyGet,oderCate,oderGroup,tagDisplay,phyTag);
+                                     }).fail(function() {
+                                     alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+                                     });
+                                     }  
+                                     }
                                     
                                     
                                     function addNutrition(){
@@ -1264,39 +1397,37 @@
                                      else{
                                             
                                             
-                                           var addNut= {};
-                                            
-                                            addNut.tNut = $("#nut_thai").val();
-                                            addNut.eNut = $("#nut_eng").val();
-                                            addNut.nutOrder = $("#nut_order").val();
-                                            addNut.nutUnit = $("#nut_unit").val();
-                                            addNut.nutCalories = $("#nut_cal").val();
-                                            addNut.nutType = $("#nut_typ").val();
-                                           
-                                            
-                                            $.post("addNut", JSON.stringify(addNut)).done(function() {
-                                                
-                                            $("#nut_thai").val('');
-                                            $("#nut_eng").val('');
-                                            $("#nut_order").val('');
-                                            $("#nut_unit").val('');
-                                            $("#nut_cal").val('');
-                                            $("#nut_typ").val('0');
-                                            
-                                            var nutGet = 'getNutCategory';
-                                            var oderCate = 'NUT';
-                                            var oderGroup = '';
-                                            var tagDisplay = $(".nutrition-category-section tbody");
-                                            var nutTag = $("#confirmDialogNut");
-                                            loadCategory(nutGet,oderCate,oderGroup,tagDisplay,nutTag);
-                                                
-                                            }).fail(function() {
-                                             alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-                                            });
-                                            }  
-                                            }
+                                    var addNut= {};
+
+                                     addNut.tNut = $("#nut_thai").val();
+                                     addNut.eNut = $("#nut_eng").val();
+                                     addNut.nutOrder = $("#nut_order").val();
+                                     addNut.nutUnit = $("#nut_unit").val();
+                                     addNut.nutCalories = $("#nut_cal").val();
+                                     addNut.nutType = $("#nut_typ").val();
+
+
+                                     $.post("addNut", JSON.stringify(addNut)).done(function() {
+
+                                     $("#nut_thai").val('');
+                                     $("#nut_eng").val('');
+                                     $("#nut_order").val('');
+                                     $("#nut_unit").val('');
+                                     $("#nut_cal").val('');
+                                     $("#nut_typ").val('0');
+
+                                     var nutGet = 'getNutCategory';
+                                     var oderCate = 'NUT';
+                                     var oderGroup = '';
+                                     var tagDisplay = $(".nutrition-category-section tbody");
+                                     var nutTag = $("#confirmDialogNut");
+                                     loadCategory(nutGet,oderCate,oderGroup,tagDisplay,nutTag);
+                                     }).fail(function() {
+                                      alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+                                     });
+                                     }  
+                                     }
                                     
-                               
                                     $.ajax({
                                     url:'<?php echo site_url("Administrator/getFitTyp")?>',
                                     success: function(fittyp){
@@ -1317,7 +1448,6 @@
                                     var id =  re.res[0].uid ;
                                    $('#user_id').html('<input id="user_id" name="user_id" placeholder=" ' + id + ' " class="form-control input-md" disabled="disabled" required="" type="text">'); 
                                     }
-                                    
                                     }
                                     }
                                     });
@@ -1393,9 +1523,9 @@
                                     var fitGet = 'getFitCategory';
                                     var fitCate = 'FIT';
                                     var fitGroup = 'MAIN';
-                                    var fitDisplay = $(".fitness-category-section tbody");
-                                    
-                                    loadCategory(fitGet,fitCate,fitGroup,fitDisplay);
+                                    var fitDisplay = $(".fitness-category-section tbody"); 
+                                    var fitTag = $("#confirmDialogFit");
+                                    loadCategory(fitGet,fitCate,fitGroup,fitDisplay,fitTag);
                                     var phyGet = 'getPhyCategory';
                                     var phyCate = 'PHY';
                                     var phyGroup = '';
@@ -1412,8 +1542,14 @@
                                     var medCate = 'MED';
                                     var medGroup = '' ;
                                     var medDisplay = $(".medication-category-section tbody");
-                                    loadCategory(medGet,medCate,medGroup,medDisplay);
-                                    
+                                    var medTag = $("#confirmDialogMed");
+                                    loadCategory(medGet,medCate,medGroup,medDisplay,medTag);
+//                                    var userGet = 'getUser';
+//                                    var userCate = '';
+//                                    var userGroup = '';
+                                    var userDisplay = $(".user-category-section tbody");
+                                    var userTag = $("#confirmDialogUser");
+                                    loadUser(userDisplay,userTag);
                                     
 
                                   
@@ -1471,26 +1607,15 @@
 
                                             $.post("addUserProfile", JSON.stringify(userprofile)).done(function() {
                                             
-                                            loadCategory();
-//                                                  $("#addDialog").modal("hide");
-//
-////                                                loadCoachSchedule($(".schedule-calendar"));
-//                                            }).fail(function() {
-//                                                alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
-//                                            });
-//                                        }     
-//                                        
-             });                 
-            }
-            };    
-            
-            
-
-            
-            
-            
-            
-            }); 
+                                            var tagDisplay = $(".user-category-section tbody");
+                                            var userTag = $("#confirmDialogUser");
+                                            loadUser(tagDisplay,userTag);
+                                            }).fail(function() {
+                                            alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+                                            });                 
+                                           }
+                                           }; 
+                                    }); 
                                     
 </script>     
 

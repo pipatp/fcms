@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>เมนูหลัก - ระบบบริหารจัดการสโมสรฟุตบอล จังหวัดชัยนาท</title>
+        <title>เม�?ูหลั�? - ระ�?�?�?ริหาร�?ัด�?ารส�?มสร�?ุต�?อล �?ั�?หวัด�?ัย�?าท</title>
         <link href="../../css/bootstrap.min.css" rel="stylesheet">
         <link href="../../css/global.css" rel="stylesheet">
         <link href="../../css/mnu_main.css" rel="stylesheet">
@@ -20,118 +20,146 @@
                 if (buttonNum % 4 === 0) {
                     $button.addClass("col-md-offset-2");
                 }
-                
+
                 if (buttonId) {
                     $button.attr("id", buttonId);
                 }
-                
-                var $menuButton = $("<div>", { "class":"thumbnail btn menu-button" });
+
+                var $menuButton = $("<div>", {"class": "thumbnail btn menu-button"});
                 $button.append($menuButton);
-                
-                var $buttonGroup = $("<div>", { "class":"button-group" });
+
+                var $buttonGroup = $("<div>", {"class": "button-group"});
                 $menuButton.append($buttonGroup);
-                
-                $("<img>", { "src":imagePath }).appendTo($buttonGroup);
+
+                $("<img>", {"src": imagePath}).appendTo($buttonGroup);
                 $("<h4>").text(buttonText).appendTo($buttonGroup);
-                
+
                 return $button;
             }
-            
+
             $(function() {
                 var permissions = <?php echo json_encode($permissions) ?>;
-                
+
                 var menuNum = 0;
                 var $panel = $("#mainmenu-panel");
-                
-                var $currentRow = $("<div>", { "class":"row", "style":"margin-top: 15px;" });
-                
+
+                var $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
+
                 $panel.append($currentRow);
-                
+
                 if (permissions.REG) {
-                    createMenuButton(menuNum, "../../images/registration_enable.jpg", "ลงทะเบียน").appendTo($currentRow);
-                    
+                    createMenuButton(menuNum, "../../images/registration_enable.jpg", "ล�?ทะเ�?ีย�?","register-button").appendTo($currentRow);
+
                     if (++menuNum % 4 === 0) {
-                        $currentRow = $("<div>", { "class":"row", "style":"margin-top: 15px;" });
+                        $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
                         $panel.append($currentRow);
                     }
                 }
                 if (permissions.WKL) {
-                    createMenuButton(menuNum, "../../images/worklist_enable.jpg", "รายการฝึกซ้อม").appendTo($currentRow);
-                    
+                    createMenuButton(menuNum, "../../images/worklist_enable.jpg", "ราย�?าร�?ึ�?�?�?อม","worklist-button").appendTo($currentRow);
+
                     if (++menuNum % 4 === 0) {
-                        $currentRow = $("<div>", { "class":"row", "style":"margin-top: 15px;" });
+                        $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
                         $panel.append($currentRow);
                     }
                 }
                 if (permissions.ADM) {
-                    createMenuButton(menuNum, "../../images/admin_enable.jpg", "ผู้ดูแลระบบ").appendTo($currentRow);
-                    
+                    createMenuButton(menuNum, "../../images/admin_enable.jpg", "�?า�?ทะเ�?ีย�?","admin-button").appendTo($currentRow);
+
                     if (++menuNum % 4 === 0) {
-                        $currentRow = $("<div>", { "class":"row", "style":"margin-top: 15px;" });
+                        $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
                         $panel.append($currentRow);
                     }
                 }
                 if (permissions.MED) {
-                    createMenuButton(menuNum, "../../images/medication_enable.jpg", "ยาและเวชภัณฑ์").appendTo($currentRow);
-                    
+                    createMenuButton(menuNum, "../../images/medication_enable.jpg", "ยา�?ละเว�?ภัณฑ�?","medication-button").appendTo($currentRow);
+
                     if (++menuNum % 4 === 0) {
-                        $currentRow = $("<div>", { "class":"row", "style":"margin-top: 15px;" });
+                        $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
                         $panel.append($currentRow);
                     }
                 }
                 if (permissions.PHY) {
-                    createMenuButton(menuNum, "../../images/physical_enable.jpg", "กายภาพบำบัด", "physical-button").appendTo($currentRow);
-                    
+                    createMenuButton(menuNum, "../../images/physical_enable.jpg", "�?ายภา�?�?ำ�?ัด", "physical-button").appendTo($currentRow);
+
                     if (++menuNum % 4 === 0) {
-                        $currentRow = $("<div>", { "class":"row", "style":"margin-top: 15px;" });
+                        $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
                         $panel.append($currentRow);
                     }
                 }
                 if (permissions.NUT) {
-                    createMenuButton(menuNum, "../../images/nutrition_enable.jpg", "โภชนาการ", "nutrition-button").appendTo($currentRow);
-                    
+                    createMenuButton(menuNum, "../../images/nutrition_enable.jpg", "�?ภ�?�?า�?าร", "nutrition-button").appendTo($currentRow);
+
                     if (++menuNum % 4 === 0) {
-                        $currentRow = $("<div>", { "class":"row", "style":"margin-top: 15px;" });
+                        $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
                         $panel.append($currentRow);
                     }
                 }
                 if (permissions.FIT) {
-                    createMenuButton(menuNum, "../../images/fitness_enable.jpg", "ฟิตเนส", "fitness-button").appendTo($currentRow);
-                    
+                    createMenuButton(menuNum, "../../images/fitness_enable.jpg", "�?ิตเ�?ส", "fitness-button").appendTo($currentRow);
+
                     if (++menuNum % 4 === 0) {
-                        $currentRow = $("<div>", { "class":"row", "style":"margin-top: 15px;" });
+                        $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
                         $panel.append($currentRow);
                     }
                 }
                 if (permissions.COA) {
-                    createMenuButton(menuNum, "../../images/coach_enable.jpg", "ผู้ฝึกสอน", "coach-button").appendTo($currentRow);
-                    
+                    createMenuButton(menuNum, "../../images/coach_enable.jpg", "�?�?�?�?", "coach-button").appendTo($currentRow);
+
                     if (++menuNum % 4 === 0) {
-                        $currentRow = $("<div>", { "class":"row", "style":"margin-top: 15px;" });
+                        $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
                         $panel.append($currentRow);
                     }
                 }
-                
+                if (permissions.DIR) {
+                    createMenuButton(menuNum, "../../images/director_enable.jpg", "�?ู�?�?ริหาร", "director-button").appendTo($currentRow);
+
+                    if (++menuNum % 4 === 0) {
+                        $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
+                        $panel.append($currentRow);
+                    }
+                }
+
                 $(".logout-link").click(function() {
                     $.get("logout", function(data) {
                         window.location.href = "login";
                     });
                 });
                 
+                $("#register-button").click(function() {
+                    window.location.href = "../register/main";
+                });
+                
+                $("#worklist-button").click(function() {
+                    window.location.href = "../worklist/main";
+                });
+                
+                $("#admin-button").click(function() {
+                    window.location.href = "../Administrator/main";
+                });
+
+                $("#medication-button").click(function() {
+                    window.location.href = "../medication/main";
+                });
+
                 $("#physical-button").click(function() {
                     window.location.href = "../physical/main";
                 });
-                
+
                 $("#nutrition-button").click(function() {
                     window.location.href = "../nutrition/main";
                 });
-                
+
                 $("#fitness-button").click(function() {
                     window.location.href = "../fitness/main";
                 });
-                
+
                 $("#coach-button").click(function() {
                     window.location.href = "../coach/main";
+                });
+                
+                $("#director-button").click(function() {
+                    window.location.href = "../Director/main";
                 });
             });
         </script>

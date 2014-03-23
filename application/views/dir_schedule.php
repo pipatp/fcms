@@ -184,11 +184,11 @@
         var $approveButton = $('<div class="btn btn-primary btn-sm">รออนุมัติ</div>');
         $approveButton.attr("data-appointment-seq", item.TwlTapSeq);
         $approveButton.attr("data-item-seq", item.TwlSeqNum);
+        var $Approved = $('<div class="label label-success">อนุมัติแล้ว</div>');
+        $approveButton.click(approveWorklistRow);
         
-     //   $approveButton.click(approveWorklistRow);
         
-        
-        $("<td>", { "class": "fit-content" }).append($approveButton).appendTo($row);
+        $("<td>", { "class": "fit-content" }).html(item.TwlApvStt === "N" ? $approveButton : $Approved).appendTo($row);
         $("<td>", { "class": "fit-content" }).append($deleteButton).appendTo($row);
         
         $tableBody.append($row);
@@ -206,6 +206,22 @@
             $row.detach();
         }).fail(function() {
            alert("ไม่สามารถลบข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
+        });
+    }
+    
+        function approveWorklistRow() {
+        var $approveButton = $(this);
+        
+        var approveRequest = {};
+        approveRequest.appointmentSeq = $approveButton.attr("data-appointment-seq");
+        approveRequest.itemSeq = $approveButton.attr("data-item-seq");
+        
+        $.post("../Administrator/approveTeamWorklistItem", JSON.stringify(approveRequest)).done(function() {
+            var $row = $approveButton.closest("tr");           
+            $row.detach();
+            loadTeamSchedule($(".schedule-calendar"));
+        }).fail(function() {
+           alert("ไม่สามารถอนุมัติข้อมูลได้ โปรดลองอีกครั้งหนึ่ง");
         });
     }
     

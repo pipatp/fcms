@@ -154,7 +154,7 @@ $(function() {
     });
                 
     // Set nutrition tab selected
-    $(".top-menu ul li:eq(2)").addClass("selected");
+    $(".top-menu ul li.menu-admin").addClass("selected");
 //    $(".sub-menu ul li:eq(0)").addClass("selected");
     
     $("#player-list-tab").click(viewRegistration);
@@ -168,4 +168,34 @@ $(function() {
 //    $(".content-body").css("height", newHeight);
 });
 
+// Global function
+function getAge(birthDate) 
+{
+    var today = new Date();
 
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
+    {
+        age--;
+    }
+    return age;
+}
+
+function getDisplayNameWithEng(name, lastname, nameEng, lastnameEng) {
+    var displayText;
+    if (name) {
+        displayText = name + " " + lastname;
+    }
+
+    if (nameEng) {
+        if (displayText) {
+            displayText += " (" + nameEng + " " + lastnameEng + ")";
+        }
+        else {
+            displayText = nameEng + " " + lastnameEng;
+        }
+    }
+
+    return displayText;
+}

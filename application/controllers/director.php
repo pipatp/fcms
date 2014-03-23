@@ -1,12 +1,29 @@
 <?php
 
 class Director extends CI_Controller {
+    public $permission;
+    
     function Director() {
         parent::__construct();
+        
+        $this->load->library('permission');
         
         if (!$this->session->userdata('user_login')) {
                 redirect('main/login');
         }
+        
+        if (!$this->session->userdata('user_permission')) {
+            redirect('main/menu');
+        }
+        
+        $perms = $this->session->userdata('user_permission');
+        
+        if (!array_key_exists('DIR', $perms)) {
+            redirect('main/menu');
+        }
+        
+        $this->permission = $perms["DIR"];
+        
    }
     
     protected function getQueryStringParams() {
@@ -21,6 +38,10 @@ class Director extends CI_Controller {
         $data["showMenu"] = true;
         $data["showSubMenu"] = true;
         $data["subMenuView"] = "dir_navigation";
+        
+        
+        $data["permissions"] = $this->session->userdata('user_permission');
+        
         
         $this->load->view('dir_main', $data);
     }

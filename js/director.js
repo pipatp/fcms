@@ -142,7 +142,8 @@ $(function() {
 }
                 
     // Set nutrition tab selected
-    $(".top-menu ul li:eq(8)").addClass("selected");
+     $(".top-menu ul li.menu-director").addClass("selected");
+//    $(".top-menu ul li:eq(8)").addClass("selected");
 //    $(".sub-menu ul li:eq(0)").addClass("selected");
     
     $("#director-player-info-tab").click(viewRegistration);

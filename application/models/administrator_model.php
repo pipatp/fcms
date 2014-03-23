@@ -11,7 +11,7 @@ class Administrator_model extends CI_Model {
            
         $data = array($department, $eDepartment,$job, $eJob,$medType, $eMedType,$fitTool, $eFitTool,$physicType, $ePhysicType,$nutType, $eNutType, $program,$eprogram);
         
-        $query = $this->db->query("CALL fn_addCategory(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", $data);
+        $query = $this->db->query("CALL fn_addCategory(?,?,?,?,?,?,?,?,?,?,?,?)", $data);
         
         $query->row();
     }
@@ -101,21 +101,11 @@ class Administrator_model extends CI_Model {
     
     
     function saveUserProfile($firstName, $lastName, $userPass,$userTel,$userMail,$userDep,$userJob){
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-        
 
-//        $this->db->select("PlyTitCod");
-//        $this->db->where("PlyTitCod",$titCod);
-//        $this->db->from('plyinf');
-//        $check = $this->db->get();
-        
         
         
         $userCode =  "SELECT CONCAT('USR',LPAD(IFNULL(MAX(CONVERT(REPLACE(UsrCod,'USR',''),UNSIGNED))+1,1),5,'0'))";
-        
-//       $data = array($playerCode, $tiTle, $firstName, $midName,$surName);
-        
-//        $query = $this->db->query("CALL fn_savePlayerProfile(?, ?, ?, ?,?)", $data);
+
         
         $query = $this->db->query("INSERT INTO usrmst(UsrCod,UsrFstNam,UsrFamNam,UsrLogPwd,UsrTelNum,UsrEml,UsrDepCod,UsrJobCod) $userCode,'".$firstName."','".$lastName."','".$userPass."','".$userTel."','".$userMail."','".$userDep."','".$userJob."' FROM usrmst ");
         
@@ -194,16 +184,7 @@ class Administrator_model extends CI_Model {
         
         $query->row();
     }
-    
-    
-//        function getCategory($orderCate,$orderGroup) {
-//        
-//        $data = array($orderCate,$orderGroup);
-//        
-//            $query = $this->db->query("CALL fn_getCategory(?, ?)", $data);
-//        
-//        $query->row();
-//    }
+
 
 
     function saveMed($med_thai,$med_eng,$med_thai_direct,$med_eng_direct,$med_order,$med_unit,$med_typ){
@@ -263,9 +244,7 @@ class Administrator_model extends CI_Model {
     
     
     function getFitCategory($orderCate,$orderGroup) {
-////       
-////        
-//////        $query = $this->db->query("SELECT OdrCod,OdrCatTyp,OdrLocNam,OdrLocDir,OdrGrpTyp FROM odrmst WHERE OdrCatTyp='FIT' AND OdrGrpTyp='MAIN' ");
+
         $this->db->select("OdrCod,OdrCatTyp,OdrLocNam,OdrLocAdp,OdrGrpTyp");
         $this->db->from('odrmst');
         $this->db->where('OdrCatTyp',$orderCate);
@@ -303,6 +282,17 @@ class Administrator_model extends CI_Model {
         $this->db->select("OdrCod,OdrCatTyp,OdrLocNam,OdrLocAdp,OdrGrpTyp");
         $this->db->from('odrmst');
         $this->db->where('OdrCatTyp',$orderCate);
+        $query = $this->db->get();		
+        return $query->result();
+    
+    
+    }
+    
+    function getUser() {
+
+        $this->db->select("UsrCod,UsrFstNam,UsrFamNam,UsrJobCod,UsrDepCod");
+        $this->db->from('usrmst');
+ //       $this->db->where('UsrCod',$orderCate);
         $query = $this->db->get();		
         return $query->result();
     
@@ -524,7 +514,13 @@ class Administrator_model extends CI_Model {
         $query->row();
     }
     
-    
+        function approveTeamWorklistItem($appointmentSeq, $itemSeq) {
+        $data = array($appointmentSeq, $itemSeq);
+        
+        $query = $this->db->query("CALL fn_approveTeamWorklistItem(?, ?)", $data);
+        
+        $query->row();
+    }  
     
     
     
@@ -543,10 +539,18 @@ class Administrator_model extends CI_Model {
         function deleteOrderMaster($orderID) {
         $data = array($orderID);
         
-        $query = $this->db->query("CALL fn_deleteNutrition(?)", $data);
+        $query = $this->db->query("CALL fn_deleteOrderMaster(?)", $data);
         
         $query->row();
     }
     
+    
+        function deleteUser($orderID) {
+        $data = array($orderID);
+        
+        $query = $this->db->query("CALL fn_deleteUser(?)", $data);
+        
+        $query->row();
+    }
     
 }

@@ -1,7 +1,7 @@
 <div class="navbar header-bar">
     <div class="container container-full login-bar">
         <div class="pull-left">
-            <b>ระบบบริหารจัดการสโมสรฟุตบอล จังหวัดชัยนาท</b>
+            <b>ระบบบริหารจัดการสโมสรฟุตบอล ชัยนาท ฮอร์นบิล</b>
         </div>
         <div class="pull-right login-group">
             <span>ยินดีต้อนรับ </span>

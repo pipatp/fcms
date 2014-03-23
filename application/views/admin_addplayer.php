@@ -800,7 +800,33 @@
 </div>
     
 </div>
+
+
 <br><br><br><br>
+<div class="form-group">  
+<div class="fileupload fileupload-new" data-provides="fileupload">
+<div class="col-md-4" >
+<span class="btn btn-primary btn-file"><span class="fileupload-new">บัตรประชาชน</span>
+<span class="fileupload-exists">Change</span><input type="file" name="left"/></span>
+<a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+</div>
+</div>
+    
+</div>
+<br><br><br><br>
+
+<div class="form-group">  
+<div class="fileupload fileupload-new" data-provides="fileupload">
+<div class="col-md-4" >
+<span class="btn btn-primary btn-file"><span class="fileupload-new">หนังสือเดินทาง</span>
+<span class="fileupload-exists">Change</span><input type="file" name="left"/></span>
+<a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+</div>
+</div>
+    
+</div>
+<br><br><br><br>
+
 
 <div class="form-group">
             <div class="col-md-1">
@@ -809,6 +835,19 @@
                 </button>
             </div>  
 </div>
+
+    <table class="table table-striped table-condensed">
+            <thead>
+               <tr>
+                    <th></th>
+                </tr>    
+           </thead>
+            <tbody>
+                <tr>
+                    <th></th>
+                 </tr>
+            </tbody>
+        </table>
 
 </div>
          
@@ -1078,218 +1117,103 @@
 </div>
 <script src="../../js/file-upload.js"></script>
 <script>
-                                    $("#department-section").tabs();
-                                    $("#data_dep").tabs();
-                                    $("#data_user").tabs();
-</script>
+    
+    var permission = <?php echo json_encode($permission) ?>;
+    
+    
+    $("#department-section").tabs();
+    $("#data_dep").tabs();
+    $("#data_user").tabs();
 
-<script>
     
     
     
-                                    $(function(){   
-//                                    $('#save_player1,#save_player2,#save_player3,#save_player4,#save_player5,#save_player6').on('click',function(){
-//                                        
-//                                   alert('sss');    
-//                                   return false ;
-//                                  
-                                    
-                             //     form_plofile = $("#player_profile,#form_attribute").serialize();    
-                                    
-//                                    player_info = {
-//                                        
-//                                        
-//                                    title_code : $('#titcod').val(),
-//                                    firstname : $('#firstname').val(),
-//                                    midname : $('#midname').val(),
-//                                    surname : $('#surname').val(),
-//                                    efirstname : $('#efirstname').val(),
-//                                    emidname : $('#emidname').val(),
-//                                    esurname : $('#esurname').val(),
-//                                    nickname : $('#nickname').val(),
-//                                    enickname : $('#enickname').val(),
-//                                    idno : $('#idno').val(),
-//                                    passport : $('#passport').val(),
-//                                    add_num : $('#add_num').val(),
-//                                    add_detail_foreign : $('#add_detail_foreign').val(),
-//                                    
-//                                    tambon_id :  $( "#tambon_id option:selected" ).val(),
-//                                    country_id :  $( "#country_id option:selected" ).val(),
-//                                    province_id :  $( "#province_id option:selected" ).val(),
-//                                    amphur_id :  $( "#amphur_id option:selected" ).val(),
-//                                    region_id :  $( "#region_id option:selected" ).val(),
-//                                    sex_id :  $( "#sex_id option:selected" ).val(),
-//                                    face : $("input[name = 'face']").val(),
-//                                    front : $("input[name = 'front']").val(),
-//                                    back : $("input[name = 'back']").val(),
-//                                    right : $("input[name = 'right']").val(),
-//                                    left : $("input[name = 'left']").val(),
-//                                    crn : $('#corner').val()
-//                                        
-//                                    };
-//                                    
-//                                    $.ajax({
-//                                    type: "post",
-//                                    url:'<?php //echo site_url("Administrator/addPlayerPofile");?>',
-//                                    data: player_info , 
-//                                    cache:false,
-//                                    success: function(data){
-//
-//                                        $('#add_player_result').html("<span class=\"label label-warning\">" + data + "</span>");
-//
-//                                       },
-//                                     error:function(){
-//
-//                                         $('#add_player_result').html("<span class=\"label label-warning\"> ERROR </span>"); 
-//
-//                                        }
-//                                        });
-//                                        });
-                                        
-                                    $('#save_player1,#save_player3').click(addPlayerProfile);       
-//                                     $('#save_player1').on('click',function(){
-                                         
-//                                         var titCod =  $("#titcode").val();
-//                                     //    alert(titCod);
-//                                         
-//                                          $.ajax("../player/checkTitleCode/" + titCod).done(function(content) {
-//                                            var title = jQuery.parseJSON(content);
-//                                
-//                                            $.each(title ,function(index,value)
-//                                            {
-//                                            
-//                                            alert('มีเบอร์นักเตะ' + title.PlyTitCod + 'แล้วครับ');
-//
-//                                             });
-//                                               
-//                                               
-//                                          
-//                                        });
-//                                         
-                                         
-                                         
-//                                         $.ajax({
-//                                             
-//                                        
-//                                             url:'<?php //echo site_url("Player/checkTitleCode")?>',
-//                                             data:'titCod=' + titCod,
-//                                             type:'post',
-//                                             success:function(content){
-//                                             
-//                                             
-//                                            
-//                                             
-//                                             var tiTle = jQuery.parseJSON(content);
-//                                             
-//                                             
-//                                             
-//                                            $.each(tiTle.content ,function(index,value)
-//                                             {
-//                                                  
-//                                                    
-//                                                     
-//                                                     alert('มีเบอร์นักเตะ' + value.PlyTitCod + 'แล้วครับ');
-//                                                     
-//                                               
-//                                               
-//                                            });
-//                                            
-//                                         
-//                                             },error:function(){
-//                                                 
-//                                                 alert('sss');
-//                                                 
-//                                             }
-//                                             
-//                                             
-//                                             
-//                                             
-//                                         });
-//                                         
-//                                         
-//                                     }); 
-//                                     }); 
-                                  
-                                        
-                                   function addPlayerProfile() {
-                                            
-                                           
-                                            var titcode =  $("#titcode").val();
-                                            
-                                            if(titcode === ""){
-                                                
-                                                alert('not null');
-                                                return ;
-                                                
-                                            }
+    $(function(){   
 
-                                   
-                                            var addprofile = {};
-                                            
-                                            
-                                           
-                                                
-                                     
+
+        $('#save_player1,#save_player3').click(addPlayerProfile);       
+
+
+
+       function addPlayerProfile() {
+
+
+                var titcode =  $("#titcode").val();
+
+                if(titcode === ""){
+
+                    alert('not null');
+                    return ;
+
+                }
+
+
+                var addprofile = {};
+
+
+
+
+
 
 //                                            addprofile.birthdate = getDateFromDatePicker($("#birthdate"), "yymmdd");
-                                        //    addprofile.startTime = $(".hour-selection")[0].value + $(".minute-selection")[0].value;
-                                        //    addprofile.endTime = $(".hour-selection")[1].value + $(".minute-selection")[1].value;
-                                            addprofile.titCod = $("#titcode").val();
-                                            addprofile.firstName = $("#firstname").val();
-                                            addprofile.midName = $("#midname").val();
-                                            addprofile.surName = $("#surname").val();
-                                            addprofile.efirstName = $("#efirstname").val();
-                                            addprofile.emidName = $("#emidname").val();
-                                            addprofile.esurName = $("#esurname").val();
-                                            addprofile.nickName = $("#nickname").val();
-                                            addprofile.enickName = $("#enickname").val(); 
-                                            addprofile.idNo = $("#idno").val();
-                                            addprofile.passPort = $("#passport").val();
-                                            addprofile.addNum = $("#add_num").val();
-                                            addprofile.addDetail = $("#add_detail").val();
-                                            addprofile.tambonID = $("#tambon_id option:selected").val();
-                                            addprofile.amphurID = $("#amphur_id option:selected").val();
-                                            addprofile.provinceID = $("#province_id option:selected").val();
-                                            addprofile.countryID = $("#country_id option:selected").val();
-                                            addprofile.add_num_current = $("#add_num_current").val();
-                                            addprofile.add_detail_current = $("#add_detail_current").val();
-                                            addprofile.tambonID2 = $("#tambon_id2 option:selected").val();
-                                            addprofile.amphurID2 = $("#amphur_id2 option:selected").val();
-                                            addprofile.provinceID2 = $("#province_id2 option:selected").val();
-                                            addprofile.countryID2 = $("#country_id2 option:selected").val();
-                                            addprofile.add_num_foreign = $("#add_num_foreign").val();
-                                            addprofile.add_detail_foreign = $("#add_detail_foreign").val();
-                                            addprofile.regionID = $("#region_id option:selected").val();
-                                            addprofile.sexID = $("#sex_id option:selected").val();
-                                            addprofile.mobileNum = $("#mobile_num").val();
-                                            addprofile.contactName = $("#contact_name").val();
-                                            addprofile.contactPhonNum = $("#contact_phone_num").val();
-                                            addprofile.Institution = $("#institution").val();
-                                            addprofile.Educate = $("#education").val();
-                                            addprofile.Disease = $("#disease").val();
-                                            addprofile.Facebook = $("#facebook").val();
-                                            addprofile.Email = $("#email").val();
-                                            addprofile.Injury = $("#injury").val();
-                                            addprofile.Nation = $("#national").val();
-                                            
-                                            addprofile.shirtName = $("#shirtname").val();
-                                            addprofile.preferFoot = $("#prefer_foot option:selected").val();
-                                            addprofile.statusTeam = $("#status_team option:selected").val();
-                                            addprofile.Spirit = $("#spirit option:selected").val();
-                                            addprofile.statusPlay = $("#status_play option:selected").val();
-                                            addprofile.Height = $("#height").val();
-                                            addprofile.Weight = $("#weight").val();
-                                            addprofile.clubGoal = $("#club_goal").val();
-                                            addprofile.natGoal = $("#nat_goal").val();
-                                            addprofile.Language = $("#language").val();
-                                            addprofile.shoeSize = $("#shoe_size").val();
-                                            addprofile.shirtSize = $("#shirt_size").val();
-                                            addprofile.pantSize = $("#pant_size").val();
-                                            addprofile.Chest = $("#chest").val();
-                                            addprofile.oldTeam = $("#old_team").val();
-                                            addprofile.oldYear = $("#old_year").val();
-                                            addprofile.Position = $("#position option:selected").val();
-                                            
+            //    addprofile.startTime = $(".hour-selection")[0].value + $(".minute-selection")[0].value;
+            //    addprofile.endTime = $(".hour-selection")[1].value + $(".minute-selection")[1].value;
+                addprofile.titCod = $("#titcode").val();
+                addprofile.firstName = $("#firstname").val();
+                addprofile.midName = $("#midname").val();
+                addprofile.surName = $("#surname").val();
+                addprofile.efirstName = $("#efirstname").val();
+                addprofile.emidName = $("#emidname").val();
+                addprofile.esurName = $("#esurname").val();
+                addprofile.nickName = $("#nickname").val();
+                addprofile.enickName = $("#enickname").val(); 
+                addprofile.idNo = $("#idno").val();
+                addprofile.passPort = $("#passport").val();
+                addprofile.addNum = $("#add_num").val();
+                addprofile.addDetail = $("#add_detail").val();
+                addprofile.tambonID = $("#tambon_id option:selected").val();
+                addprofile.amphurID = $("#amphur_id option:selected").val();
+                addprofile.provinceID = $("#province_id option:selected").val();
+                addprofile.countryID = $("#country_id option:selected").val();
+                addprofile.add_num_current = $("#add_num_current").val();
+                addprofile.add_detail_current = $("#add_detail_current").val();
+                addprofile.tambonID2 = $("#tambon_id2 option:selected").val();
+                addprofile.amphurID2 = $("#amphur_id2 option:selected").val();
+                addprofile.provinceID2 = $("#province_id2 option:selected").val();
+                addprofile.countryID2 = $("#country_id2 option:selected").val();
+                addprofile.add_num_foreign = $("#add_num_foreign").val();
+                addprofile.add_detail_foreign = $("#add_detail_foreign").val();
+                addprofile.regionID = $("#region_id option:selected").val();
+                addprofile.sexID = $("#sex_id option:selected").val();
+                addprofile.mobileNum = $("#mobile_num").val();
+                addprofile.contactName = $("#contact_name").val();
+                addprofile.contactPhonNum = $("#contact_phone_num").val();
+                addprofile.Institution = $("#institution").val();
+                addprofile.Educate = $("#education").val();
+                addprofile.Disease = $("#disease").val();
+                addprofile.Facebook = $("#facebook").val();
+                addprofile.Email = $("#email").val();
+                addprofile.Injury = $("#injury").val();
+                addprofile.Nation = $("#national").val();
+
+                addprofile.shirtName = $("#shirtname").val();
+                addprofile.preferFoot = $("#prefer_foot option:selected").val();
+                addprofile.statusTeam = $("#status_team option:selected").val();
+                addprofile.Spirit = $("#spirit option:selected").val();
+                addprofile.statusPlay = $("#status_play option:selected").val();
+                addprofile.Height = $("#height").val();
+                addprofile.Weight = $("#weight").val();
+                addprofile.clubGoal = $("#club_goal").val();
+                addprofile.natGoal = $("#nat_goal").val();
+                addprofile.Language = $("#language").val();
+                addprofile.shoeSize = $("#shoe_size").val();
+                addprofile.shirtSize = $("#shirt_size").val();
+                addprofile.pantSize = $("#pant_size").val();
+                addprofile.Chest = $("#chest").val();
+                addprofile.oldTeam = $("#old_team").val();
+                addprofile.oldYear = $("#old_year").val();
+                addprofile.Position = $("#position option:selected").val();
+
 //                                            var $addError = $("#add-error");
 //                                            $addError.addClass("hidden");
 
@@ -1305,7 +1229,7 @@
 //                                                return;
 //                                            }
 
-                                            $.post("addPlayerProfile", JSON.stringify(addprofile)).done(function() {
+                $.post("addPlayerProfile", JSON.stringify(addprofile)).done(function() {
 //                                                $("#addDialog").modal("hide");
 //
 ////                                                loadCoachSchedule($(".schedule-calendar"));
@@ -1314,129 +1238,129 @@
 //                                            });
 //                                        }     
 //                                        
-             });                       
-            };         
-      
-            });
-            
-            
+});                       
+};         
 
-                                                        $.ajax("getCountries").done(function(country) {
-                                                        var countries = $.parseJSON(country);
-                                
-                                                        $.each(countries ,function(index,value)
-                                                        {
+});
 
-                                                        $("#country_id").append("<option value="+value.id+">"+value.country_name+"</option>");
-                                                        $("#country_id2").append("<option value="+value.id+">"+value.country_name+"</option>");
 
-                                                         });
-                                                      });
-                                                      
-                                                      
-                                                      $("#country_id").change(function() {
-                                                        var id =  $( "#country_id option:selected" ).val();
-                                                        if(id === '210'){ //if select thailand
-                                                            
-                                                            $.ajax("getProvince").done(function(province) {
-                                                            var province = $.parseJSON(province);
-                                
-                                                        $.each(province ,function(index,value)
-                                                        {
 
-                                                        $("#province_id").append("<option value="+value.PROVINCE_ID+">"+value.PROVINCE_NAME+"</option>");
-                                                        
-                                                        });
-                                                        });
-                                                        }
-                                                      });
-                                                      $("#country_id2").change(function() {
-                                                        var id =  $( "#country_id2 option:selected" ).val();
-                                                        if(id === '210'){ //if select thailand
-                                                            
-                                                            $.ajax("getProvince").done(function(province) {
-                                                            var province = $.parseJSON(province);
-                                
-                                                        $.each(province ,function(index,value)
-                                                        {
+                            $.ajax("getCountries").done(function(country) {
+                            var countries = $.parseJSON(country);
 
-                                                        $("#province_id2").append("<option value="+value.PROVINCE_ID+">"+value.PROVINCE_NAME+"</option>");
-                                                        
-                                                        });
-                                                        });
-                                                        }
-                                                      });
+                            $.each(countries ,function(index,value)
+                            {
 
-                                                      $("#province_id").change(function() {
-                                                        var id =  $( "#province_id option:selected" ).val();
-                                                        if(id !== '0'){ //if select thailand
-                                                            
-                                                            $.ajax("getAmphur/" + id).done(function(content) {
-                                                            var contents = $.parseJSON(content);
-                                
-                                                        $.each(contents ,function(index,value)
-                                                        {
+                            $("#country_id").append("<option value="+value.id+">"+value.country_name+"</option>");
+                            $("#country_id2").append("<option value="+value.id+">"+value.country_name+"</option>");
 
-                                                        $("#amphur_id").append("<option value="+value.AMPHUR_ID+">"+value.AMPHUR_NAME+"</option>");
-                                                        
-                                                        });
-                                                        });
-                                                        }
-                                                      });
-                                                      $("#province_id2").change(function() {
-                                                        var id =  $( "#province_id2" ).val();
-                                                        if(id !== '0'){ //if select thailand
-                                                            
-                                                            $.ajax("getAmphur/" + id).done(function(content) {
-                                                            var contents = $.parseJSON(content);
-                                
-                                                        $.each(contents ,function(index,value)
-                                                        {
+                             });
+                          });
 
-                                                        $("#amphur_id2").append("<option value="+value.AMPHUR_ID+">"+value.AMPHUR_NAME+"</option>");
-                                                        
-                                                        });
-                                                        });
-                                                        }
-                                                      });
-                                                       $("#amphur_id").change(function() {
-                                                        var id =  $( "#amphur_id" ).val();
-                                                        if(id !== '0'){ //if select thailand
-                                                            
-                                                            $.ajax("getTambon/" + id).done(function(content) {
-                                                            var contents = $.parseJSON(content);
-                                
-                                                        $.each(contents ,function(index,value)
-                                                        {
 
-                                                        $("#tambon_id").append("<option value="+value.DISTRICT_ID+">"+value.DISTRICT_NAME+"</option>");
-                                                        
-                                                        });
-                                                        });
-                                                        }
-                                                      });
-                                                      $("#amphur_id2").change(function() {
-                                                        var id =  $( "#amphur_id2" ).val();
-                                                        if(id !== '0'){ //if select thailand
-                                                            
-                                                            $.ajax("getTambon/" + id).done(function(content) {
-                                                            var contents = $.parseJSON(content);
-                                
-                                                        $.each(contents ,function(index,value)
-                                                        {
+                          $("#country_id").change(function() {
+                            var id =  $( "#country_id option:selected" ).val();
+                            if(id === '210'){ //if select thailand
 
-                                                        $("#tambon_id2").append("<option value="+value.DISTRICT_ID+">"+value.DISTRICT_NAME+"</option>");
-                                                        
-                                                        });
-                                                        });
-                                                        }
-                                                      });
+                                $.ajax("getProvince").done(function(province) {
+                                var province = $.parseJSON(province);
 
-                                        function getDateFromDatePicker($datePicker, formatDate) {
-                                            var selectedDate = $datePicker.datepicker("getDate");
+                            $.each(province ,function(index,value)
+                            {
 
-                                            return $.datepicker.formatDate(formatDate, selectedDate);
-                                        }
+                            $("#province_id").append("<option value="+value.PROVINCE_ID+">"+value.PROVINCE_NAME+"</option>");
+
+                            });
+                            });
+                            }
+                          });
+                          $("#country_id2").change(function() {
+                            var id =  $( "#country_id2 option:selected" ).val();
+                            if(id === '210'){ //if select thailand
+
+                                $.ajax("getProvince").done(function(province) {
+                                var province = $.parseJSON(province);
+
+                            $.each(province ,function(index,value)
+                            {
+
+                            $("#province_id2").append("<option value="+value.PROVINCE_ID+">"+value.PROVINCE_NAME+"</option>");
+
+                            });
+                            });
+                            }
+                          });
+
+                          $("#province_id").change(function() {
+                            var id =  $( "#province_id option:selected" ).val();
+                            if(id !== '0'){ //if select thailand
+
+                                $.ajax("getAmphur/" + id).done(function(content) {
+                                var contents = $.parseJSON(content);
+
+                            $.each(contents ,function(index,value)
+                            {
+
+                            $("#amphur_id").append("<option value="+value.AMPHUR_ID+">"+value.AMPHUR_NAME+"</option>");
+
+                            });
+                            });
+                            }
+                          });
+                          $("#province_id2").change(function() {
+                            var id =  $( "#province_id2" ).val();
+                            if(id !== '0'){ //if select thailand
+
+                                $.ajax("getAmphur/" + id).done(function(content) {
+                                var contents = $.parseJSON(content);
+
+                            $.each(contents ,function(index,value)
+                            {
+
+                            $("#amphur_id2").append("<option value="+value.AMPHUR_ID+">"+value.AMPHUR_NAME+"</option>");
+
+                            });
+                            });
+                            }
+                          });
+                           $("#amphur_id").change(function() {
+                            var id =  $( "#amphur_id" ).val();
+                            if(id !== '0'){ //if select thailand
+
+                                $.ajax("getTambon/" + id).done(function(content) {
+                                var contents = $.parseJSON(content);
+
+                            $.each(contents ,function(index,value)
+                            {
+
+                            $("#tambon_id").append("<option value="+value.DISTRICT_ID+">"+value.DISTRICT_NAME+"</option>");
+
+                            });
+                            });
+                            }
+                          });
+                          $("#amphur_id2").change(function() {
+                            var id =  $( "#amphur_id2" ).val();
+                            if(id !== '0'){ //if select thailand
+
+                                $.ajax("getTambon/" + id).done(function(content) {
+                                var contents = $.parseJSON(content);
+
+                            $.each(contents ,function(index,value)
+                            {
+
+                            $("#tambon_id2").append("<option value="+value.DISTRICT_ID+">"+value.DISTRICT_NAME+"</option>");
+
+                            });
+                            });
+                            }
+                          });
+
+            function getDateFromDatePicker($datePicker, formatDate) {
+                var selectedDate = $datePicker.datepicker("getDate");
+
+                return $.datepicker.formatDate(formatDate, selectedDate);
+            }
                                         
                                         
 
