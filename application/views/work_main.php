@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>โภชนาการ - ระบบบริหารจัดการสโมสรฟุตบอล จังหวัดชัยนาท</title>
+        <title>รายการงาน - ระบบบริหารจัดการสโมสรฟุตบอล จังหวัดชัยนาท</title>
         <link href="../../css/bootstrap.min.css" rel="stylesheet">
         <link href="../../css/global.css" rel="stylesheet">
         <link href="../../css/jquery-ui-1.10.3.custom.css" rel="stylesheet">

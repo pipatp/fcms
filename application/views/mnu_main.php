@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>เม�?ูหลั�? - ระ�?�?�?ริหาร�?ัด�?ารส�?มสร�?ุต�?อล �?ั�?หวัด�?ัย�?าท</title>
+        <title>เมนูหลัก - ระบบบริหารจัดการสโมสรฟุตบอล ชัยนาท ฮอร์นบิล</title>
         <link href="../../css/bootstrap.min.css" rel="stylesheet">
         <link href="../../css/global.css" rel="stylesheet">
         <link href="../../css/mnu_main.css" rel="stylesheet">
@@ -48,7 +48,7 @@
                 $panel.append($currentRow);
 
                 if (permissions.REG) {
-                    createMenuButton(menuNum, "../../images/registration_enable.jpg", "ล�?ทะเ�?ีย�?","register-button").appendTo($currentRow);
+                    createMenuButton(menuNum, "../../images/registration_enable.jpg", "ลงทะเบียน","register-button").appendTo($currentRow);
 
                     if (++menuNum % 4 === 0) {
                         $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
@@ -56,7 +56,7 @@
                     }
                 }
                 if (permissions.WKL) {
-                    createMenuButton(menuNum, "../../images/worklist_enable.jpg", "ราย�?าร�?ึ�?�?�?อม","worklist-button").appendTo($currentRow);
+                    createMenuButton(menuNum, "../../images/worklist_enable.jpg", "รายการฝึกซ้อม","worklist-button").appendTo($currentRow);
 
                     if (++menuNum % 4 === 0) {
                         $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
@@ -64,7 +64,7 @@
                     }
                 }
                 if (permissions.ADM) {
-                    createMenuButton(menuNum, "../../images/admin_enable.jpg", "�?า�?ทะเ�?ีย�?","admin-button").appendTo($currentRow);
+                    createMenuButton(menuNum, "../../images/admin_enable.jpg", "งานทะเบียน","admin-button").appendTo($currentRow);
 
                     if (++menuNum % 4 === 0) {
                         $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
@@ -72,7 +72,7 @@
                     }
                 }
                 if (permissions.MED) {
-                    createMenuButton(menuNum, "../../images/medication_enable.jpg", "ยา�?ละเว�?ภัณฑ�?","medication-button").appendTo($currentRow);
+                    createMenuButton(menuNum, "../../images/medication_enable.jpg", "งานแพทย์","medication-button").appendTo($currentRow);
 
                     if (++menuNum % 4 === 0) {
                         $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
@@ -80,7 +80,7 @@
                     }
                 }
                 if (permissions.PHY) {
-                    createMenuButton(menuNum, "../../images/physical_enable.jpg", "�?ายภา�?�?ำ�?ัด", "physical-button").appendTo($currentRow);
+                    createMenuButton(menuNum, "../../images/physical_enable.jpg", "กายภาพบำบัด", "physical-button").appendTo($currentRow);
 
                     if (++menuNum % 4 === 0) {
                         $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
@@ -88,7 +88,7 @@
                     }
                 }
                 if (permissions.NUT) {
-                    createMenuButton(menuNum, "../../images/nutrition_enable.jpg", "�?ภ�?�?า�?าร", "nutrition-button").appendTo($currentRow);
+                    createMenuButton(menuNum, "../../images/nutrition_enable.jpg", "โภชนาการ", "nutrition-button").appendTo($currentRow);
 
                     if (++menuNum % 4 === 0) {
                         $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
@@ -96,7 +96,7 @@
                     }
                 }
                 if (permissions.FIT) {
-                    createMenuButton(menuNum, "../../images/fitness_enable.jpg", "�?ิตเ�?ส", "fitness-button").appendTo($currentRow);
+                    createMenuButton(menuNum, "../../images/fitness_enable.jpg", "ฟิตเนส", "fitness-button").appendTo($currentRow);
 
                     if (++menuNum % 4 === 0) {
                         $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
@@ -104,7 +104,7 @@
                     }
                 }
                 if (permissions.COA) {
-                    createMenuButton(menuNum, "../../images/coach_enable.jpg", "�?�?�?�?", "coach-button").appendTo($currentRow);
+                    createMenuButton(menuNum, "../../images/coach_enable.jpg", "ผู้ฝึกสอน", "coach-button").appendTo($currentRow);
 
                     if (++menuNum % 4 === 0) {
                         $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
@@ -112,7 +112,7 @@
                     }
                 }
                 if (permissions.DIR) {
-                    createMenuButton(menuNum, "../../images/director_enable.jpg", "�?ู�?�?ริหาร", "director-button").appendTo($currentRow);
+                    createMenuButton(menuNum, "../../images/director_enable.jpg", "ผู้บริหาร", "director-button").appendTo($currentRow);
 
                     if (++menuNum % 4 === 0) {
                         $currentRow = $("<div>", {"class": "row", "style": "margin-top: 15px;"});
