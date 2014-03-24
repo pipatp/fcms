@@ -506,6 +506,51 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_generatePlayerWorklistFromTeamWorklist
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_generatePlayerWorklistFromTeamWorklist`(IN `p_date` VARCHAR(8), IN `p_user` VARCHAR(20))
+BEGIN
+	DECLARE l_appointment CHAR(8);
+	DECLARE l_timestamp CHAR(14);
+	
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+	END;
+	
+	START TRANSACTION;
+	
+	DELETE FROM wklinf WHERE WklPwlSeq IN (SELECT PwlSeqNum FROM pwlinf WHERE PwlAppDte = p_date);
+	
+	DELETE FROM pwlinf WHERE PwlAppDte = p_date;
+	
+	SELECT WmsStrDtm INTO l_appointment FROM wmsmst wm WHERE wm.WmsDte = p_date ORDER BY wm.WmsStrDtm LIMIT 1;
+	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
+	INSERT INTO pwlinf(PwlPlyCod, PwlAppDte, PwlAppTim, PwlCurStt, PwlUpdUid, PwlUpdDts)
+	SELECT pi.PlyCod, p_date, l_appointment, 'A', p_user, l_timestamp
+	FROM plyinf pi;
+	
+	INSERT INTO wklinf(WklPwlSeq, WklSeqNum, WklOdrCod, WklStrDtm, WklEndDtm, WklActDur, WklCurStt, WklUpdUid, WklUpdDts)
+	SELECT pw.PwlSeqNum, wkl.WmsSeqNum, wkl.WmsOdrCod, wkl.WmsStrDtm, wkl.WmsEndDtm, wkl.WmsActDur, 'N', p_user, l_timestamp
+	FROM (
+	SELECT @r := @r + 1 AS WmsSeqNum, wm.*
+	FROM (
+	     SELECT  @r := 0
+	     ) vars, wmsmst wm
+	WHERE wm.WmsDte = p_date
+	ORDER BY wm.WmsStrDtm
+	) wkl, pwlinf pw
+	WHERE pw.PwlAppDte = p_date;
+	
+	COMMIT;
+	
+	SELECT 1;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getAllFoodMeal
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getAllFoodMeal`()
@@ -1503,9 +1548,9 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
   `PwlUpdUid` char(20) default NULL,
   `PwlUpdDts` char(14) default NULL,
   PRIMARY KEY  (`PwlSeqNum`,`PwlPlyCod`,`PwlAppDte`,`PwlAppTim`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.pwlinf: ~9 rows (approximately)
+-- Dumping data for table fcms.pwlinf: ~12 rows (approximately)
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
 INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCurStt`, `PwlRegUid`, `PwlVstDtm`, `PwlUpdUid`, `PwlUpdDts`) VALUES
 	(1, 'P00001', '20140308', '0530', 'A', NULL, NULL, NULL, NULL),
@@ -1514,11 +1559,12 @@ INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCu
 	(4, 'P00002', '20140125', '0530', 'A', NULL, NULL, NULL, NULL),
 	(13, 'P00001', '20140316', '0530', 'N', NULL, NULL, 'test', '20140313010408'),
 	(14, 'P00001', '20140317', '0530', 'N', NULL, NULL, 'test', '20140313010903'),
-	(15, 'P00001', '20140320', '0530', 'N', NULL, NULL, 'test1', '20140321000110'),
 	(16, 'P00001', '20140311', '0530', 'N', NULL, NULL, 'test1', '20140321000332'),
 	(17, 'P00001', '20140322', '0530', 'N', NULL, NULL, 'test', '20140322112153'),
-	(22, 'P00001', '20140324', '0000', 'A', NULL, NULL, 'test', '20140324023735'),
-	(23, 'P00002', '20140324', '0000', 'A', NULL, NULL, 'test', '20140324023735');
+	(26, 'P00001', '20140320', '0700', 'A', NULL, NULL, 'test', '20140324024341'),
+	(27, 'P00002', '20140320', '0700', 'A', NULL, NULL, 'test', '20140324024341'),
+	(28, 'P00001', '20140324', '0000', 'A', NULL, NULL, 'test', '20140324024528'),
+	(29, 'P00002', '20140324', '0000', 'A', NULL, NULL, 'test', '20140324024528');
 /*!40000 ALTER TABLE `pwlinf` ENABLE KEYS */;
 
 
@@ -1565,7 +1611,7 @@ CREATE TABLE IF NOT EXISTS `wklinf` (
   PRIMARY KEY  (`WklPwlSeq`,`WklSeqNum`,`WklOdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wklinf: ~37 rows (approximately)
+-- Dumping data for table fcms.wklinf: ~48 rows (approximately)
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
 INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),
@@ -1597,21 +1643,25 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(14, 3, 'FIT000003', '0500', '0600', 60, 'N', NULL, NULL, 'test1', '20140320234429'),
 	(14, 4, 'FIT000002', '0600', '0700', 60, 'N', NULL, NULL, 'test1', '20140320234621'),
 	(14, 5, 'FIT000004', '1000', '1030', 30, 'N', NULL, NULL, 'test1', '20140320234707'),
-	(15, 1, 'FIT000003', '0500', '0600', 60, 'N', NULL, NULL, 'test1', '20140321000110'),
-	(15, 2, 'PHY000001', '0600', '0700', 60, 'N', NULL, NULL, 'test1', '20140321000315'),
 	(17, 1, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140322112153'),
 	(17, 3, 'FIT000001', '1000', '1100', 60, 'N', NULL, NULL, 'test', '20140322143056'),
 	(17, 4, 'FIT000002', '1500', '1600', 60, 'N', NULL, NULL, 'test', '20140322143109'),
 	(17, 5, 'NUTBRK001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140322195037'),
 	(17, 6, 'PHY000001', '1100', '1130', 30, 'N', NULL, NULL, 'test', '20140323015853'),
-	(22, 1, 'FIT000001', '0000', '0100', 60, 'N', NULL, NULL, 'test', '20140324023735'),
-	(22, 2, 'FIT000004', '0100', '0200', 60, 'N', NULL, NULL, 'test', '20140324023735'),
-	(22, 3, 'FIT000003', '0200', '0300', 60, 'N', NULL, NULL, 'test', '20140324023735'),
-	(22, 4, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324023735'),
-	(23, 1, 'FIT000001', '0000', '0100', 60, 'N', NULL, NULL, 'test', '20140324023735'),
-	(23, 2, 'FIT000004', '0100', '0200', 60, 'N', NULL, NULL, 'test', '20140324023735'),
-	(23, 3, 'FIT000003', '0200', '0300', 60, 'N', NULL, NULL, 'test', '20140324023735'),
-	(23, 4, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324023735');
+	(26, 1, 'FIT000003', '0700', '0800', 60, 'N', NULL, NULL, 'test', '20140324024341'),
+	(26, 2, 'NUTBRK001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324024341'),
+	(26, 3, 'PHY000001', '1100', '1200', 60, 'N', NULL, NULL, 'test', '20140324024341'),
+	(27, 1, 'FIT000003', '0700', '0800', 60, 'N', NULL, NULL, 'test', '20140324024341'),
+	(27, 2, 'NUTBRK001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324024341'),
+	(27, 3, 'PHY000001', '1100', '1200', 60, 'N', NULL, NULL, 'test', '20140324024341'),
+	(28, 1, 'FIT000001', '0000', '0100', 60, 'N', NULL, NULL, 'test', '20140324024528'),
+	(28, 2, 'FIT000004', '0100', '0200', 60, 'N', NULL, NULL, 'test', '20140324024528'),
+	(28, 3, 'FIT000003', '0200', '0300', 60, 'N', NULL, NULL, 'test', '20140324024528'),
+	(28, 4, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324024528'),
+	(29, 1, 'FIT000001', '0000', '0100', 60, 'N', NULL, NULL, 'test', '20140324024528'),
+	(29, 2, 'FIT000004', '0100', '0200', 60, 'N', NULL, NULL, 'test', '20140324024528'),
+	(29, 3, 'FIT000003', '0200', '0300', 60, 'N', NULL, NULL, 'test', '20140324024528'),
+	(29, 4, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324024528');
 /*!40000 ALTER TABLE `wklinf` ENABLE KEYS */;
 
 
@@ -1695,13 +1745,16 @@ CREATE TABLE IF NOT EXISTS `wmsmst` (
   KEY `WmsDte` (`WmsDte`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Worklist month schedule master';
 
--- Dumping data for table fcms.wmsmst: 0 rows
+-- Dumping data for table fcms.wmsmst: 7 rows
 /*!40000 ALTER TABLE `wmsmst` DISABLE KEYS */;
 INSERT INTO `wmsmst` (`WmsUnq`, `WmsDte`, `WmsOdrCod`, `WmsStrDtm`, `WmsEndDtm`, `WmsActDur`, `WmsUpdUid`, `WmsUpdDts`) VALUES
 	('e2c58f36-040b-1032-aa74-f1bacedbe0cf', '20140324', 'FIT000001', '0000', '0100', 60, 'test', '20140324014820'),
 	('ed70f576-040c-1032-aa74-f1bacedbe0cf', '20140324', 'FIT000003', '0200', '0300', 60, 'test', '20140324015547'),
 	('1c7314e2-040d-1032-aa74-f1bacedbe0cf', '20140324', 'FIT000004', '0100', '0200', 60, 'test', '20140324015706'),
-	('99de18d4-0412-1032-aa74-f1bacedbe0cf', '20140324', 'PHY000001', '0900', '1000', 60, 'test', '20140324023624');
+	('99de18d4-0412-1032-aa74-f1bacedbe0cf', '20140324', 'PHY000001', '0900', '1000', 60, 'test', '20140324023624'),
+	('8e69196a-0413-1032-aa74-f1bacedbe0cf', '20140320', 'FIT000003', '0700', '0800', 60, 'test', '20140324024314'),
+	('957e52bc-0413-1032-aa74-f1bacedbe0cf', '20140320', 'NUTBRK001', '0900', '1000', 60, 'test', '20140324024326'),
+	('9b768e2d-0413-1032-aa74-f1bacedbe0cf', '20140320', 'PHY000001', '1100', '1200', 60, 'test', '20140324024336');
 /*!40000 ALTER TABLE `wmsmst` ENABLE KEYS */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
