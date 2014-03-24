@@ -102,9 +102,25 @@ class worklist_model extends CI_Model {
         return $query->result();
     }
     
+    function deleteTeamWorklistItem($itemId) {
+        $data = array($itemId);
+        
+        $this->db->query("CALL fn_deleteTeamWorklistItem(?)", $data);
+    }
+    
     function generateWorklistToPlayers($date, $user) {
         $data = array($date, $user);
         
         $this->db->query("CALL fn_generatePlayerWorklistFromTeamWorklist(?, ?)", $data);
+    }
+    
+    function getTeamWorklistScheduleDates($year, $month) {
+        $yearMonth = $year . $month . "%";
+        
+        $data = array($yearMonth);
+        
+        $query = $this->db->query("CALL fn_getTeamWorklistScheduleDates(?)", $data);
+        
+        return $query->result();
     }
 }

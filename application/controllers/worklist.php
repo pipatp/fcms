@@ -74,6 +74,19 @@ class worklist extends CI_Controller {
         $this->load->view('json_result', $data);
     }
     
+    function deleteTeamWorklistItem() {
+        try {
+            $postData = json_decode(trim(file_get_contents('php://input')), true);
+
+            $this->load->model('worklist_model');
+
+            $this->worklist_model->deleteTeamWorklistItem($postData["itemId"]);
+        } catch (Exception $e) {
+            $this->output->set_status_header('500', 'Generate worklist failed.');
+        }
+        
+    }
+    
     function generateWorklistToPlayers() {
         try {
             $postData = json_decode(trim(file_get_contents('php://input')), true);
@@ -87,5 +100,13 @@ class worklist extends CI_Controller {
         } catch (Exception $e) {
             $this->output->set_status_header('500', 'Generate worklist failed.');
         }
+    }
+    
+    function getTeamWorklistScheduleDates($year, $month) {
+        $this->load->model('worklist_model');
+        
+        $data["content"] = $this->worklist_model->getTeamWorklistScheduleDates($year, $month);
+        
+        return $this->load->view('json_result', $data);
     }
 }

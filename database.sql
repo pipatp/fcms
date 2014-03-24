@@ -424,6 +424,15 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_deleteTeamWorklistItem
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_deleteTeamWorklistItem`(IN `p_itemId` VARCHAR(36))
+BEGIN
+	DELETE FROM wmsmst WHERE WmsUnq = p_ItemId;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_deleteWorklistItem
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_deleteWorklistItem`(IN `p_worklistSeq` INT, IN `p_seqNum` INT, IN `p_itemCode` VARCHAR(20))
@@ -854,6 +863,17 @@ BEGIN
 	FROM wmsmst wm, odrmst om
 	WHERE wm.WmsOdrCod = om.OdrCod AND wm.WmsDte = p_date
 	ORDER BY wm.WmsStrDtm;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getTeamWorklistScheduleDates
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getTeamWorklistScheduleDates`(IN `p_yearMonth` VARCHAR(8))
+BEGIN
+	SELECT wm.WmsDte
+	FROM wmsmst wm
+	WHERE wm.WmsDte LIKE p_yearMonth;
 END//
 DELIMITER ;
 
@@ -1478,7 +1498,7 @@ INSERT INTO `pmsmst` (`PmsUsrCod`, `PmsDepCod`, `PmsRea`, `PmsWrt`, `PmsEdt`, `P
 	('test1', 'FIT', 1, 1, 0, 0),
 	('test1', 'NUT', 1, 1, 0, 0),
 	('test', 'NUT', 1, 0, 0, 1),
-	('test', 'WKL', 1, 0, 0, 1);
+	('test', 'WKL', 1, 0, 0, 0);
 /*!40000 ALTER TABLE `pmsmst` ENABLE KEYS */;
 
 
@@ -1548,7 +1568,7 @@ CREATE TABLE IF NOT EXISTS `pwlinf` (
   `PwlUpdUid` char(20) default NULL,
   `PwlUpdDts` char(14) default NULL,
   PRIMARY KEY  (`PwlSeqNum`,`PwlPlyCod`,`PwlAppDte`,`PwlAppTim`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table fcms.pwlinf: ~12 rows (approximately)
 /*!40000 ALTER TABLE `pwlinf` DISABLE KEYS */;
@@ -1561,10 +1581,10 @@ INSERT INTO `pwlinf` (`PwlSeqNum`, `PwlPlyCod`, `PwlAppDte`, `PwlAppTim`, `PwlCu
 	(14, 'P00001', '20140317', '0530', 'N', NULL, NULL, 'test', '20140313010903'),
 	(16, 'P00001', '20140311', '0530', 'N', NULL, NULL, 'test1', '20140321000332'),
 	(17, 'P00001', '20140322', '0530', 'N', NULL, NULL, 'test', '20140322112153'),
-	(26, 'P00001', '20140320', '0700', 'A', NULL, NULL, 'test', '20140324024341'),
-	(27, 'P00002', '20140320', '0700', 'A', NULL, NULL, 'test', '20140324024341'),
 	(28, 'P00001', '20140324', '0000', 'A', NULL, NULL, 'test', '20140324024528'),
-	(29, 'P00002', '20140324', '0000', 'A', NULL, NULL, 'test', '20140324024528');
+	(29, 'P00002', '20140324', '0000', 'A', NULL, NULL, 'test', '20140324024528'),
+	(30, 'P00001', '20140320', '0700', 'A', NULL, NULL, 'test', '20140324225136'),
+	(31, 'P00002', '20140320', '0700', 'A', NULL, NULL, 'test', '20140324225136');
 /*!40000 ALTER TABLE `pwlinf` ENABLE KEYS */;
 
 
@@ -1648,12 +1668,6 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(17, 4, 'FIT000002', '1500', '1600', 60, 'N', NULL, NULL, 'test', '20140322143109'),
 	(17, 5, 'NUTBRK001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140322195037'),
 	(17, 6, 'PHY000001', '1100', '1130', 30, 'N', NULL, NULL, 'test', '20140323015853'),
-	(26, 1, 'FIT000003', '0700', '0800', 60, 'N', NULL, NULL, 'test', '20140324024341'),
-	(26, 2, 'NUTBRK001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324024341'),
-	(26, 3, 'PHY000001', '1100', '1200', 60, 'N', NULL, NULL, 'test', '20140324024341'),
-	(27, 1, 'FIT000003', '0700', '0800', 60, 'N', NULL, NULL, 'test', '20140324024341'),
-	(27, 2, 'NUTBRK001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324024341'),
-	(27, 3, 'PHY000001', '1100', '1200', 60, 'N', NULL, NULL, 'test', '20140324024341'),
 	(28, 1, 'FIT000001', '0000', '0100', 60, 'N', NULL, NULL, 'test', '20140324024528'),
 	(28, 2, 'FIT000004', '0100', '0200', 60, 'N', NULL, NULL, 'test', '20140324024528'),
 	(28, 3, 'FIT000003', '0200', '0300', 60, 'N', NULL, NULL, 'test', '20140324024528'),
@@ -1661,7 +1675,13 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(29, 1, 'FIT000001', '0000', '0100', 60, 'N', NULL, NULL, 'test', '20140324024528'),
 	(29, 2, 'FIT000004', '0100', '0200', 60, 'N', NULL, NULL, 'test', '20140324024528'),
 	(29, 3, 'FIT000003', '0200', '0300', 60, 'N', NULL, NULL, 'test', '20140324024528'),
-	(29, 4, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324024528');
+	(29, 4, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324024528'),
+	(30, 1, 'FIT000003', '0700', '0800', 60, 'N', NULL, NULL, 'test', '20140324225136'),
+	(30, 2, 'NUTBRK001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324225136'),
+	(30, 3, 'PHY000001', '1100', '1200', 60, 'N', NULL, NULL, 'test', '20140324225136'),
+	(31, 1, 'FIT000003', '0700', '0800', 60, 'N', NULL, NULL, 'test', '20140324225136'),
+	(31, 2, 'NUTBRK001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324225136'),
+	(31, 3, 'PHY000001', '1100', '1200', 60, 'N', NULL, NULL, 'test', '20140324225136');
 /*!40000 ALTER TABLE `wklinf` ENABLE KEYS */;
 
 
@@ -1745,11 +1765,10 @@ CREATE TABLE IF NOT EXISTS `wmsmst` (
   KEY `WmsDte` (`WmsDte`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Worklist month schedule master';
 
--- Dumping data for table fcms.wmsmst: 7 rows
+-- Dumping data for table fcms.wmsmst: 6 rows
 /*!40000 ALTER TABLE `wmsmst` DISABLE KEYS */;
 INSERT INTO `wmsmst` (`WmsUnq`, `WmsDte`, `WmsOdrCod`, `WmsStrDtm`, `WmsEndDtm`, `WmsActDur`, `WmsUpdUid`, `WmsUpdDts`) VALUES
 	('e2c58f36-040b-1032-aa74-f1bacedbe0cf', '20140324', 'FIT000001', '0000', '0100', 60, 'test', '20140324014820'),
-	('ed70f576-040c-1032-aa74-f1bacedbe0cf', '20140324', 'FIT000003', '0200', '0300', 60, 'test', '20140324015547'),
 	('1c7314e2-040d-1032-aa74-f1bacedbe0cf', '20140324', 'FIT000004', '0100', '0200', 60, 'test', '20140324015706'),
 	('99de18d4-0412-1032-aa74-f1bacedbe0cf', '20140324', 'PHY000001', '0900', '1000', 60, 'test', '20140324023624'),
 	('8e69196a-0413-1032-aa74-f1bacedbe0cf', '20140320', 'FIT000003', '0700', '0800', 60, 'test', '20140324024314'),
