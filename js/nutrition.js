@@ -78,6 +78,16 @@ function viewMealModification() {
     });
 }
 
+function viewNutritionRecordResult() {
+    selectTab(this);
+    
+    $.ajax("viewNutritionRecordResult").done(function(result) {
+        var $content = $(".content-body");
+
+        $content.html(result);
+    });
+}
+
 function viewMealStore() {
     selectTab(this);
     
@@ -109,6 +119,7 @@ $(function() {
     $("#register-tab").click(viewRegistration);
     $("#food-modification-tab").click(viewMealModification);
     $("#food-preparation-tab").click(viewMealPreparation);
+    $("#food-result-tab").click(viewNutritionRecordResult);
     $("#food-stock-tab").click(viewMealStore);
     
 //    var newHeight = $("body").height() - $(".top-menu").height() - $(".sub-menu").height() - 50 + "px";

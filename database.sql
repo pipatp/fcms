@@ -742,6 +742,19 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_getPlayerHistoryResult
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPlayerHistoryResult`(IN `p_playerCode` VARCHAR(20), IN `p_category` VARCHAR(20), IN `p_subcategory` VARCHAR(20))
+BEGIN
+	SELECT *
+	FROM plrinf
+	WHERE PlrPlyCod = p_playerCode AND 
+		PlrCatTyp = p_category AND PlrSubTyp = p_subcategory
+	ORDER BY PlrRstDte DESC;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getPlayerInfo
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPlayerInfo`(IN `p_playerCode` VARCHAR(20))
@@ -1631,7 +1644,7 @@ CREATE TABLE IF NOT EXISTS `wklinf` (
   PRIMARY KEY  (`WklPwlSeq`,`WklSeqNum`,`WklOdrCod`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wklinf: ~48 rows (approximately)
+-- Dumping data for table fcms.wklinf: ~49 rows (approximately)
 /*!40000 ALTER TABLE `wklinf` DISABLE KEYS */;
 INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEndDtm`, `WklActDur`, `WklCurStt`, `WklRelStr`, `WklRelEnd`, `WklUpdUid`, `WklUpdDts`) VALUES
 	(1, 1, 'FIT000001', '0600', '0700', 60, 'Y', NULL, NULL, NULL, NULL),
@@ -1676,6 +1689,7 @@ INSERT INTO `wklinf` (`WklPwlSeq`, `WklSeqNum`, `WklOdrCod`, `WklStrDtm`, `WklEn
 	(29, 2, 'FIT000004', '0100', '0200', 60, 'N', NULL, NULL, 'test', '20140324024528'),
 	(29, 3, 'FIT000003', '0200', '0300', 60, 'N', NULL, NULL, 'test', '20140324024528'),
 	(29, 4, 'PHY000001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324024528'),
+	(29, 5, 'NUTBRK001', '0800', '0900', 60, 'N', NULL, NULL, 'test', '20140324233844'),
 	(30, 1, 'FIT000003', '0700', '0800', 60, 'N', NULL, NULL, 'test', '20140324225136'),
 	(30, 2, 'NUTBRK001', '0900', '1000', 60, 'N', NULL, NULL, 'test', '20140324225136'),
 	(30, 3, 'PHY000001', '1100', '1200', 60, 'N', NULL, NULL, 'test', '20140324225136'),
@@ -1731,7 +1745,7 @@ CREATE TABLE IF NOT EXISTS `wkminf` (
   PRIMARY KEY  (`WkmPwlSeq`,`WkmOdrCod`,`WkmMelSeq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.wkminf: ~14 rows (approximately)
+-- Dumping data for table fcms.wkminf: ~15 rows (approximately)
 /*!40000 ALTER TABLE `wkminf` DISABLE KEYS */;
 INSERT INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMelWeg`, `WkmMelCal`, `WkmEdtYon`, `WkmMelYrm`, `WkmMelDay`, `WkmOdrStt`, `WkmUpdUid`, `WkmUpdDts`) VALUES
 	(1, 'NUTBRK001', 2, 'NUT000006', 100, 250, 'N', '201401', '24', 'N', NULL, NULL),
@@ -1747,7 +1761,8 @@ INSERT INTO `wkminf` (`WkmPwlSeq`, `WkmOdrCod`, `WkmMelSeq`, `WkmMelCod`, `WkmMe
 	(3, 'NUTBRK001', 1, 'NUT000005', 2, 2, 'N', '201403', '08', 'N', 'test', '20140323012347'),
 	(13, 'NUTLNH001', 1, 'NUT000008', 2, 20, 'N', '201403', '16', 'N', 'test', '20140322194954'),
 	(17, 'NUTBRK001', 1, 'NUT000005', 33, 33, 'N', '201403', '22', 'N', 'test', '20140322195037'),
-	(17, 'NUTBRK001', 2, 'NUT000004', 400, 40, 'N', '201403', '22', 'N', 'test', '20140322195133');
+	(17, 'NUTBRK001', 2, 'NUT000004', 400, 40, 'N', '201403', '22', 'N', 'test', '20140322195133'),
+	(29, 'NUTBRK001', 1, 'NUT000001', 20, 20, 'N', '201403', '24', 'N', 'test', '20140324233844');
 /*!40000 ALTER TABLE `wkminf` ENABLE KEYS */;
 
 

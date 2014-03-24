@@ -205,6 +205,17 @@ class fitness extends CI_Controller {
             $this->output->set_status_header('500', 'Delete item failed.');
         }
     }
+    
+    function getFitnessHistoryResult($playerCode) {
+        $this->load->model('player_model');
+        
+        $obj["results"] = $this->player_model->getHistoryResult($playerCode, "FIT", "RST");
+        $obj["suggestions"] = $this->player_model->getHistoryResult($playerCode, "FIT", "SGT");
+        
+        $data["content"] = $obj;
+        
+        $this->load->view('json_result', $data);
+    }
 
     //----------------------------------------------
     // Fitness Player Info

@@ -234,6 +234,18 @@ class nutrition extends CI_Controller {
     }
     
     //----------------------------------------------
+    // Nutrition Record Result
+    //----------------------------------------------
+    function viewNutritionRecordResult() {
+        $this->load->model('player_model');
+        
+        $data["players"] = $this->player_model->getAllPlayers();
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('nut_record_result', $data);
+    }
+    
+    //----------------------------------------------
     // Meal Inventory
     //----------------------------------------------
     function viewInventory() {

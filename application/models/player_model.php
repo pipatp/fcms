@@ -55,6 +55,18 @@ class player_model extends CI_Model {
         return $row;
     }
     
+    function getHistoryResult($playerCode, $category, $subcategory) {
+        $data = array($playerCode, $category, $subcategory);
+        
+        $query = $this->db->query("CALL fn_getPlayerHistoryResult(?, ?, ?)", $data);
+        
+        $result = $query->result();
+               
+        $query->free_result();
+        
+        return $result;
+    }
+    
     function updateResult($playerCode, $date, $comment, $category, $subcategory, $user) {
         $data = array($playerCode, $date, $comment, $category, $subcategory, $user);
         
