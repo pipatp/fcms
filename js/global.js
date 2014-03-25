@@ -20,3 +20,34 @@ function calculateDuration(start, end) {
 
     return ((h2-h1)*60) + (m2-m1);
 }
+
+function getAge(birthDate) 
+{
+    var today = new Date();
+
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
+    {
+        age--;
+    }
+    return age;
+}
+
+function getDisplayNameWithEng(name, lastname, nameEng, lastnameEng) {
+    var displayText;
+    if (name) {
+        displayText = name + " " + lastname;
+    }
+
+    if (nameEng) {
+        if (displayText) {
+            displayText += " (" + nameEng + " " + lastnameEng + ")";
+        }
+        else {
+            displayText = nameEng + " " + lastnameEng;
+        }
+    }
+
+    return displayText;
+}

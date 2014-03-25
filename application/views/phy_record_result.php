@@ -100,6 +100,19 @@
     white-space: pre;
 }
 
+.fit-content {
+    width: 1px;
+    white-space: nowrap;
+    
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    vertical-align: middle;
+}
+
+.content {
+    white-space: pre;
+}
 </style>
 <div id="physical-record-result">
     <div class="search-box-section">
@@ -138,14 +151,38 @@
         </div>
         <div id="physical-addition-tab">
             <ul>
-                <li><a href="#report-tab">รายงานผลจากผู้ฝึกสอน</a></li>
-                <li><a href="#suggestion-tab">คำแนะนำของผู้ฝึกสอน</a></li>
+                <li><a href="#report-tab">รายงานผลจากนักกายภาพ</a></li>
+                <li><a href="#suggestion-tab">คำแนะนำของนักกายภาพ</a></li>
             </ul>
             <div id="report-tab">
+                <div id="result-history-button" class="btn btn-info" style="margin-bottom: 5px;">ประวัติรายงานผลของนักกายภาพ</div>
                 <div class="stretch comment" title="ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข" readonly></div>
             </div>
             <div id="suggestion-tab">
+                <div id="suggestion-history-button" class="btn btn-info" style="margin-bottom: 5px;">ประวัติคำแนะนำของนักกายภาพ</div>
                 <div class="stretch comment" title="ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข" readonly></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="historyDialog" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"></div>
+            <div class="modal-body" style='overflow-y: auto; min-height: 300px; max-height: 600px;'>
+                <table class="table table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="fit-content">วันที่</th>
+                            <th>รายละเอียด</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>                  
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
             </div>
         </div>
     </div>
@@ -153,6 +190,11 @@
 <script>
     var playerCode = "";
     var currentDate = $.datepicker.formatDate("yymmdd", new Date());
+    
+    var history = {
+        results: "",
+        suggestions: ""
+    }
     
     var permission = <?php echo json_encode($permission) ?>;
     
@@ -209,6 +251,8 @@
         $("#suggestion-tab .stretch").text("");
 
         getPlayerResult();
+        
+        getPhysicalHistoryResult();
             
         $(".physical-record-detail").show();
     });
@@ -231,6 +275,35 @@
                 $("#suggestion-tab .stretch").text("");
             }
         });
+    }
+    
+    function getPhysicalHistoryResult() {
+        $.get("getPhysicalHistoryResult/" + playerCode).done(function(result) {
+            var comment = jQuery.parseJSON(result);
+            
+            history.results = populateHistoryTable(comment.results);
+            
+            console.info(history.results);
+            
+            history.suggestions = populateHistoryTable(comment.suggestions);
+        });
+    }
+    
+    function populateHistoryTable(items) {
+        var $content = $("<tbody>");
+        
+        for (var index=0; index<items.length; index++) {
+            var $row = $("<tr>");
+            
+            var date = $.datepicker.parseDate("yymmdd", items[index].PlrRstDte);
+            
+            $("<td>", { "class":"fit-content" }).text($.datepicker.formatDate("d MM yy", date)).appendTo($row);
+            $("<td>", { "class":"content" }).text(items[index].PlrRstCmt).appendTo($row);
+            
+            $content.append($row);
+        }
+        
+        return $content;
     }
     
     function addPlayerResult(comment, subcategory, success) {
@@ -287,6 +360,15 @@
         editMode = false;
     }
     
+    function setHistoryDialog(header, $contents) {
+        $("#historyDialog .modal-header").text(header);
+        
+        $("#historyDialog tbody").detach();
+        $("#historyDialog thead").after($contents);
+        
+        $("#historyDialog").modal("show");
+    }
+    
     var currentComment = "";
     var editMode = false;
     
@@ -337,5 +419,13 @@
         }
         
         $(".physical-record-detail").hide();
+        
+        $("#historyDialog").modal({ show: false });
+        $("#result-history-button").click(function() {
+            setHistoryDialog("ประวัติรายงานผลของนักกายภาพ", history.results);
+        });
+        $("#suggestion-history-button").click(function() {
+            setHistoryDialog("ประวัติคำแนะนำของนักกายภาพ", history.suggestions);
+        });
     });
 </script>

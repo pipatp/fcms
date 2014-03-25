@@ -245,6 +245,27 @@ class nutrition extends CI_Controller {
         $this->load->view('nut_record_result', $data);
     }
     
+    function getNutritionResult($playerCode, $date) {
+        $this->load->model('player_model');
+        
+        $obj["result"] = $this->player_model->getResult($playerCode, $date, "NUT", "RST");
+        $obj["suggestion"] = $this->player_model->getResult($playerCode, $date, "NUT", "SGT");
+        
+        $data["content"] = $obj;
+        
+        $this->load->view('json_result', $data);
+    }
+    
+    function getNutritionHistoryResult($playerCode) {
+        $this->load->model('player_model');
+        
+        $obj["results"] = $this->player_model->getHistoryResult($playerCode, "NUT", "RST");
+        $obj["suggestions"] = $this->player_model->getHistoryResult($playerCode, "NUT", "SGT");
+        
+        $data["content"] = $obj;
+        
+        $this->load->view('json_result', $data);
+    }
     //----------------------------------------------
     // Meal Inventory
     //----------------------------------------------

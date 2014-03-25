@@ -746,10 +746,14 @@ DELIMITER ;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPlayerHistoryResult`(IN `p_playerCode` VARCHAR(20), IN `p_category` VARCHAR(20), IN `p_subcategory` VARCHAR(20))
 BEGIN
+	DECLARE l_currentDate CHAR(8);
+	
+	SET l_currentDate = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d');
+	
 	SELECT *
 	FROM plrinf
-	WHERE PlrPlyCod = p_playerCode AND 
-		PlrCatTyp = p_category AND PlrSubTyp = p_subcategory
+	WHERE PlrPlyCod = p_playerCode AND PlrCatTyp = p_category AND
+		PlrSubTyp = p_subcategory AND PlrRstDte < l_currentDate
 	ORDER BY PlrRstDte DESC;
 END//
 DELIMITER ;
@@ -1412,14 +1416,18 @@ CREATE TABLE IF NOT EXISTS `plrinf` (
   PRIMARY KEY  (`PlrPlyCod`,`PlrRstDte`,`PlrCatTyp`,`PlrSubTyp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.plrinf: ~5 rows (approximately)
+-- Dumping data for table fcms.plrinf: ~7 rows (approximately)
 /*!40000 ALTER TABLE `plrinf` DISABLE KEYS */;
 INSERT INTO `plrinf` (`PlrPlyCod`, `PlrRstDte`, `PlrCatTyp`, `PlrSubTyp`, `PlrRstCmt`, `PlrUpdUid`, `PlrUpdDts`) VALUES
 	('P00001', '20140302', 'FIT', 'RST', 'Normal test', 'user', '2014030205507'),
 	('P00001', '20140302', 'FIT', 'SGT', 'hello', 'user', '20140302120122'),
 	('P00001', '20140302', 'PHY', 'RST', 'sdvsvdtttt', 'user', '20140302120836'),
 	('P00001', '20140302', 'PHY', 'SGT', 'test 2', 'user', '20140302120855'),
-	('P00001', '20140323', 'PHY', 'RST', 'ทดสอบรายงานผล', 'test', '20140323021005');
+	('P00001', '20140315', 'FIT', 'RST', 'second comment\r\nline 2\r\nloine3', 'user', '2014030205507'),
+	('P00001', '20140323', 'PHY', 'RST', 'ทดสอบรายงานผล', 'test', '20140323021005'),
+	('P00001', '20140325', 'PHY', 'RST', 'ทำได้ครบ\nท่า 1\nท่า 2', 'test', '20140325225725'),
+	('P00002', '20140321', 'NUT', 'SGT', 'ทดสอบรายงานผล1', 'test', '20140323021005'),
+	('P00002', '20140322', 'NUT', 'RST', 'ทดสอบรายงานผล1', 'test', '20140323021005');
 /*!40000 ALTER TABLE `plrinf` ENABLE KEYS */;
 
 

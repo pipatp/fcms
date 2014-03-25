@@ -190,6 +190,17 @@ class physical extends CI_Controller {
         $this->load->view('json_result', $data);
     }
     
+    function getPhysicalHistoryResult($playerCode) {
+        $this->load->model('player_model');
+        
+        $obj["results"] = $this->player_model->getHistoryResult($playerCode, "PHY", "RST");
+        $obj["suggestions"] = $this->player_model->getHistoryResult($playerCode, "PHY", "SGT");
+        
+        $data["content"] = $obj;
+        
+        $this->load->view('json_result', $data);
+    }
+    
     //----------------------------------------------
     // Physical Therapy Player Info
     //----------------------------------------------

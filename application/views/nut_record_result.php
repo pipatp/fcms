@@ -1,5 +1,5 @@
 <style>
-#fitness-record-result { 
+#nutrition-record-result { 
     padding: 0px; 
     background: none; 
     /*border-width: 0px;*/
@@ -44,7 +44,7 @@
     font-size: 13px;
 }
 
-#fitness-addition-tab { 
+#nutrition-addition-tab { 
     padding: 0px; 
     background: none; 
     border-width: 0px;
@@ -57,7 +57,7 @@
     min-height: 300px;
 }
 
-#fitness-addition-tab .ui-tabs-nav, #player-meal-modification-tab .ui-tabs-nav { 
+#nutrition-addition-tab .ui-tabs-nav, #player-meal-modification-tab .ui-tabs-nav { 
     padding-left: 0px; 
     background: transparent; 
     border-width: 0px 0px 1px 0px; 
@@ -66,34 +66,34 @@
     border-radius: 0px;
 }
 
-#fitness-addition-tab .ui-tabs-nav li {
+#nutrition-addition-tab .ui-tabs-nav li {
     width: 49%;
     
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
 }
 
-#fitness-addition-tab .ui-tabs-nav li a {
+#nutrition-addition-tab .ui-tabs-nav li a {
     width: 100%;
         
     outline: none;
 }
 
-#fitness-addition-tab .ui-tabs-panel {
+#nutrition-addition-tab .ui-tabs-panel {
     padding: 10px;
     border-width: 0px 1px 1px 1px;
     
     font-size: 13px;
 }
 
-#fitness-addition-tab .stretch {
+#nutrition-addition-tab .stretch {
     width: 100%;
     height: 100%;
     
     font-family: Helvetica,tahoma, sans-serif;
 }
 
-#fitness-addition-tab .comment {
+#nutrition-addition-tab .comment {
     border: #AAA solid 1px;
     padding: 2px;
     
@@ -114,7 +114,7 @@
     white-space: pre;
 }
 </style>
-<div id="fitness-record-result">
+<div id="nutrition-record-result">
     <div class="search-box-section">
         <select id="player-select-input" class="form-control input-sm" style="width:300px;">
             <option value=""></option>
@@ -144,22 +144,22 @@
             ?>
         </select>
     </div>
-    <div class="fitness-record-detail">
+    <div class="nutrition-record-detail">
         <div class="player-info-section">
             <img class="player-picture" src="" />
             <div class="player-detail"></div>
         </div>
-        <div id="fitness-addition-tab">
+        <div id="nutrition-addition-tab">
             <ul>
-                <li><a href="#report-tab">รายงานผลจากผู้ฝึกสอน</a></li>
-                <li><a href="#suggestion-tab">คำแนะนำของผู้ฝึกสอน</a></li>
+                <li><a href="#report-tab">รายงานผลจากนักโภชนากร</a></li>
+                <li><a href="#suggestion-tab">คำแนะนำของนักโภชนากร</a></li>
             </ul>
             <div id="report-tab">
-                <div id="result-history-button" class="btn btn-info" style="margin-bottom: 5px;">ประวัติรายงานผลของผู้ฝึกสอน</div>
+                <div id="result-history-button" class="btn btn-info" style="margin-bottom: 5px;">ประวัติรายงานผลของนักโภชนากร</div>
                 <div class="stretch comment" title="ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข" readonly></div>
             </div>
             <div id="suggestion-tab">
-                <div id="suggestion-history-button" class="btn btn-info" style="margin-bottom: 5px;">ประวัติคำแนะนำของผู้ฝึกสอน</div>
+                <div id="suggestion-history-button" class="btn btn-info" style="margin-bottom: 5px;">ประวัติคำแนะนำของนักโภชนากร</div>
                 <div class="stretch comment" title="ดับเบิ้ลคลิ๊กเพื่อทำการแก้ไข" readonly></div>
             </div>
         </div>
@@ -198,15 +198,13 @@
     
     var permission = <?php echo json_encode($permission) ?>;
     
-    $("#fitness-addition-tab").tabs({heightStyle: "fill"});
+    $("#nutrition-addition-tab").tabs({heightStyle: "fill"});
     
     function addDetail($detailDiv, key, val) {
         $detailDiv.append("<tr><td style='padding-left: 5px;font-weight: bold; text-align:right'>" + key + "</td><td style='padding-left: 10px;'>" + val + "</td></tr>");
     }
     
     function displayPlayerInfo(item) {
-        playerCode = item.PlyCod;
-        
         $(".player-picture").attr("src", "../player/thumbnail/" + playerCode + "?width=150&height=150");
         
         var $playerDetail = $(".player-detail");
@@ -254,13 +252,13 @@
 
         getPlayerResult();
         
-        getFitnessHistoryResult();
+        getNutritionHistoryResult();
             
-        $(".fitness-record-detail").show();
+        $(".nutrition-record-detail").show();
     });
     
     function getPlayerResult() {      
-        $.get("getFitnessResult/" + playerCode + "/" + currentDate).done(function(result) {
+        $.get("getNutritionResult/" + playerCode + "/" + currentDate).done(function(result) {
             var comment = jQuery.parseJSON(result);
             
             if (comment.result) {
@@ -279,8 +277,8 @@
         });
     }
     
-    function getFitnessHistoryResult() {
-        $.get("getFitnessHistoryResult/" + playerCode).done(function(result) {
+    function getNutritionHistoryResult() {
+        $.get("getNutritionHistoryResult/" + playerCode).done(function(result) {
             var comment = jQuery.parseJSON(result);
             
             history.results = populateHistoryTable(comment.results);
@@ -313,7 +311,7 @@
         result.playerCode = playerCode;
         result.date = currentDate;
         result.comment = comment;
-        result.category = "FIT";
+        result.category = "PHY";
         result.subcategory = subcategory;
 
         $.post("../player/updateResult", JSON.stringify(result)).done(function() {
@@ -420,14 +418,14 @@
             $("#suggestion-tab .stretch").tooltip();
         }
         
-        $(".fitness-record-detail").hide();
+        $(".nutrition-record-detail").hide();
         
         $("#historyDialog").modal({ show: false });
         $("#result-history-button").click(function() {
-            setHistoryDialog("ประวัติรายงานผลของผู้ฝึกสอน", history.results);
+            setHistoryDialog("ประวัติรายงานผลของนักโภชนากร", history.results);
         });
         $("#suggestion-history-button").click(function() {
-            setHistoryDialog("ประวัติคำแนะนำของผู้ฝึกสอน", history.suggestions);
+            setHistoryDialog("ประวัติคำแนะนำของนักโภชนากร", history.suggestions);
         });
     });
 </script>
