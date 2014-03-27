@@ -272,11 +272,40 @@ class nutrition extends CI_Controller {
     //----------------------------------------------
     function viewNutritionPlan() {
         $this->load->model('player_model');
+        $this->load->model('nutrition_model');
         
         $data["players"] = $this->player_model->getAllPlayers();
+        $planMonths = $this->nutrition_model->getNutritionPlanMonth();
+        
+        if (count($planMonths) > 0) {
+            $month = $planMonths[count($planMonths) - 1]->NmpYeaMon;
+            $data["playerPlans"] = $this->nutrition_model->getNutritionPlan($month);
+        }
+        $data["planMonths"] = $planMonths;
         $data["permission"] = $this->permission;
         
         $this->load->view('nut_plan', $data);
+    }
+    
+    function createNutritionPlan($yearMonth) {
+        $this->load->model('nutrition_model');
+        
+        $this->nutrition_model->createNutritionPlan($yearMonth);
+    }
+    
+    function getNutritionPlan($yearMonth) {
+        $this->load->model('nutrition_model');
+        
+        $data["playerPlans"] = $this->nutrition_model->getNutritionPlan($yearMonth);
+        
+        $currentMonth = date('Ym');
+        
+        if ($currentMonth == $yearMonth) {
+            $this->load->view('nut_plan_edit', $data);
+        }
+        else {
+            $this->load->view('nut_plan_view', $data);
+        }
     }
     
     //----------------------------------------------

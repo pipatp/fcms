@@ -142,4 +142,35 @@ class nutrition_model extends CI_Model {
         
         $query->row();
     }
+    
+    //----------------------------------------------
+    // Nutrition Plan
+    //----------------------------------------------
+    function getNutritionPlanMonth() {
+        $query = $this->db->query("CALL fn_getNutritionPlanMonth()");
+        
+        $result = $query->result();
+               
+        $query->free_result();
+        
+        return $result;
+    }
+    
+    function createNutritionPlan($yearMonth) {
+        $data = array($yearMonth);
+            
+        $this->db->query("CALL fn_createNutritionPlan(?)", $data);
+    }
+    
+    function getNutritionPlan($yearMonth) {
+        $data = array($yearMonth);
+            
+        $query = $this->db->query("CALL fn_getNutritionPlan(?)", $data);
+        
+        $result = $query->result();
+               
+        $query->free_result();
+        
+        return $result;
+    }
 }

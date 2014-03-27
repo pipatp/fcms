@@ -219,7 +219,7 @@ BEGIN
 
 	IF l_playerWorklist IS NULL THEN
 		INSERT INTO pwlinf(PwlPlyCod, PwlAppDte, PwlAppTim, PwlCurStt, PwlUpdUid, PwlUpdDts) 
-		VALUES (p_playerCode, p_date, '0530', 'N', p_user, l_timestamp);
+		VALUES (p_playerCode, l_date, '0530', 'A', p_user, l_timestamp);
 		
 		SET l_playerWorklist = LAST_INSERT_ID();
 	END IF;
@@ -325,7 +325,7 @@ BEGIN
 
 	IF l_playerWorklist IS NULL THEN
 		INSERT INTO pwlinf(PwlPlyCod, PwlAppDte, PwlAppTim, PwlCurStt, PwlUpdUid, PwlUpdDts) 
-		VALUES (p_playerCode, p_date, '0530', 'N', p_user, l_timestamp);
+		VALUES (p_playerCode, p_date, '0530', 'A', p_user, l_timestamp);
 		
 		SET l_playerWorklist = LAST_INSERT_ID();
 	END IF;
@@ -384,6 +384,17 @@ BEGIN
 	FROM wmsmst wm, odrmst om
 	WHERE wm.WmsOdrCod = om.OdrCod AND wm.WmsDte = p_date
 	ORDER BY wm.WmsStrDtm;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_createNutritionPlan
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_createNutritionPlan`(IN `p_yearMonth` VARCHAR(8))
+BEGIN
+	INSERT INTO nmpinf(NmpYeaMon, NmpPlyCod)
+	SELECT p_yearMonth, PlyCod
+	FROM plyinf;
 END//
 DELIMITER ;
 
@@ -1167,6 +1178,32 @@ INSERT INTO `invsit` (`InvSitSeq`, `InvSitDte`, `InvCatTyp`, `InvSitTyp`, `InvTy
 /*!40000 ALTER TABLE `invsit` ENABLE KEYS */;
 
 
+-- Dumping structure for table fcms.nmpinf
+CREATE TABLE IF NOT EXISTS `nmpinf` (
+  `NmpYeaMon` char(6) NOT NULL,
+  `NmpPlyCod` char(20) NOT NULL,
+  `NmpNutGrp` char(1) default NULL,
+  `NmpPlyWgh` tinyint(4) default NULL,
+  `NmpCalDay` varchar(50) default NULL,
+  `NmpMlkUnt` smallint(6) default NULL,
+  `NmpMeaUnt` smallint(6) default NULL,
+  `NmpFrtUnt` smallint(6) default NULL,
+  `NmpVegUnt` smallint(6) default NULL,
+  `NmpRceNod` smallint(6) default NULL,
+  `NmpLipUnt` smallint(6) default NULL,
+  PRIMARY KEY  (`NmpYeaMon`,`NmpPlyCod`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Nutrition monthly plan';
+
+-- Dumping data for table fcms.nmpinf: 0 rows
+/*!40000 ALTER TABLE `nmpinf` DISABLE KEYS */;
+INSERT INTO `nmpinf` (`NmpYeaMon`, `NmpPlyCod`, `NmpNutGrp`, `NmpPlyWgh`, `NmpCalDay`, `NmpMlkUnt`, `NmpMeaUnt`, `NmpFrtUnt`, `NmpVegUnt`, `NmpRceNod`, `NmpLipUnt`) VALUES
+	('201402', 'P00002', 'B', 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+	('201402', 'P00001', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+	('201403', 'P00001', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+	('201403', 'P00002', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+/*!40000 ALTER TABLE `nmpinf` ENABLE KEYS */;
+
+
 -- Dumping structure for table fcms.odrmst
 CREATE TABLE IF NOT EXISTS `odrmst` (
   `OdrCod` char(20) NOT NULL,
@@ -1416,7 +1453,7 @@ CREATE TABLE IF NOT EXISTS `plrinf` (
   PRIMARY KEY  (`PlrPlyCod`,`PlrRstDte`,`PlrCatTyp`,`PlrSubTyp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table fcms.plrinf: ~7 rows (approximately)
+-- Dumping data for table fcms.plrinf: ~9 rows (approximately)
 /*!40000 ALTER TABLE `plrinf` DISABLE KEYS */;
 INSERT INTO `plrinf` (`PlrPlyCod`, `PlrRstDte`, `PlrCatTyp`, `PlrSubTyp`, `PlrRstCmt`, `PlrUpdUid`, `PlrUpdDts`) VALUES
 	('P00001', '20140302', 'FIT', 'RST', 'Normal test', 'user', '2014030205507'),
