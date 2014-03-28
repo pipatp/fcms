@@ -81,7 +81,7 @@
 </div>
 <script>
     var nutRegistrationTimeout;
-    var pollingTime = 5000;
+    var pollingTime = 60000;
     
     var tableHtml = "<table class='table table-striped table-condensed'>";
     tableHtml += "<thead>";
@@ -89,6 +89,8 @@
     tableHtml += "<th>รูป</th>";
     tableHtml += "<th>ชื่อ</th>";
     tableHtml += "<th>นามสกุล</th>";
+    tableHtml += "<th>ชุดอาหาร</th>";
+    tableHtml += "<th></th>";
     tableHtml += "</tr>";
     tableHtml += "</thead>";
     tableHtml += "<tbody>";
@@ -96,6 +98,58 @@
     tableHtml += "</table>";
     
     var $tableTemplate = $(tableHtml);
+    
+    var tableHtml2 = "<table class='table table-striped table-condensed'>";
+    tableHtml2 += "<thead>";
+    tableHtml2 += "<th>#</th>";
+    tableHtml2 += "<th>รูป</th>";
+    tableHtml2 += "<th>ชื่อ</th>";
+    tableHtml2 += "<th>นามสกุล</th>";
+    tableHtml2 += "<th>ชุดอาหาร</th>";
+    tableHtml2 += "<th>รายการอาหาร</th>";
+    tableHtml2 += "</tr>";
+    tableHtml2 += "</thead>";
+    tableHtml2 += "<tbody>";
+    tableHtml2 += "</tbody>";
+    tableHtml2 += "</table>";
+    
+    var $tableTemplate2 = $(tableHtml2);
+    
+    function createRegistrationWaitingListRow(rowNum, player) {
+        var $row = $("<tr>");
+        
+        $("<td>", { "class":"cell-normal" }).text(rowNum).appendTo($row);
+        
+        var $playerImage = $("<img>", { "class":"thumbnail-image", "src":"../player/thumbnail/" + player.PlyCod });
+        $("<td>", { "class":"cell-normal" }).append($playerImage).appendTo($row);
+        
+        $("<td>", { "class":"cell-normal" }).text(player.PlyFstNam).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.PlyFamNam).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.NmpNutGrp).appendTo($row);
+        
+        if (permission.write) {
+            var $registerButton = $("<div>", { "class":"btn btn-info" });
+            $registerButton.text("ลงทะเบียน");
+            $registerButton.click(function() {
+                var registerInfo = {
+                    worklistSeq: player.WklPwlSeq,
+                    itemSeq: player.WklSeqNum,
+                    department: "NUT"
+                }
+                $.post("../worklist_item/registerWorklist", JSON.stringify(registerInfo)).done(function() {
+                    $row.detach();
+                }).fail(function() {
+                   alert("ไม่สามารถลงทะเบียนได้ โปรดลองอีกครั้งหนึ่ง");
+                });
+            });
+            $("<td>", { "class":"cell-normal" }).append($registerButton).appendTo($row);
+        }
+        else {
+            $("<td>", { "class":"cell-normal" }).appendTo($row);
+        }
+        
+        return $row;
+    }
     
     function getRegistrationWaitingList(mealVal) {
         clearTimeout(nutRegistrationTimeout);
@@ -111,10 +165,7 @@
                     $table = $tableTemplate.clone();
                     $tableBody = $($table.find("tbody"));
                     for (var index=0; index<players.length; index++) {
-                        $tableBody.append("<tr><td class='cell-normal'>" + (index+1) + 
-                            "</td><td class='cell-normal'><img class=\"thumbnail-image\" src=\"../player/thumbnail/" + 
-                            players[index].PlyCod + "\" /></td><td class='cell-normal'>" + players[index].PlyFstNam + 
-                            "</td><td class='cell-normal'>" + players[index].PlyFamNam + "</td></tr>");
+                        createRegistrationWaitingListRow(index+1, players[index]).appendTo($tableBody);
                     }
 
                     $waitingList.append($table);
@@ -131,6 +182,21 @@
         }
     }
     
+    function createRegistrationDoneListRow(rowNum, player) {
+        var $row = $("<tr>");
+        
+        $("<td>", { "class":"cell-normal" }).text(rowNum).appendTo($row);
+        
+        var $playerImage = $("<img>", { "class":"thumbnail-image", "src":"../player/thumbnail/" + player.PlyCod });
+        $("<td>", { "class":"cell-normal" }).append($playerImage).appendTo($row);
+        
+        $("<td>", { "class":"cell-normal" }).text(player.PlyFstNam).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.PlyFamNam).appendTo($row);
+        $("<td>", { "class":"cell-normal" }).text(player.NmpNutGrp).appendTo($row);
+        
+        return $row;
+    }
+    
     function getRegistrationReceiveList(mealVal) {
         clearTimeout(nutRegistrationTimeout);
         
@@ -142,13 +208,26 @@
                 var players = jQuery.parseJSON(result);
                 
                 if (players.length > 0) {
-                    $table = $tableTemplate.clone();
+                    $table = $tableTemplate2.clone();
                     $tableBody = $($table.find("tbody"));
+                    var currentWorklistSeq = -1;
+                    var $currentRow;
+                    var $mealList;
+                    var mealText = "";
                     for (var index=0; index<players.length; index++) {
-                        $tableBody.append("<tr><td class='cell-normal'>" + (index+1) + 
-                            "</td><td class='cell-normal'><img class=\"thumbnail-image\" src=\"../player/thumbnail/" + 
-                            players[index].PlyCod + "\" /></td><td class='cell-normal'>" + players[index].PlyFstNam + 
-                            "</td><td class='cell-normal'>" + players[index].PlyFamNam + "</td></tr>");
+                        if (players[index].WkmPwlSeq !== currentWorklistSeq) {
+                            currentWorklistSeq = players[index].WkmPwlSeq;
+                            $currentRow = createRegistrationDoneListRow(index+1, players[index]);
+                            
+                            $currentRow.appendTo($tableBody);
+                            $mealList = $("<td>", { "class":"cell-normal" });
+                            $mealList.text(players[index].OdrLocNam || "");
+                            
+                            $currentRow.append($mealList);
+                        }
+                        else {
+                            $mealList.html($mealList.html() + "<br/>" + players[index].OdrLocNam);
+                        }
                     }
                     
                     $receiveList.append($table);

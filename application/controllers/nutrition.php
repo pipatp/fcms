@@ -55,7 +55,8 @@ class nutrition extends CI_Controller {
         
         $currentDate = date("Ymd");
         
-        $data["content"] = $this->nutrition_model->getRegistrationWaitingList($mealVal, $currentDate);
+//        $data["content"] = $this->nutrition_model->getRegistrationWaitingList($mealVal, $currentDate);
+        $data["content"] = $this->nutrition_model->getRegistrationList($mealVal, $currentDate, 'N');
         
         $this->load->view('json_result', $data);
     }

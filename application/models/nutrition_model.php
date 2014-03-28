@@ -26,6 +26,13 @@ class nutrition_model extends CI_Model {
         return $query->result();
     }
     
+    function getRegistrationList($meal, $date, $status) {
+        $data = array($meal, $date, $status);
+         
+        $query = $this->db->query("CALL fn_getRegistrationList(?, ?, ?)", $data);
+        
+        return $query->result();
+    }
     //----------------------------------------------
     // Food Preparation
     //----------------------------------------------
