@@ -173,4 +173,11 @@ class nutrition_model extends CI_Model {
         
         return $result;
     }
+    
+    function saveNutritionPlan($yearMonth, $playerCode, $mealSet, $weight, 
+            $calorie, $milk, $meat, $fruit, $veggie, $rice, $lipid, $user) {
+        $data = array($yearMonth, $playerCode, $mealSet, $weight, $calorie, $milk, $meat, $fruit, $veggie, $rice, $lipid, $user);
+        
+        $this->db->query("CALL fn_saveNutritionPlan(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $data);
+    }
 }

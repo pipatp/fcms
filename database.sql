@@ -731,6 +731,28 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_getNutritionPlan
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getNutritionPlan`(IN `p_yearMonth` VARCHAR(6))
+BEGIN
+	SELECT *
+	FROM nmpinf np LEFT JOIN plyinf pi ON np.NmpPlyCod = pi.PlyCod
+	WHERE np.NmpYeaMon = p_yearMonth;
+END//
+DELIMITER ;
+
+
+-- Dumping structure for procedure fcms.fn_getNutritionPlanMonth
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getNutritionPlanMonth`()
+BEGIN
+	SELECT DISTINCT NmpYeaMon
+	FROM nmpinf
+	ORDER BY NmpYeaMon;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_getPermissions
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_getPermissions`(IN `p_user` VARCHAR(20))
@@ -1013,6 +1035,22 @@ END//
 DELIMITER ;
 
 
+-- Dumping structure for procedure fcms.fn_saveNutritionPlan
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_saveNutritionPlan`(IN `p_yearMonth` VARCHAR(6), IN `p_playerCode` VARCHAR(20), IN `p_nutGroup` CHAR(1), IN `p_weight` TINYINT, IN `p_calorie` VARCHAR(50), IN `p_milk` SMALLINT, IN `p_meat` SMALLINT, IN `p_fruit` SMALLINT, IN `p_veggie` SMALLINT, IN `p_rice` SMALLINT, IN `p_lipid` SMALLINT, IN `p_user` VARCHAR(20))
+BEGIN
+	DECLARE l_timestamp CHAR(14);
+	
+	SET l_timestamp = DATE_FORMAT(CURRENT_TIMESTAMP,'%Y%m%d%H%i%S');
+	
+	INSERT INTO nmpinf
+	VALUES (p_yearMonth, p_playerCode, p_nutGroup, p_weight, p_calorie, p_milk, p_meat, p_fruit, p_veggie, p_rice, p_lipid, p_user, l_timestamp)
+	ON DUPLICATE KEY UPDATE NmpNutGrp = p_nutGroup, NmpPlyWgh = p_weight, NmpCalDay = p_calorie, NmpMlkUnt = p_milk, 
+		NmpMeaUnt = p_meat, NmpFrtUnt = p_fruit, NmpVegUnt = p_veggie, NmpRceNod = p_rice, NmpLipUnt = p_lipid, NmpUpdUid = p_user, NmpUpdDte = l_timestamp;
+END//
+DELIMITER ;
+
+
 -- Dumping structure for procedure fcms.fn_updateCoachScheduleDetail
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fn_updateCoachScheduleDetail`(IN `p_userCode` VARCHAR(20), IN `p_date` VARCHAR(8), IN `p_detail` VARCHAR(500))
@@ -1191,16 +1229,18 @@ CREATE TABLE IF NOT EXISTS `nmpinf` (
   `NmpVegUnt` smallint(6) default NULL,
   `NmpRceNod` smallint(6) default NULL,
   `NmpLipUnt` smallint(6) default NULL,
+  `NmpUpdUid` char(20) default NULL,
+  `NmpUpdDte` char(14) default NULL,
   PRIMARY KEY  (`NmpYeaMon`,`NmpPlyCod`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Nutrition monthly plan';
 
--- Dumping data for table fcms.nmpinf: 0 rows
+-- Dumping data for table fcms.nmpinf: 4 rows
 /*!40000 ALTER TABLE `nmpinf` DISABLE KEYS */;
-INSERT INTO `nmpinf` (`NmpYeaMon`, `NmpPlyCod`, `NmpNutGrp`, `NmpPlyWgh`, `NmpCalDay`, `NmpMlkUnt`, `NmpMeaUnt`, `NmpFrtUnt`, `NmpVegUnt`, `NmpRceNod`, `NmpLipUnt`) VALUES
-	('201402', 'P00002', 'B', 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-	('201402', 'P00001', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-	('201403', 'P00001', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-	('201403', 'P00002', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `nmpinf` (`NmpYeaMon`, `NmpPlyCod`, `NmpNutGrp`, `NmpPlyWgh`, `NmpCalDay`, `NmpMlkUnt`, `NmpMeaUnt`, `NmpFrtUnt`, `NmpVegUnt`, `NmpRceNod`, `NmpLipUnt`, `NmpUpdUid`, `NmpUpdDte`) VALUES
+	('201402', 'P00002', 'B', 40, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+	('201402', 'P00001', 'C', 55, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+	('201403', 'P00002', 'A', 60, '1500', 13, 14, 17, 18, 8, 4, 'test', '20140328183211'),
+	('201403', 'P00001', 'B', 55, '2300', 18, 12, 20, 12, 24, 30, 'test', '20140328183211');
 /*!40000 ALTER TABLE `nmpinf` ENABLE KEYS */;
 
 

@@ -300,12 +300,37 @@ class nutrition extends CI_Controller {
         
         $currentMonth = date('Ym');
         
-        if ($currentMonth == $yearMonth) {
+        if ($currentMonth == $yearMonth && $this->permission["write"] == 1) {
             $this->load->view('nut_plan_edit', $data);
         }
         else {
             $this->load->view('nut_plan_view', $data);
         }
+    }
+    
+    function saveNutritionPlan() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+
+        $this->load->model('nutrition_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+
+        $data = $postData["playerData"];
+        
+        for ($index=0; $index<count($data); $index++) {
+            $p = $data[$index];
+            
+            $this->nutrition_model->saveNutritionPlan($postData["yearMonth"],
+                $p["playerCode"], $p["mealSet"], $p["weight"],
+                $p["calorie"], $p["milk"], $p["meat"], $p["fruit"],
+                $p["veggie"], $p["rice"], $p["lipid"], $user);
+        }
+//        
+//        $this->nutrition_model->saveNutritionPlan($postData["yearMonth"],
+//             $postData["playerCode"], $postData["mealSet"], $postData["weight"],
+//             $postData["calorie"], $postData["milk"], $postData["meat"], $postData["fruit"],
+//             $postData["veggie"], $postData["rice"], $postData["lipid"], $user);
     }
     
     //----------------------------------------------

@@ -50,9 +50,11 @@
         </select>
         <?php
         if (!$found) {
+            if ($permission["write"] == 1) {
         ?>
         <div id="create-plan-button" class="btn btn-info">สร้างแผนการจัด Nutrition</div>
         <?php
+            }
         }
         ?>
     </div>
@@ -61,7 +63,7 @@
             if (count($planMonths) > 0) {
                 $lastPlan = $planMonths[count($planMonths) - 1]->NmpYeaMon;
                 
-                if ($currentMonth == $lastPlan) {
+                if ($currentMonth == $lastPlan && $permission["write"] == 1) {
                     $this->load->view('nut_plan_edit');
                 }
                 else {
