@@ -6,5 +6,6 @@
         <li><a id="director-player-fitness-schedule-tab" href="javascript:;"><img src="../../images/signup-icon.png" />ตารางฟิตเนสทีม</a></li>
         <li><a id="director-player-nutrition-schedule-tab" href="javascript:;"><img src="../../images/signup-icon.png" />ตารางโภชนาการทีม</a></li>
         <li><a id="director-player-view-schedule-tab" href="javascript:;"><img src="../../images/signup-icon.png" />ตารางทีม</a></li>
+        <li><a id="director-player-alert-tab" href="javascript:;"><img src="../../images/signup-icon.png" />แจ้งเตือนจากแผนก</a></li>
     </ul>
 </div>

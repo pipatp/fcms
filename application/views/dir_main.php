@@ -14,8 +14,9 @@
         </div>
         <script src="../../js/jquery-2.0.3.js"></script>
         <script src="../../js/jquery-ui-1.10.3.custom.js"></script>
-        <script src="../../js/menu.js"></script>
         <script src="../../js/bootstrap.min.js"></script>
+        <script src="../../js/bootbox.min.js"></script>
+        <script src="../../js/menu.js"></script>
         <script src="../../js/director.js"></script>
     </body>
 </html>

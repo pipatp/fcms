@@ -267,4 +267,13 @@ class Director extends CI_Controller {
     function viewInventory() {
         $this->load->view('dir_player_report');
     }
+    
+    //----------------------------------------------
+    // Director Alert View
+    //----------------------------------------------
+    function viewAlert() {
+        $data["permission"] = $this->permission;
+        
+        $this->load->view('dir_alert', $data);
+    }
 }

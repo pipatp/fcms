@@ -123,6 +123,15 @@ function viewNutrition() {
     });
 }
 
+function viewAlert() {
+    selectTab(this);
+
+    $.ajax("viewAlert").done(function(result) {
+        var $content = $(".content-body");
+
+        $content.html(result);
+    });
+}
 
 $(function() {
     $(".logout-link").click(function() {
@@ -152,7 +161,7 @@ $(function() {
     $("#director-player-fitness-schedule-tab").click(viewFitess);
     $("#director-player-nutrition-schedule-tab").click(viewNutrition);
     $("#director-player-view-schedule-tab").click(viewSchedule);
-
+    $("#director-player-alert-tab").click(viewAlert);
 });
 
 
