@@ -40,9 +40,9 @@
         <li><a href="#tabs-2">รายการจัดเตรียมวันนี้</a></li>
     </ul>
     <div id="tabs-1">
-        <? $this->load->view('nut_preparation_monthly'); ?>
+        <?php $this->load->view('nut_preparation_monthly'); ?>
     </div>
     <div id="tabs-2">
-        <? $this->load->view('nut_preparation_today'); ?>
+        <?php $this->load->view('nut_preparation_today'); ?>
     </div>
 </div>

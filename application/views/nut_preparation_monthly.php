@@ -375,6 +375,7 @@
                         return [true, "has-schedule", "Busy"];
                     } else if (showDate < scheduleDates[index]) {
                         break;
+                        
                     }
                 }
             }

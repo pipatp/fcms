@@ -151,12 +151,13 @@
         <li><a href="#tabs-1">เพิ่มหรือแก้ไขรายการอาหาร</a></li>
     </ul>
     <div id="tabs-1">
+        <label class="control-label">รายชื่อนักเตะ:</label>
         <select id="player-select-input" class="form-control input-sm" style="width:300px;">
             <option value=""></option>
             <?php 
             foreach ($players as $player) {
             ?>
-            <option value="<? echo $player->PlyCod ?>">
+            <option value="<?php echo $player->PlyCod ?>">
                 <?php
                     $fullName = "";
                     if (strlen($player->PlyFstNam) > 0) {
@@ -204,8 +205,11 @@
                            <table id="table-breakfast">
                                <tr>
                                    <th width="16px">&nbsp;</th>
+                                   <th class="food-table-cell-header">กลุ่ม</th>
                                    <th class="food-table-cell-header">อาหาร</th>
-                                   <th class="food-table-cell-header">น้ำหนัก</th>
+                                   <th class="food-table-cell-header">จำนวน</th>
+                                   <th class="food-table-cell-header">หน่วย</th>
+<!--                                   <th class="food-table-cell-header">น้ำหนัก</th>-->
                                    <th class="food-table-cell-header">แคลอรี่</th>
                                    <th class="food-table-cell-header food-table-button-cell"></th>
                                </tr>
@@ -217,8 +221,10 @@
                            <table id="table-lunch">
                                <tr>
                                    <th width="16px">&nbsp;</th>
+                                   <th class="food-table-cell-header">กลุ่ม</th>
                                    <th class="food-table-cell-header">อาหาร</th>
-                                   <th class="food-table-cell-header">น้ำหนัก</th>
+                                   <th class="food-table-cell-header">จำนวน</th>
+                                   <th class="food-table-cell-header">หน่วย</th>
                                    <th class="food-table-cell-header">แคลอรี่</th>
                                    <th class="food-table-cell-header food-table-button-cell"></th>
                                </tr>
@@ -230,8 +236,10 @@
                            <table id="table-dessert">
                                <tr>
                                    <th width="16px">&nbsp;</th>
+                                   <th class="food-table-cell-header">กลุ่ม</th>
                                    <th class="food-table-cell-header">อาหาร</th>
-                                   <th class="food-table-cell-header">น้ำหนัก</th>
+                                   <th class="food-table-cell-header">จำนวน</th>
+                                   <th class="food-table-cell-header">หน่วย</th>
                                    <th class="food-table-cell-header">แคลอรี่</th>
                                    <th class="food-table-cell-header food-table-button-cell"></th>
                                </tr>
@@ -243,8 +251,10 @@
                            <table id="table-dinner">
                                <tr>
                                    <th width="16px">&nbsp;</th>
+                                   <th class="food-table-cell-header">กลุ่ม</th>
                                    <th class="food-table-cell-header">อาหาร</th>
-                                   <th class="food-table-cell-header">น้ำหนัก</th>
+                                   <th class="food-table-cell-header">จำนวน</th>
+                                   <th class="food-table-cell-header">หน่วย</th>
                                    <th class="food-table-cell-header">แคลอรี่</th>
                                    <th class="food-table-cell-header food-table-button-cell"></th>
                                </tr>
@@ -259,6 +269,7 @@
     </div>
 </div>
 <script>
+    
     var foodItemTemplateHtml = '<tr class="food-table-row">';
     foodItemTemplateHtml += '<td><div id="delete-food-item"><img src="../../images/delete.png" /></div></td>';
     foodItemTemplateHtml += '<td class="food-table-cell"><div id="food-name"></div></td>';
@@ -405,37 +416,6 @@
             day: day
         };
     }
-  
-    function getDisplayNameWithEng(item) {
-        var displayText;
-        if (item.PlyFstNam) {
-            displayText = item.PlyFstNam + " " + item.PlyFamNam;
-        }
-        
-        if (item.PlyFstEng) {
-            if (displayText) {
-                displayText += " (" + item.PlyFstEng + " " + item.PlyFamEng + ")";
-            }
-            else {
-                displayText = item.PlyFstEng + " " + item.PlyFamEng;
-            }
-        }
-
-        return displayText;
-    }
-    
-    function getAge(birthDate) 
-    {
-        var today = new Date();
- 
-        var age = today.getFullYear() - birthDate.getFullYear();
-        var m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
-        {
-            age--;
-        }
-        return age;
-    }
     
     function addDetail($detailDiv, key, val) {
 //        $detailDiv.append("<div>" + key + ": " + val + "</div>");
@@ -450,18 +430,18 @@
         
         $table = $("<table style='margin-top: 5px;'></table>");
         
-        addDetail($table, "ชื่อ", getDisplayNameWithEng(item));
+        addDetail($table, "ชื่อ", getDisplayNameWithEng(item.PlyFstNam, item.PlyFamNam, item.PlyFstEng, item.PlyFamEng));
         
         if (item.PlyBirDte) {
             var birthDay = $.datepicker.parseDate("yymmdd", item.PlyBirDte);
             addDetail($table, "อายุ", getAge(birthDay));
         }
-        
+        var Religion = item.PlyRegCod === '1' ? "พุทธ" :(item.PlyRegCod === '2' ? "คริสต์" : 'อิสลาม');
         addDetail($table, "ตำแหน่ง", "");
-        addDetail($table, "สัญชาติ", "");
-        addDetail($table, "ศาสนา", "");
-        addDetail($table, "ภาษาพูด", "");
-        
+        addDetail($table, "สัญชาติ",  item.PlyNatCod);
+        addDetail($table, "ศาสนา", Religion);
+        addDetail($table, "ภาษาพูด",  item.PlyLan);
+        addDetail($table, "อาหารที่แพ้", item.PlyFodAlg);
         $playerDetail.append($table);
         
         $("#player-add-meal-table").show();
@@ -539,9 +519,9 @@
         
         var $editMealItemButton = $($row.find("#edit-dinner-item"));
         $editMealItemButton.click({mealSeq: foodItem.WkmMelSeq, orderCode: orderCode, 
-                                   worklistSeq: foodItem.WkmPwlSeq, foodCode: foodItem.WkmMelCod,
-                                   foodName: foodItem.OdrLocNam, foodWeight: foodItem.WkmMelWeg,
-                                   foodCalorie: foodItem.WkmMelCal}, function(event) {
+        worklistSeq: foodItem.WkmPwlSeq, foodCode: foodItem.WkmMelCod,
+        foodName: foodItem.OdrLocNam, foodWeight: foodItem.WkmMelWeg,
+        foodCalorie: foodItem.WkmMelCal}, function(event) {
             if ($table.find("tr.add-item-row").length) {
                 alert("ไม่สามารถเพิ่มข้อมูลได้เนื่องจากกำลังเพิ่มหรือแก้ไขข้อมูลอื่นอยู่ โปรดบันทึกหรือยกเลิกการเพิ่มหรือแก้ไขข้อมูลอื่นก่อน");
                 return;
@@ -710,7 +690,7 @@
         var $table = (selectedTabIndex === 0) ? $("#player-meal-modification-tab #table-breakfast") :
                      (selectedTabIndex === 1) ? $("#player-meal-modification-tab #table-lunch") :
                      (selectedTabIndex === 2) ? $("#player-meal-modification-tab #table-dessert") : 
-                                                $("#player-meal-modification-tab #table-dinner");
+                    $("#player-meal-modification-tab #table-dinner");
 
         // Prevent adding multiple input row at the same time
         if ($table.find("tr.add-item-row").length) {
@@ -808,3 +788,5 @@
 
     $("#player-add-meal-table").hide();
 </script>
+
+

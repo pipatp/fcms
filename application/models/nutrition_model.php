@@ -182,9 +182,44 @@ class nutrition_model extends CI_Model {
     }
     
     function saveNutritionPlan($yearMonth, $playerCode, $mealSet, $weight, 
-            $calorie, $milk, $meat, $fruit, $veggie, $rice, $lipid, $user) {
+        $calorie, $milk, $meat, $fruit, $veggie, $rice, $lipid, $user) {
         $data = array($yearMonth, $playerCode, $mealSet, $weight, $calorie, $milk, $meat, $fruit, $veggie, $rice, $lipid, $user);
         
         $this->db->query("CALL fn_saveNutritionPlan(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $data);
     }
+    
+    function saveAssessment($playerCode, $date, $bmi, $body, $weight,$diet, $grain, $protein, $fat, $milk, $fruit, $veg, $fluid, $user) {
+        $data = array($playerCode, $date, $bmi, $body, $weight, $diet, $grain, $protein, $fat, $milk, $fruit, $veg, $fluid, $user);
+         
+        $query = $this->db->query("CALL fn_saveAssessment(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", $data);
+        
+        $query->row();
+    }
+    
+        function getPlayerAssessment($playerCode, $date) {
+            
+        $data = array($playerCode, $date);
+         
+        $query = $this->db->query("CALL fn_getPlayerAssessment(?, ?)", $data);
+       
+        $row = $query->row();
+               
+        $query->free_result();
+        
+        return $row;
+    }
+    
+    function updateCommentAssessment($playerCode, $date, $category,$comment, $user){
+        
+        $data = array($playerCode, $date, $category,$comment, $user);
+        
+        $query = $this->db->query("CALL fn_updateCommentAssessment(?, ?, ?, ?, ?)", $data);
+        
+        $query->row();
+        
+        
+        
+    }
+    
+    
 }

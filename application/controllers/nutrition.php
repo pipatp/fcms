@@ -78,6 +78,7 @@ class nutrition extends CI_Controller {
         $this->load->model('nutrition_model');
         
         $data["food_items"] = $this->nutrition_model->getAllFoodMeal();
+//        $data["playerPlans"] = $this->nutrition_model->getNutritionPlan($yearMonth);
         $data["permission"] = $this->permission;
         
         $this->load->view('nut_preparation', $data);
@@ -117,6 +118,39 @@ class nutrition extends CI_Controller {
         
         $this->load->view('json_result', $data);
     }
+    
+    
+    function updateAssessment() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('nutrition_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+
+        $data["content"] = $this->nutrition_model->saveAssessment($postData["playerCode"], $postData["date"], $postData["bmi"], $postData["body"], $postData["weight"],  $postData["diet"] ,
+                 $postData["grain"], $postData["protein"], $postData["fat"], $postData["milk"], $postData["fruit"], $postData["veg"], $postData["fluid"],  $user);
+        
+        $this->load->view('json_result', $data);
+    }
+    
+    
+//        function updateCommentAssessment() {
+//        $postData = json_decode(trim(file_get_contents('php://input')), true);
+//        
+//        $this->load->model('nutrition_model');
+//        
+//        $loginSession = $this->session->userdata('user_login');
+//        $user = $loginSession["username"];
+//        
+//        try {
+//            $this->nutrition_model->updateCommentAssessment($postData["playerCode"],
+//                    $postData["date"], $postData["category"],$postData["comment"], $user);
+//        } catch (Exception $e) {
+//            $this->output->set_status_header('500', 'Delete item failed.');
+//        }
+//    }
+    
     
     function deleteFoodMealItem() {
         $postData = json_decode(trim(file_get_contents('php://input')), true);
@@ -252,10 +286,16 @@ class nutrition extends CI_Controller {
         $obj["result"] = $this->player_model->getResult($playerCode, $date, "NUT", "RST");
         $obj["suggestion"] = $this->player_model->getResult($playerCode, $date, "NUT", "SGT");
         
+        $obj["lab"] = $this->player_model->getResult($playerCode, $date, "NUT", "LAB");
+        $obj["food"] = $this->player_model->getResult($playerCode, $date, "NUT", "FOD");
+        $obj["knowledge"] = $this->player_model->getResult($playerCode, $date, "NUT", "KNO");
+        $obj["supplement"] = $this->player_model->getResult($playerCode, $date, "NUT", "SUP");
+        
         $data["content"] = $obj;
         
         $this->load->view('json_result', $data);
     }
+    
     
     function getNutritionHistoryResult($playerCode) {
         $this->load->model('player_model');
@@ -420,4 +460,14 @@ class nutrition extends CI_Controller {
             show_error($e->getMessage(), 500);
         }
     }
+    
+        function getAssessment($playerCode,$date){
+        $this->load->model('nutrition_model');
+        
+        $data["content"] = $this->nutrition_model->getPlayerAssessment($playerCode, $date);
+        
+        $this->load->view('json_result', $data);
+    }
+    
+    
 }
