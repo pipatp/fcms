@@ -114,7 +114,8 @@ class nutrition extends CI_Controller {
 
         $data["content"] = $this->nutrition_model->saveFoodMealItem($postData["yearMonth"],
              $postData["day"], $postData["weekDay"], $postData["type"],
-             $postData["code"], $user);
+             $postData["code"], $postData["weight"], $postData["calorie"],
+             $postData["group"], $user);
         
         $this->load->view('json_result', $data);
     }
@@ -187,6 +188,32 @@ class nutrition extends CI_Controller {
         $data["content"] = $this->nutrition_model->getPreparationScheduleDates($year, $month);
         
         return $this->load->view('json_result', $data);
+    }
+    
+    function copyMealItems() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('nutrition_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        $dates = $postData["targetDates"];
+        
+        foreach ($dates as $date) {
+            $this->nutrition_model->copyMealItems($postData["selectDate"], $date, $user);
+        }
+    }
+    
+    function applyMealItems() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('nutrition_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        $this->nutrition_model->applyMealItems($postData["yearMonth"], $user);
     }
     
     //----------------------------------------------

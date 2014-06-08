@@ -54,10 +54,10 @@ class nutrition_model extends CI_Model {
         return $query->result();
     }
     
-    function saveFoodMealItem($yearMonth, $day, $weekDay, $type, $itemCode, $user) {
-        $data = array($yearMonth, $day, $weekDay, $type, $itemCode, $user);
+    function saveFoodMealItem($yearMonth, $day, $weekDay, $type, $itemCode, $weight, $calorie, $group, $user) {
+        $data = array($yearMonth, $day, $weekDay, $type, $itemCode, $weight, $calorie, $group, $user);
         
-        $query = $this->db->query("CALL fn_saveFoodMeal(?, ?, ?, ?, ?, ?)", $data);
+        $query = $this->db->query("CALL fn_saveFoodMeal(?, ?, ?, ?, ?, ?, ?, ?, ?)", $data);
         
         return $query->row();
     }
@@ -84,6 +84,20 @@ class nutrition_model extends CI_Model {
         $query = $this->db->query("CALL fn_getAllFoodMeal()");
         
         return $query->result();
+    }
+    
+    function copyMealItems($copyDate, $targetDate, $user) {
+        $data = array($copyDate, $targetDate, $user);
+        
+        $this->db->query("CALL fn_copyFoodMeals(?, ?, ?)", $data);
+    }
+    
+    function applyMealItems($yaerMonth, $user) {
+        $data = array($yaerMonth, $user);
+        
+        $query = $this->db->query("CALL fn_applyMealItems(?, ?)", $data);
+        
+        $query->result();
     }
     
     // Today Tab
@@ -216,9 +230,6 @@ class nutrition_model extends CI_Model {
         $query = $this->db->query("CALL fn_updateCommentAssessment(?, ?, ?, ?, ?)", $data);
         
         $query->row();
-        
-        
-        
     }
     
     
