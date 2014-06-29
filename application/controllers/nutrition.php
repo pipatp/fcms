@@ -205,6 +205,22 @@ class nutrition extends CI_Controller {
         }
     }
     
+    function copyRangeMealItems() {
+        $postData = json_decode(trim(file_get_contents('php://input')), true);
+        
+        $this->load->model('nutrition_model');
+        
+        $loginSession = $this->session->userdata('user_login');
+        $user = $loginSession["username"];
+        
+        $copyDates = $postData["copyDates"];
+        $targetDates = $postData["targetDates"];
+        
+        for ($i = 0; $i < count($copyDates); $i++) {
+            $this->nutrition_model->copyMealItems($copyDates[$i], $targetDates[$i], $user);
+        }
+    }
+    
     function applyMealItems() {
         $postData = json_decode(trim(file_get_contents('php://input')), true);
         

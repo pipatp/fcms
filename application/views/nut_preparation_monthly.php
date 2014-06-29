@@ -124,6 +124,7 @@
         <td width="400px" valign="top">
             <div id="date-selection" />
             <button id="copy-button" type="button" class="btn btn-info" style="margin-left: 10px; margin-top: 10px;">คัดลอกตารางอาหาร</button>
+            <button id="copy-range-button" type="button" class="btn btn-info" style="margin-left: 10px; margin-top: 10px;">คัดลอกตารางอาหารแบบช่วงเวลา</button>
             <button id="apply-button" type="button" class="btn btn-success" style="margin-left: 10px; margin-top: 10px;">ปรับปรุงตารางอาหารนักเตะ</button>
         </td>
         <td valign="top">
@@ -428,6 +429,54 @@
         </div>
     </div>
 </div>
+<div id="copyItemRangeDialog" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header ">
+                คัดลอกรายการอาหารแบบช่วงเวลา
+            </div>
+            <div class="modal-body">
+                <div class="form form-horizontal">
+                    <div class="row">
+                        <div id="copy-range-warning" class="alert alert-danger" style="display: none;"></div>
+                    </div>
+                    <div class="row">
+                        <div style="margin-left: 5px; margin-bottom: 10px; font-weight: bold;">เลือกช่วงเวลาที่ต้องการคัดลอก</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4">
+                            <div class="form-group padding-h-sm">
+                                <label>เริ่มต้น</label>
+                                <input id="start-date-range" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4">
+                            <div class="form-group padding-h-sm">
+                                <label>สิ้นสุด</label>
+                                <input id="end-date-range" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div style="margin-left: 5px; margin-bottom: 10px; font-weight: bold;">เลือกวันปลายทางเริ่มต้นที่ต้องการคัดลอก</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4">
+                            <div class="form-group padding-h-sm">
+                                <label>เริ่มต้น</label>
+                                <input id="start-target-date" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="copyItemRangeButton" type="button" class="btn btn-primary">ตกลง</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     var scheduleDates = undefined;
     var permission = <?php echo json_encode($permission) ?>;
@@ -684,6 +733,14 @@
         $("#copyItemDialog").modal("show"); 
     }
     
+    function showCopyRangeDialog() {
+        $("#start-date-range" ).val("");
+        $("#end-date-range" ).val("");
+        $("#start-target-date" ).val("");
+        
+        $("#copyItemRangeDialog").modal("show"); 
+    }
+    
     function showApplyTemplateDialog() {
         bootbox.dialog({
             message: "การปรับปรุงรายการอาหาร ถ้านักเตะมีรายการอาหารอยู่แล้วจะถูกลบก่อนการปรับปรุง <br>\n\
@@ -757,6 +814,72 @@
         });
     }
     
+    function copyRangeMealItem() {
+        $("#copy-range-warning").hide();
+        
+        var selStartDate = $("#start-date-range").datepicker("getDate");
+        var selEndDate = $("#end-date-range").datepicker("getDate");
+        var targetStartDate = $("#start-target-date").datepicker("getDate");
+        
+        if (!selStartDate || !selEndDate || !targetStartDate) {
+            $("#copy-range-warning").text("ไม่สามารถคัดลอกได้ ข้อมูลคัดลอกไม่ครบถ้วน");
+            $("#copy-range-warning").show();
+            
+            return;
+        }
+        
+        var dateDiff = selEndDate.getDate() - selStartDate.getDate();
+        
+        var targetEndDate = new Date(targetStartDate.getTime());
+        targetEndDate.setDate(targetStartDate.getDate() + dateDiff);
+        
+        if (targetStartDate >= selStartDate && targetStartDate <= selEndDate) {
+            $("#copy-range-warning").text("ไม่สามารถคัดลอกได้ ช่วงเวลาคัดลอกปลายทางอยู่ในช่วงเวลาที่เลือกคัดลอก");
+            $("#copy-range-warning").show();
+            
+            return;
+        }
+        
+        if (targetEndDate >= selStartDate && targetEndDate <= selEndDate) {
+            $("#copy-range-warning").text("ไม่สามารถคัดลอกได้ ช่วงเวลาคัดลอกปลายทางอยู่ในช่วงเวลาที่เลือกคัดลอก");
+            $("#copy-range-warning").show();
+            
+            return;
+        }
+        
+        var copyDates = [];
+        var targetDates = [];
+        
+        while (selStartDate <= selEndDate) {
+            var dateText = $.datepicker.formatDate("yymmdd", selStartDate);
+            var targetDateText = $.datepicker.formatDate("yymmdd", targetStartDate);
+            
+            copyDates.push(dateText);
+            
+            targetDates.push(targetDateText);
+            
+            selStartDate.setDate(selStartDate.getDate() + 1);
+            targetStartDate.setDate(targetStartDate.getDate() + 1);
+        }
+        
+        var data = {
+            copyDates: copyDates,
+            targetDates: targetDates
+        };
+        
+        $.post("copyRangeMealItems", JSON.stringify(data)).done(function(result) {
+            $("#copyItemRangeDialog").modal("hide");
+            
+            var selectedDate = $("#date-selection").datepicker("getDate");
+            var year = $.datepicker.formatDate("yy", selectedDate);
+            var month = $.datepicker.formatDate("mm", selectedDate);
+            getNutritionPreparationScheduleDates(year, month);
+        }).fail(function() {
+           $("#copy-range-warning").text("ไม่สามารถคัดลอกตารางอาหารได้ โปรดลองใหม่อีกครั้ง");
+           $("#copy-range-warning").show();
+        });
+    }
+    
     $("#addItemDialog").modal({ show: false, keyboard: false });
     
     function initialize() {
@@ -774,8 +897,10 @@
         
         $("#apply-button").click(showApplyTemplateDialog);
         $("#copy-button").click(showCopyDialog);
+        $("#copy-range-button").click(showCopyRangeDialog);
         
         $("#copyItemDialog").modal({ show: false, keyboard: false });
+        $("#copyItemRangeDialog").modal({ show: false, keyboard: false });
         
         $( "#start-date" ).datepicker({
             dateFormat: "dd/mm/yy",
@@ -787,7 +912,21 @@
             dateFormat: "dd/mm/yy"
         });
         
+        $( "#start-date-range" ).datepicker({
+            dateFormat: "dd/mm/yy",
+             onClose: function( selectedDate ) {
+                $( "#end-date-range" ).datepicker( "option", "minDate", selectedDate );
+            }
+        });
+        $( "#end-date-range" ).datepicker({
+            dateFormat: "dd/mm/yy"
+        });
+        $( "#start-target-date" ).datepicker({
+            dateFormat: "dd/mm/yy"
+        });
+        
         $("#copyItemButton").click(copyMealItem);
+        $("#copyItemRangeButton").click(copyRangeMealItem);
     }
     
     initialize();
